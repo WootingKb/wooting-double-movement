@@ -24,8 +24,10 @@ mod utils {
 
         let k_m = f32::max(x.abs(), y.abs());
 
-        let d_x = x * d_param;
-        let d_y = y * (1.0 - d_param);
+        let use_d = if y < 0.0 { 0.5 } else { d_param };
+
+        let d_x = x * use_d;
+        let d_y = y * (1.0 - use_d);
 
         let d_m = f32::sqrt(d_x * d_x + d_y * d_y);
 
