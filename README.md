@@ -1,4 +1,18 @@
-# Wooting Double movement
+# Wooting Double Movement
+
+One-click install for getting double movement in Fortnite.
+
+## Read this first
+
+**Go to the [main page](https://wooting.io/double-movement) for download and setup.** This page is aimed at developers who want to report issues or contribute to the code.
+
+## Project stack
+
+The project uses Rust to interact with [ViGem](https://github.com/ViGEm). ViGem is a Windows kernel-mode driver that emulates USB game controllers. The GUI is made with Electron / React / Typescript.
+
+## Contributing
+
+You can always open an issue if you encounter any problems. Looking to add something you created? If it's a small change (i.e. text change or bug fix) feel free to open a PR anytime. If you want to add a feature, please open an issue to discuss with the community first.
 
 ## Dependencies
 
