@@ -249,7 +249,15 @@ class ServiceManager {
       try {
         start_service(this.onError);
         setTimeout(() => {
-          console.log("We got slot ", get_xinput_slot());
+          const slot = get_xinput_slot();
+          if (slot != null && slot > 0) {
+            dialog.showMessageBox({
+              type: "error",
+              title: "Player slot warning",
+              message:
+                "Wooting Double Movement's controller is not in player slot 1. You might experience issues in game. \n\nRemove all connected controllers, remove any virtual controllers, and re-enable double movement.",
+            });
+          }
         }, 1000);
       } catch (e) {
         this.onError(e);
