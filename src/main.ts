@@ -45,7 +45,7 @@ function createMainWindow() {
 
   mainWindow = new BrowserWindow({
     width: 500,
-    height: 400,
+    height: 430,
     transparent: true,
     frame: false,
     resizable: false,
@@ -256,7 +256,7 @@ class ServiceManager {
               title: "Player slot warning",
               message: `Wooting Double Movement's controller is not in player slot 1, rather slot ${
                 slot + 1
-              }. You might experience issues in game. \n\nRemove all connected controllers, remove any virtual controllers, and re-enable double movement.`,
+              }. You might experience issues in game. \n\nRemove all connected controllers, remove any virtual controllers, and restart this app.`,
             });
           }
         }, 1000);

@@ -46,7 +46,7 @@ export function Content() {
         <Switch colorScheme="yellow" isChecked={dmEnabled} as="div"></Switch>
       </Flex>
       <Text pt="6" fontSize="md" color="rgba(43, 43, 76, 0.33)">
-        Use the hotkey Ctrl+Shift+X to toggle this setting.
+        Or use the hotkey Ctrl+Shift+X to toggle double movement.
         <br />
         <br />
         You need to configure two things in Fortnite:
