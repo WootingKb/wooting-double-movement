@@ -5,15 +5,18 @@ use env_logger::Env;
 use log::*;
 use neon::prelude::*;
 use std::sync::atomic::{AtomicBool, Ordering};
-use std::sync::Mutex;
+use std::sync::{Arc, Mutex};
 use std::thread;
+use std::time::Duration;
 
 mod controller;
 mod service;
+use service::Service;
 
 lazy_static! {
     static ref MSG_THREAD_RUNNING: AtomicBool = AtomicBool::new(false);
     static ref MESSAGE_LOOP: Mutex<Option<thread::JoinHandle<()>>> = Mutex::new(None);
+    static ref SERVICE: Arc<Mutex<Service>> = Arc::new(Mutex::new(Service::new()));
 }
 
 #[neon::main]
@@ -26,6 +29,7 @@ fn main(mut cx: ModuleContext) -> NeonResult<()> {
 
     cx.export_function("start_service", start_service)?;
     cx.export_function("stop_service", stop_service)?;
+    cx.export_function("get_xinput_slot", get_xinput_slot)?;
 
     Ok(())
 }
@@ -37,23 +41,28 @@ fn start_service(mut cx: FunctionContext) -> JsResult<JsNull> {
         return Ok(cx.null());
     }
 
+    SERVICE.lock().unwrap().init().unwrap();
+
     MSG_THREAD_RUNNING.store(true, Ordering::SeqCst);
-    let callback = cx.argument::<JsFunction>(0)?.root(&mut cx);
-    let queue = cx.queue();
+    // let callback = cx.argument::<JsFunction>(0)?.root(&mut cx);
+    // let queue = cx.queue();
 
     info!("Starting service");
     #[cfg(windows)]
     MESSAGE_LOOP.lock().unwrap().replace(thread::spawn(move || {
-        if let Err(e) = service::start_service(&MSG_THREAD_RUNNING) {
-            error!("Service died with error {:#?}", e);
+        while MSG_THREAD_RUNNING.load(Ordering::SeqCst) {
+            if let Err(e) = SERVICE.lock().unwrap().poll() {
+                error!("Error occurred during polling {:#?}", e);
 
-            queue.send(move |mut cx| {
-                let callback = callback.into_inner(&mut cx);
-                let this = cx.undefined();
-                let args = vec![cx.error(format!("{:#?}", e)).unwrap().upcast::<JsValue>()];
-                callback.call(&mut cx, this, args)?;
-                Ok(())
-            });
+                // queue.send(move |mut cx| {
+                //     let callback = callback.into_inner(&mut cx);
+                //     let this = cx.undefined();
+                //     let args = vec![cx.error(format!("{:#?}", e)).unwrap().upcast::<JsValue>()];
+                //     callback.call(&mut cx, this, args)?;
+                //     Ok(())
+                // });
+            }
+            thread::sleep(Duration::from_millis(1));
         }
     }));
 
@@ -63,13 +72,21 @@ fn start_service(mut cx: FunctionContext) -> JsResult<JsNull> {
 fn stop_service(mut cx: FunctionContext) -> JsResult<JsNull> {
     MSG_THREAD_RUNNING.store(false, Ordering::SeqCst);
     info!("Stopping service");
-
     #[cfg(windows)]
     {
         if let Some(thread) = MESSAGE_LOOP.lock().unwrap().take() {
             thread.join().expect("Thread failed to join");
         }
     }
-
+    SERVICE.lock().unwrap().stop();
     return Ok(cx.null());
+}
+
+fn get_xinput_slot(mut cx: FunctionContext) -> JsResult<JsValue> {
+    let slot = SERVICE.lock().unwrap().get_xinput_slot();
+    if let Some(slot) = slot {
+        return Ok(cx.number(slot).upcast());
+    } else {
+        return Ok(cx.null().upcast());
+    }
 }

@@ -10,7 +10,7 @@ import {
   shell,
   Tray,
 } from "electron";
-import { start_service, stop_service } from "./native";
+import { get_xinput_slot, start_service, stop_service } from "./native";
 import ElectronStore from "electron-store";
 import { AppSettings } from "./common";
 import path from "path";
@@ -248,6 +248,9 @@ class ServiceManager {
     if (!this.running) {
       try {
         start_service(this.onError);
+        setTimeout(() => {
+          console.log("We got slot ", get_xinput_slot());
+        }, 1000);
       } catch (e) {
         this.onError(e);
       }

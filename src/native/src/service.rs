@@ -46,15 +46,38 @@ unsafe extern "C" fn handle(
     dbg!(notification.userdata());
 }
 
-pub fn start_service(should_run: &AtomicBool) -> Result<()> {
-    #[cfg(windows)]
-    {
-        let mut manager = RawInputManager::new().unwrap();
-        manager.register_devices(DeviceType::Keyboards);
+pub struct Service {
+    vigem: Vigem,
+    controller: Option<Target>,
+    controller_state: ControllerState,
+    inputManager: RawInputManager,
+    initd: bool,
+}
 
-        let mut vigem = Vigem::new();
+unsafe impl Send for Service {}
+unsafe impl Sync for Service {}
+
+impl Service {
+    pub fn new() -> Self {
+        Service {
+            vigem: Vigem::new(),
+            controller: None,
+            controller_state: ControllerState::new(),
+            inputManager: RawInputManager::new().unwrap(),
+            initd: false,
+        }
+    }
+
+    pub fn init(&mut self) -> Result<()> {
+        if self.initd {
+            return Ok(());
+        }
+        info!("Service init");
+
+        self.inputManager.register_devices(DeviceType::Keyboards);
+
         // connect our client to a VigemBus
-        vigem.connect().context(
+        self.vigem.connect().context(
             "Failed to connect to VigemBus. Please ensure you have ViGEmBus properly installed",
         )?;
         // Make a new target which represent XBOX360 controller
@@ -65,7 +88,7 @@ pub fn start_service(should_run: &AtomicBool) -> Result<()> {
         // Get controller state - as target isnt connected state is "Initialized"
         dbg!(target.state());
         // Add target to VigemBUS
-        vigem
+        self.vigem
             .target_add(&mut target)
             .context("Failed to add target to ViGEmBus")?;
         // Now it's connected!
@@ -76,65 +99,77 @@ pub fn start_service(should_run: &AtomicBool) -> Result<()> {
             target.state()
         );
 
-        // It's a bit harder. We register notification. Handle will be called every time controller get forcefeedbacked
-        // vigem
-        //     .x360_register_notification::<i32>(&target, Some(handle), 123123123)
-        //     .unwrap();
-
-        let mut controller_state = ControllerState::new();
-        let report = controller_state.get_xusb_report();
+        let report = self.controller_state.get_xusb_report();
         target.update(&report)?;
 
-        let mut update_error_count = 0;
-        while should_run.load(Ordering::SeqCst) {
-            if let Some(event) = manager.get_event() {
+        self.controller = Some(target);
+
+        self.initd = true;
+
+        Ok(())
+    }
+
+    pub fn poll(&mut self) -> Result<()> {
+        if let Some(mut controller) = self.controller.as_mut() {
+            if let Some(event) = self.inputManager.get_event() {
                 // debug!("{:?}", event);
                 match event {
                     RawEvent::KeyboardEvent(_, key, state) => {
                         match key {
                             KeyId::W => {
-                                controller_state.left_joystick.set_direction_state(
+                                self.controller_state.left_joystick.set_direction_state(
                                     JoystickDirection::Up,
                                     state == State::Pressed,
                                 );
                             }
                             KeyId::S => {
-                                controller_state.left_joystick.set_direction_state(
+                                self.controller_state.left_joystick.set_direction_state(
                                     JoystickDirection::Down,
                                     state == State::Pressed,
                                 );
                             }
                             KeyId::A => {
-                                controller_state.left_joystick.set_direction_state(
+                                self.controller_state.left_joystick.set_direction_state(
                                     JoystickDirection::Left,
                                     state == State::Pressed,
                                 );
                             }
                             KeyId::D => {
-                                controller_state.left_joystick.set_direction_state(
+                                self.controller_state.left_joystick.set_direction_state(
                                     JoystickDirection::Right,
                                     state == State::Pressed,
                                 );
                             }
                             _ => {}
                         }
-                        let report = controller_state.get_xusb_report();
-                        if let Err(e) = target.update(&report) {
-                            error!("Error occured while updating target: {}", e);
-                            if update_error_count > 5 {
-                                // In this case something is probably seriously wrong, let's throw the error up
-                                Err(e)?;
-                            }
-                            update_error_count += 1;
-                        }
+                        let report = self.controller_state.get_xusb_report();
+                        controller.update(&report)?;
                     }
                     _ => (),
                 }
             }
-            // TODO: Improve this to take into account that the loop takes time. Potentially make it configurable
-            std::thread::sleep(Duration::from_millis(1));
         }
-        debug!("Wrapping up service");
+
+        Ok(())
     }
-    Ok(())
+
+    pub fn get_xinput_slot(&mut self) -> Option<u32> {
+        if let Some(controller) = self.controller.as_ref() {
+            let slot = self.vigem.xbox_get_user_index(&controller);
+            info!("We got slot {}", slot);
+            Some(slot)
+        } else {
+            None
+        }
+    }
+
+    pub fn stop(&mut self) {
+        info!("Service stop");
+        if let Some(controller) = self.controller.take() {
+            drop(controller);
+        }
+
+        self.vigem.disconnect();
+        self.initd = false;
+    }
 }
