@@ -1,5 +1,5 @@
 #[cfg(windows)]
-use vigem::*;
+use vigem::XUSBReport;
 
 pub enum JoystickDirection {
     Up,
@@ -74,7 +74,7 @@ impl JoystickState {
         }
     }
 
-    pub fn get_xusb_direction_basic(&self) -> (i16, i16) {
+    pub fn _get_xusb_direction_basic(&self) -> (i16, i16) {
         let mut x: i16 = 0;
         let mut y: i16 = 0;
 
