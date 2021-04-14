@@ -176,7 +176,7 @@ class ServiceManager {
     });
 
     const ret = globalShortcut.register("CommandOrControl+Shift+X", () => {
-      console.log("CommandOrControl+X is pressed");
+      console.debug("CommandOrControl+Shift+X is pressed");
       this.set_double_movement_enabled(!this.doubleMovementEnabled());
     });
 
