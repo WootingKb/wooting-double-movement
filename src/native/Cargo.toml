@@ -1,0 +1,31 @@
+[package]
+name = "native"
+version = "0.1.0"
+authors = ["simon-wh <simon@wooting.io>"]
+license = "MIT"
+build = "build.rs"
+edition = "2018"
+exclude = ["artifacts.json", "index.node"]
+
+[lib]
+name = "native"
+crate-type = ["cdylib"]
+
+[build-dependencies]
+neon-build = "0.8"
+
+[dependencies]
+neon = {version= "0.8", default-features = false, features = ["napi-4", "event-queue-api"]}
+lazy_static = "*"
+anyhow = "1.0"
+log = "0.4"
+env_logger = "0.8"
+# vigem = "0.9.1"
+
+[target.'cfg(windows)'.dependencies]
+vigem = { git="https://github.com/DuckerMan/vigem.git" }
+winapi = { version = "0.3", features = ["winuser", "impl-default"] }
+# multiinput = "0.1.0"
+# multiinput = { path="../../../../../../multiinput-rust" }
+multiinput = { git="https://github.com/simon-wh/multiinput-rust.git" }
+

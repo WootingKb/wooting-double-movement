@@ -1,0 +1,8 @@
+afterPack: src/scripts/afterPack.js
+files:
+  - js/app-bundle.js
+  - js/main-bundle.js
+  - js/index.node
+  - public/**/*
+  - build/**/*
+detectUpdateChannel: true
