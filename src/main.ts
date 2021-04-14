@@ -254,8 +254,9 @@ class ServiceManager {
             dialog.showMessageBox({
               type: "error",
               title: "Player slot warning",
-              message:
-                "Wooting Double Movement's controller is not in player slot 1. You might experience issues in game. \n\nRemove all connected controllers, remove any virtual controllers, and re-enable double movement.",
+              message: `Wooting Double Movement's controller is not in player slot 1, rather slot ${
+                slot + 1
+              }. You might experience issues in game. \n\nRemove all connected controllers, remove any virtual controllers, and re-enable double movement.`,
             });
           }
         }, 1000);
