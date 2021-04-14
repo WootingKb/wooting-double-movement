@@ -15,6 +15,7 @@ import ElectronStore from "electron-store";
 import { AppSettings } from "./common";
 import path from "path";
 import install, { REACT_DEVELOPER_TOOLS } from "electron-devtools-installer";
+import { create } from "domain";
 
 app.allowRendererProcessReuse = false;
 
@@ -26,7 +27,22 @@ function isDev() {
   return process.mainModule.filename.indexOf("app.asar") === -1;
 }
 
+function registerHandlers() {
+  ipcMain.on("windowClose", () => {
+    mainWindow && mainWindow.close();
+    app.quit();
+  });
+
+  ipcMain.on("windowMinimize", () => mainWindow && mainWindow.close());
+
+  ipcMain.handle("getVersion", () => app.getVersion());
+}
+
 function createMainWindow() {
+  if (mainWindow) {
+    return;
+  }
+
   mainWindow = new BrowserWindow({
     width: 500,
     height: 400,
@@ -65,12 +81,6 @@ function createMainWindow() {
     mainWindow.show();
   });
 
-  ipcMain.on("windowClose", () => mainWindow && mainWindow.close());
-
-  ipcMain.on("windowMinimize", () => mainWindow && mainWindow.hide());
-
-  ipcMain.handle("getVersion", () => app.getVersion());
-
   mainWindow.on("closed", () => {
     app.removeAllListeners("browser-window-focus");
     app.removeAllListeners("browser-window-blur");
@@ -88,6 +98,7 @@ if (isSingleInstance) {
 
 app.on("ready", () => {
   serviceManager.init();
+  registerHandlers();
   createMainWindow();
   create_tray();
   if (isDev()) {
@@ -103,12 +114,11 @@ app.on("ready", () => {
   }
 });
 
-app.on("window-all-closed", () => {
+app.on("window-all-closed", () => {});
+
+app.on("will-quit", () => {
   globalShortcut.unregisterAll();
   serviceManager.deinit();
-  if (process.platform !== "darwin") {
-    app.quit();
-  }
 });
 
 app.on("activate", () => {
@@ -117,11 +127,21 @@ app.on("activate", () => {
   }
 });
 
+function showOrCreateMainWindow() {
+  if (mainWindow) {
+    mainWindow?.show();
+  } else {
+    createMainWindow();
+  }
+}
+
 let tray: Tray | null = null;
 const contextMenu = Menu.buildFromTemplate([
   {
     label: "Show Window",
-    click: () => mainWindow?.show(),
+    click: () => {
+      showOrCreateMainWindow();
+    },
   },
   {
     label: "Toggle Double Movement",
@@ -142,7 +162,7 @@ function create_tray() {
     tray = new Tray(`${__dirname}/../build/icon.ico`);
     tray.setToolTip("Wooting Double Movement");
     tray.on("double-click", () => {
-      mainWindow?.show();
+      showOrCreateMainWindow();
     });
     tray.on("click", () => {
       if (tray) {

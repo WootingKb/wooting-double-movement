@@ -25,7 +25,6 @@
     "electron": "^12.0",
     "electron-build-env": "^0.2.0",
     "electron-builder": "^22.10",
-    "electron-devtools-installer": "https://github.com/MarshallOfSound/electron-devtools-installer.git",
     "native-ext-loader": "^2.3.0",
     "node-fetch": "^2.6.0",
     "ts-loader": "^8.0.3",
@@ -35,6 +34,7 @@
     "webpack-node-externals": "^2.5.2"
   },
   "dependencies": {
+    "electron-devtools-installer": "https://github.com/MarshallOfSound/electron-devtools-installer.git",
     "@chakra-ui/icons": "^1.0.9",
     "@chakra-ui/react": "^1.5.0",
     "@emotion/react": "11",
