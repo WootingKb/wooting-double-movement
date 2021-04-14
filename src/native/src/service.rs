@@ -1,11 +1,9 @@
 use crate::controller::*;
 #[cfg(windows)]
 use multiinput::*;
-use std::sync::atomic::{AtomicBool, Ordering};
 
-use anyhow::{bail, Context, Result};
+use anyhow::{Context, Result};
 use log::*;
-use std::time::Duration;
 #[cfg(windows)]
 use vigem::{
     notification::*,
@@ -14,7 +12,7 @@ use vigem::{
 };
 
 #[cfg(windows)]
-unsafe extern "C" fn handle(
+unsafe extern "C" fn _handle(
     client: PVIGEM_CLIENT,
     target: PVIGEM_TARGET,
     large_motor: UCHAR,
@@ -50,10 +48,11 @@ pub struct Service {
     vigem: Vigem,
     controller: Option<Target>,
     controller_state: ControllerState,
-    inputManager: RawInputManager,
+    input_manager: RawInputManager,
     initd: bool,
 }
 
+// Service should be wrapped in Mutex if used across threads so minimise unsafety
 unsafe impl Send for Service {}
 unsafe impl Sync for Service {}
 
@@ -63,7 +62,7 @@ impl Service {
             vigem: Vigem::new(),
             controller: None,
             controller_state: ControllerState::new(),
-            inputManager: RawInputManager::new().unwrap(),
+            input_manager: RawInputManager::new().unwrap(),
             initd: false,
         }
     }
@@ -74,7 +73,7 @@ impl Service {
         }
         info!("Service init");
 
-        self.inputManager.register_devices(DeviceType::Keyboards);
+        self.input_manager.register_devices(DeviceType::Keyboards);
 
         // connect our client to a VigemBus
         self.vigem.connect().context(
@@ -110,8 +109,8 @@ impl Service {
     }
 
     pub fn poll(&mut self) -> Result<()> {
-        if let Some(mut controller) = self.controller.as_mut() {
-            if let Some(event) = self.inputManager.get_event() {
+        if let Some(controller) = self.controller.as_mut() {
+            if let Some(event) = self.input_manager.get_event() {
                 // debug!("{:?}", event);
                 match event {
                     RawEvent::KeyboardEvent(_, key, state) => {
