@@ -75,12 +75,16 @@ pub fn start_service(should_run: &AtomicBool) -> Result<()> {
             "Added Xbox360 Controller target to ViGEm with state {:?}",
             target.state()
         );
+
         // It's a bit harder. We register notification. Handle will be called every time controller get forcefeedbacked
         // vigem
         //     .x360_register_notification::<i32>(&target, Some(handle), 123123123)
         //     .unwrap();
 
         let mut controller_state = ControllerState::new();
+        let report = controller_state.get_xusb_report();
+        target.update(&report)?;
+
         let mut update_error_count = 0;
         while should_run.load(Ordering::SeqCst) {
             if let Some(event) = manager.get_event() {
