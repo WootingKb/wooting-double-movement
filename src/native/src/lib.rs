@@ -37,11 +37,11 @@ fn main(mut cx: ModuleContext) -> NeonResult<()> {
     Ok(())
 }
 
-fn start_service(mut cx: FunctionContext) -> JsResult<JsNull> {
+fn start_service(mut cx: FunctionContext) -> JsResult<JsBoolean> {
     if MESSAGE_LOOP.lock().unwrap().is_some() {
         // This means the service has already been started
         warn!("start_service was called when the service was already running, ignoring...");
-        return Ok(cx.null());
+        return Ok(cx.boolean(true));
     }
 
     MSG_THREAD_RUNNING.store(true, Ordering::SeqCst);
@@ -50,7 +50,13 @@ fn start_service(mut cx: FunctionContext) -> JsResult<JsNull> {
     let config: ServiceConfiguration = serde_json::from_str(&config_arg[..]).unwrap();
 
     // We can unwrap this because panics get given up to javascript as regular errors
-    SERVICE.lock().unwrap().init(config).unwrap();
+    match std::panic::catch_unwind(|| SERVICE.lock().unwrap().init(config)) {
+        Ok(res) => res.unwrap(),
+        Err(e) => {
+            error!("The service init panicked {:#?}", e);
+            return Ok(cx.boolean(false));
+        }
+    }
 
     // let callback = cx.argument::<JsFunction>(0)?.root(&mut cx);
     // let queue = cx.queue();
@@ -73,7 +79,7 @@ fn start_service(mut cx: FunctionContext) -> JsResult<JsNull> {
         }
     }));
 
-    return Ok(cx.null());
+    return Ok(cx.boolean(true));
 }
 
 fn stop_service(mut cx: FunctionContext) -> JsResult<JsNull> {

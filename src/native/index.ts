@@ -4,8 +4,8 @@ import { ServiceConfiguration } from "./types";
 export function startService(
   config: ServiceConfiguration,
   onError: (error: Error) => void
-) {
-  start_service(JSON.stringify(config), onError);
+): boolean {
+  return start_service(JSON.stringify(config), onError);
 }
 export function stopService() {
   stop_service();

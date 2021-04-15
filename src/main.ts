@@ -306,7 +306,14 @@ class ServiceManager {
   start() {
     if (!this.running) {
       try {
-        startService(this.serviceConfiguration(), this.onError);
+        if (!startService(this.serviceConfiguration(), this.onError)) {
+          dialog.showErrorBox(
+            "Wooting Double Movement Error",
+            `An error occurred while starting the service.\n\nThis is likely caused by "Nefarius Virtual Gamepad Emulation Bus" not being correctly installed.\n\nPlease double check your installation. Quiting...`
+          );
+          app.quit();
+        }
+
         setTimeout(() => {
           const slot = get_xinput_slot();
           if (slot != null && slot > 0) {
