@@ -5,7 +5,7 @@ import { Content } from "./Content";
 import { Footer } from "./Footer";
 
 export function MainWindow() {
-  const bg = useColorModeValue("white", "black");
+  const bg = useColorModeValue("white", "#1C2226");
   return (
     <Flex
       userSelect="none"
