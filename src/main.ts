@@ -12,7 +12,7 @@ import {
 } from "electron";
 import { get_xinput_slot, start_service, stop_service } from "./native/native";
 import ElectronStore from "electron-store";
-import { AppSettings } from "./common";
+import { AppSettings, smallWindowSize } from "./common";
 import path from "path";
 import install, { REACT_DEVELOPER_TOOLS } from "electron-devtools-installer";
 import { create } from "domain";
@@ -45,6 +45,11 @@ function registerHandlers() {
   ipcMain.on("windowMinimize", () => mainWindow && mainWindow.close());
 
   ipcMain.handle("getVersion", () => app.getVersion());
+
+  ipcMain.on("resize-me", (event, width, height) => {
+    console.log(`Resize to ${width} ${height} requested`);
+    mainWindow && mainWindow.setSize(width, height, true);
+  });
 }
 
 function createMainWindow() {
@@ -53,8 +58,8 @@ function createMainWindow() {
   }
 
   mainWindow = new BrowserWindow({
-    width: 500,
-    height: 430,
+    width: smallWindowSize[0],
+    height: smallWindowSize[1],
     transparent: true,
     frame: false,
     resizable: false,
@@ -184,8 +189,6 @@ function create_tray() {
   tray.setContextMenu(contextMenu);
 }
 
-
-
 class ServiceManager {
   running: boolean = false;
   store = new ElectronStore<AppSettings>({
@@ -213,6 +216,10 @@ class ServiceManager {
         // TODO: Make it so we can just update the configuration without restarting it
         this.update_config();
       }
+    });
+
+    ipcMain.on("reset-advanced", (_) => {
+      this.resetAdvancedConfig();
     });
 
     const ret = globalShortcut.register("CommandOrControl+Shift+X", () => {
@@ -250,6 +257,11 @@ class ServiceManager {
         ...this.store.get("keyMapping"),
       },
     };
+  }
+
+  resetAdvancedConfig() {
+    this.store_set("keyMapping", defaultKeyMapping);
+    this.store_set("leftJoystickAngles", defaultJoystickAngles);
   }
 
   update_config() {

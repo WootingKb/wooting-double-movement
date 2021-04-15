@@ -41,8 +41,8 @@ export class RemoteStore {
     callback: (value: AppSettings[Key]) => void
   ): () => void {
     function listener(_: IpcRendererEvent, cb_name: string, value: any) {
-      console.debug("onChange listener got ", cb_name, value);
       if (name == cb_name) {
+        console.debug("onChange listener got ", cb_name, value);
         callback(value as AppSettings[Key]);
       }
     }
@@ -51,6 +51,10 @@ export class RemoteStore {
     return () => {
       ipcRenderer.removeListener(storeChangedChannel, listener);
     };
+  }
+
+  static resetSettings() {
+    ipcRenderer.send("reset-advanced");
   }
 }
 
@@ -78,4 +82,8 @@ export function useRemoteValue<Key extends keyof AppSettings>(
   }
 
   return [value, setValue];
+}
+
+export function setWindowSize(width: number, height: number) {
+  ipcRenderer.send("resize-me", width, height);
 }
