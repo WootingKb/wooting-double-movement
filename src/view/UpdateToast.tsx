@@ -27,19 +27,27 @@ export function UpdateToast() {
     ipcRenderer.on("update_complete", () => {
       toast({
         render: () => (
-          <Alert status="success">
+          <Alert
+            status={"success"}
+            alignItems="start"
+            borderRadius="md"
+            boxShadow="lg"
+            paddingEnd={8}
+            textAlign="start"
+            width="auto"
+          >
             <AlertIcon />
             <Box flex="1">
               <AlertTitle>Update complete</AlertTitle>
-              <AlertDescription>
+              <AlertDescription display="block">
                 The update is ready, restart this app to install.
               </AlertDescription>
+              <Button
+                onClick={() => ipcRenderer.invoke("update_restart_and_install")}
+              >
+                Restart
+              </Button>
             </Box>
-            <Button
-              onClick={() => ipcRenderer.invoke("update_restart_and_install")}
-            >
-              Restart
-            </Button>
           </Alert>
         ),
       });
