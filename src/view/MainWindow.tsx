@@ -13,6 +13,7 @@ export function MainWindow() {
       direction="column"
       borderRadius="18px"
       backgroundColor={bg}
+      overflow="hidden"
     >
       <Header />
       <Box flex="auto">
