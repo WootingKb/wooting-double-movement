@@ -268,7 +268,7 @@ export function AdvancedSettingsCard() {
                 fontSize="sm"
                 onClick={setDefaultSettings}
               >
-                Reset settings to Wooting recomended
+                Reset settings to Wooting recommended
               </Link>
             </VStack>
           </AccordionPanel>

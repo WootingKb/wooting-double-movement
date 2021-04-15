@@ -10,16 +10,12 @@ export function Footer() {
 
   return (
     <Flex p="6" pt="0">
-      <Link
-        as={Text}
-        variant="body"
-        fontSize="sm"
-        href="https://wooting.io/double-movement"
-        isExternal
-      >
-        More information
-        <ExternalLinkIcon mx="2px" />
-      </Link>
+      <Text variant="body" fontSize="sm">
+        <Link href="https://wooting.io/double-movement" isExternal>
+          More information
+          <ExternalLinkIcon mx="2px" />
+        </Link>
+      </Text>
       <Spacer />
       <Text variant="body" fontSize="sm">
         Version: {version}

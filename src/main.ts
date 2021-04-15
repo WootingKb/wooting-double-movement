@@ -46,8 +46,8 @@ function registerHandlers() {
 
   ipcMain.handle("getVersion", () => app.getVersion());
 
-  ipcMain.on("resize-me", (event, width, height) => {
-    console.log(`Resize to ${width} ${height} requested`);
+  ipcMain.on("resize-me", (_, width, height) => {
+    console.debug(`Resize to ${width} ${height} requested`);
     if (mainWindow) {
       mainWindow.setMinimumSize(width, height);
       mainWindow.setSize(width, height, true);
