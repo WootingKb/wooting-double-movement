@@ -101,7 +101,7 @@ fn get_xinput_slot(mut cx: FunctionContext) -> JsResult<JsValue> {
 fn set_config(mut cx: FunctionContext) -> JsResult<JsNull> {
     let config_arg = cx.argument::<JsString>(0)?.value(&mut cx);
     let config: ServiceConfiguration = serde_json::from_str(&config_arg[..]).unwrap();
-
+    info!("Received config {:?}", config);
     SERVICE.lock().unwrap().set_config(config);
     return Ok(cx.null());
 }

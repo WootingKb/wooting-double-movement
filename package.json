@@ -34,15 +34,16 @@
     "webpack-node-externals": "^2.5.2"
   },
   "dependencies": {
-    "electron-devtools-installer": "https://github.com/MarshallOfSound/electron-devtools-installer.git",
     "@chakra-ui/icons": "^1.0.9",
     "@chakra-ui/react": "^1.5.0",
     "@emotion/react": "11",
     "@emotion/styled": "11",
+    "electron-devtools-installer": "https://github.com/MarshallOfSound/electron-devtools-installer.git",
     "electron-store": "^7.0.3",
     "framer-motion": "4",
     "react": "16",
-    "react-dom": "16"
+    "react-dom": "16",
+    "ts-keycode-enum": "^1.0.6"
   },
   "workspaces": {
     "nohoist": []

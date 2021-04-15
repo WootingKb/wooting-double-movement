@@ -1,5 +1,6 @@
-import { JoystickAngleConfiguration } from "./native/types";
+import { JoystickAngleConfiguration, KeyMapping } from "./native/types";
 export interface AppSettings {
   doubleMovementEnabled: boolean;
   leftJoystickAngles: JoystickAngleConfiguration;
+  keyMapping: KeyMapping;
 }

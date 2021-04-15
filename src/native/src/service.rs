@@ -119,26 +119,26 @@ impl Service {
                 // debug!("{:?}", event);
                 match event {
                     RawEvent::KeyboardEvent(_, key, state) => {
-                        match key {
-                            KeyId::W => {
+                        match KeyId::to_u8(&key).unwrap() {
+                            x if x == self.config.key_mapping.left_joystick.up => {
                                 self.controller_state.left_joystick.set_direction_state(
                                     JoystickDirection::Up,
                                     state == State::Pressed,
                                 );
                             }
-                            KeyId::S => {
+                            x if x == self.config.key_mapping.left_joystick.down => {
                                 self.controller_state.left_joystick.set_direction_state(
                                     JoystickDirection::Down,
                                     state == State::Pressed,
                                 );
                             }
-                            KeyId::A => {
+                            x if x == self.config.key_mapping.left_joystick.left => {
                                 self.controller_state.left_joystick.set_direction_state(
                                     JoystickDirection::Left,
                                     state == State::Pressed,
                                 );
                             }
-                            KeyId::D => {
+                            x if x == self.config.key_mapping.left_joystick.right => {
                                 self.controller_state.left_joystick.set_direction_state(
                                     JoystickDirection::Right,
                                     state == State::Pressed,
@@ -148,7 +148,7 @@ impl Service {
                         }
                         let report = self
                             .controller_state
-                            .get_xusb_report(Some(&self.config.left_joystick));
+                            .get_xusb_report(Some(&self.config.left_joystick_angles));
                         controller.update(&report)?;
                     }
                     _ => (),

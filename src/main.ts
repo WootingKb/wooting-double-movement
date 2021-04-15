@@ -18,9 +18,13 @@ import install, { REACT_DEVELOPER_TOOLS } from "electron-devtools-installer";
 import { create } from "domain";
 import { setServiceConfig, startService, stopService } from "./native";
 import {
+  defaultJoystickAngles,
+  defaultKeyMapping,
   JoystickAngleConfiguration,
+  KeyMapping,
   ServiceConfiguration,
 } from "./native/types";
+import { Key } from "ts-keycode-enum";
 
 app.allowRendererProcessReuse = false;
 
@@ -180,10 +184,7 @@ function create_tray() {
   tray.setContextMenu(contextMenu);
 }
 
-const defaultJoystickAngles: JoystickAngleConfiguration = {
-  leftUpAngle: 0.67,
-  rightUpAngle: 0.67,
-};
+
 
 class ServiceManager {
   running: boolean = false;
@@ -191,6 +192,7 @@ class ServiceManager {
     defaults: {
       doubleMovementEnabled: false,
       leftJoystickAngles: defaultJoystickAngles,
+      keyMapping: defaultKeyMapping,
     },
   });
 
@@ -207,7 +209,7 @@ class ServiceManager {
       this.store.set(name, value);
       this.update_state();
 
-      if (name == "leftJoystickAngles") {
+      if (name == "leftJoystickAngles" || name === "keyMapping") {
         // TODO: Make it so we can just update the configuration without restarting it
         this.update_config();
       }
@@ -239,9 +241,13 @@ class ServiceManager {
 
   serviceConfiguration(): ServiceConfiguration {
     return {
-      leftJoystick: {
+      leftJoystickAngles: {
         ...defaultJoystickAngles,
         ...this.store.get("leftJoystickAngles"),
+      },
+      keyMapping: {
+        ...defaultKeyMapping,
+        ...this.store.get("keyMapping"),
       },
     };
   }

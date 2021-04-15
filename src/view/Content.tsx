@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { RemoteStore } from "./ipc";
+import { RemoteStore, useRemoteValue } from "./ipc";
 
 import {
   Box,
@@ -13,8 +13,18 @@ import {
   SliderTrack,
   SliderProps,
   useColorModeValue,
+  Button,
+  Input,
+  InputProps,
+  HStack,
 } from "@chakra-ui/react";
-import { JoystickAngleConfiguration } from "src/native/types";
+import {
+  defaultJoystickAngles,
+  defaultKeyMapping,
+  JoystickAngleConfiguration,
+  JoystickKeyMapping,
+} from "../native/types";
+import { Key } from "ts-keycode-enum";
 
 function AngleSlider(
   props: {
@@ -44,30 +54,10 @@ function AngleSlider(
 }
 
 function AngleControl() {
-  const [
-    joystickAngles,
-    _setJoystickAngles,
-  ] = useState<JoystickAngleConfiguration>({
-    leftUpAngle: 0.5,
-    rightUpAngle: 0.5,
-  });
-
-  useEffect(() => {
-    RemoteStore.leftJoystickAngles().then((value) => {
-      _setJoystickAngles(value);
-    });
-
-    const unsubscribe = RemoteStore.onChange("leftJoystickAngles", (value) => {
-      _setJoystickAngles(value);
-    });
-
-    return unsubscribe;
-  }, []);
-
-  function setJoystickAngles(values: JoystickAngleConfiguration) {
-    _setJoystickAngles(values);
-    RemoteStore.setLeftJoystickAngles(values);
-  }
+  const [joystickAngles, setJoystickAngles] = useRemoteValue(
+    "leftJoystickAngles",
+    defaultJoystickAngles
+  );
 
   return (
     <>
@@ -78,6 +68,91 @@ function AngleControl() {
           setJoystickAngles({ ...joystickAngles, rightUpAngle: value })
         }
       />
+    </>
+  );
+}
+
+export function EditKeyBind(
+  props: {
+    value: number;
+    valueChanged: (value: number) => void;
+  } & InputProps
+) {
+  const { value, valueChanged, ...rest } = props;
+  const [isEditing, setIsEditing] = useState(false);
+
+  function assignNewBind() {
+    setIsEditing(true);
+    window.addEventListener(
+      "keydown",
+      (event) => {
+        console.log(event);
+        props.valueChanged(event.keyCode);
+        setIsEditing(false);
+      },
+      { once: true }
+    );
+  }
+  // return <Button onClick={assignNewBind}>{Key[props.value]}</Button>;
+  return (
+    <Input
+      value={!isEditing ? Key[props.value] : ""}
+      onClick={assignNewBind}
+      isReadOnly={true}
+      placeholder="Press any key"
+      size="sm"
+      cursor="grab"
+      {...rest}
+    />
+  );
+}
+
+export function KeyBinding() {
+  const [keyMapping, setKeyMapping] = useRemoteValue(
+    "keyMapping",
+    defaultKeyMapping
+  );
+
+  // useEffect(() => {
+  //   function cancelKeyEvent(e: KeyboardEvent) {
+  //     console.log(e);
+  //     // e.preventDefault();
+  //   }
+
+  //   window.addEventListener("keydown", cancelKeyEvent);
+
+  //   return () => {
+  //     window.removeEventListener("keydown", cancelKeyEvent);
+  //   };
+  // }, []);
+
+  function assignNewJoystickBind(key: keyof JoystickKeyMapping, value: number) {
+    setKeyMapping({
+      ...keyMapping,
+      leftJoystick: { ...keyMapping.leftJoystick, [key]: value },
+    });
+  }
+
+  return (
+    <>
+      <HStack>
+        <EditKeyBind
+          value={keyMapping.leftJoystick.up}
+          valueChanged={(value) => assignNewJoystickBind("up", value)}
+        />
+        <EditKeyBind
+          value={keyMapping.leftJoystick.down}
+          valueChanged={(value) => assignNewJoystickBind("down", value)}
+        />
+        <EditKeyBind
+          value={keyMapping.leftJoystick.left}
+          valueChanged={(value) => assignNewJoystickBind("left", value)}
+        />
+        <EditKeyBind
+          value={keyMapping.leftJoystick.right}
+          valueChanged={(value) => assignNewJoystickBind("right", value)}
+        />
+      </HStack>
     </>
   );
 }
@@ -138,6 +213,7 @@ export function Content() {
         </Text>
       </Flex>
       {/* <AngleControl /> */}
+      <KeyBinding />
     </>
   );
 }
