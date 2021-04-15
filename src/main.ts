@@ -5,8 +5,6 @@ import {
   globalShortcut,
   ipcMain,
   Menu,
-  screen,
-  session,
   shell,
   Tray,
 } from "electron";
@@ -25,6 +23,7 @@ import {
   ServiceConfiguration,
 } from "./native/types";
 import { Key } from "ts-keycode-enum";
+import { autoUpdater } from "electron-updater";
 
 app.allowRendererProcessReuse = false;
 
@@ -53,6 +52,10 @@ function registerHandlers() {
       mainWindow.setSize(width, height, true);
     }
   });
+
+  ipcMain.handle("update_restart_and_install", () =>
+    autoUpdater.quitAndInstall()
+  );
 }
 
 function createMainWindow() {
@@ -96,6 +99,23 @@ function createMainWindow() {
     if (!mainWindow) return;
 
     mainWindow.show();
+
+    if (!isDev()) {
+      autoUpdater.on("error", (e) =>
+        mainWindow?.webContents.send("update_error", e)
+      );
+      autoUpdater.on("update-available", () =>
+        mainWindow?.webContents.send("update_available")
+      );
+      autoUpdater.on("download-progress", ({ percent }) =>
+        mainWindow?.webContents.send("update_progress", percent)
+      );
+      autoUpdater.on("update-downloaded", () =>
+        mainWindow?.webContents.send("update_complete")
+      );
+
+      autoUpdater.checkForUpdates();
+    }
   });
 
   mainWindow.on("closed", () => {

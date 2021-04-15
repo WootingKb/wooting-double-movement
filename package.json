@@ -40,6 +40,7 @@
     "@emotion/styled": "11",
     "electron-devtools-installer": "https://github.com/MarshallOfSound/electron-devtools-installer.git",
     "electron-store": "^7.0.3",
+    "electron-updater": "^4.3.8",
     "framer-motion": "4",
     "react": "16",
     "react-dom": "16",

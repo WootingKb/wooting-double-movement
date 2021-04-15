@@ -85,6 +85,8 @@
 
   File "${BUILD_RESOURCES_DIR}\installers\ViGEmBusSetup_x64.msi"
   ExecWait 'msiexec /i ViGEmBusSetup_x64.msi /qb'
+  ${ifNot} ${isUpdated}
+  ${endIf}
 !macroend
 
 #!macro customUnInstall
