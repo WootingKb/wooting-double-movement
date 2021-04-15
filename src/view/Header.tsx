@@ -8,6 +8,7 @@ import {
   Button,
   useColorMode,
   color,
+  useColorModeValue,
 } from "@chakra-ui/react";
 import { MinusIcon, CloseIcon, MoonIcon, SunIcon } from "@chakra-ui/icons";
 import { ipcRenderer } from "electron";
@@ -20,6 +21,7 @@ declare module "react" {
 
 export function Header() {
   const { colorMode, toggleColorMode } = useColorMode();
+  const logoColour = useColorModeValue("#191919", "white");
 
   return (
     <Flex
@@ -30,7 +32,7 @@ export function Header() {
       style={{ WebkitAppRegion: "drag" }}
     >
       <Center>
-        <Icon viewBox="0 0 250 155" color="#191919" w={12} h={8}>
+        <Icon viewBox="0 0 250 155" color={logoColour} w={12} h={8}>
           <path
             fill="currentColor"
             d="M0,0.1v154.8h250V0.1H0z M228.7,134.7H21.3V20.3h207.4V134.7z"
