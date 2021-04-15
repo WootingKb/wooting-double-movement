@@ -9,15 +9,10 @@ export function Footer() {
   ipcRenderer.invoke("getVersion").then(setVersion).catch(console.error);
 
   return (
-    <Flex
-      p="6"
-      pt="0"
-      background="#ffffff"
-      borderBottomLeftRadius="18px"
-      borderBottomRightRadius="18px"
-    >
+    <Flex p="6" pt="0">
       <Link
-        color="rgba(43, 43, 76, 0.33)"
+        as={Text}
+        variant="body"
         fontSize="sm"
         href="https://wooting.io/double-movement"
         isExternal
@@ -26,7 +21,7 @@ export function Footer() {
         <ExternalLinkIcon mx="2px" />
       </Link>
       <Spacer />
-      <Text color="rgba(43, 43, 76, 0.33)" fontSize="sm">
+      <Text variant="body" fontSize="sm">
         Version: {version}
       </Text>
     </Flex>

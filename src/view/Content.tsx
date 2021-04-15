@@ -1,5 +1,11 @@
 import React, { useEffect, useState } from "react";
-import { Switch, Text, Flex, Spacer } from "@chakra-ui/react";
+import {
+  Switch,
+  Text,
+  Flex,
+  Spacer,
+  useColorModeValue,
+} from "@chakra-ui/react";
 import { RemoteStore } from "./ipc";
 
 export function Content() {
@@ -26,26 +32,26 @@ export function Content() {
     RemoteStore.setDoubleMovementEnabled(value);
   }
 
+  const shadowColour = useColorModeValue("#D8DAE6", "grey");
+
   return (
     <Flex
       m="6"
       my="8"
       p="6"
       borderRadius="14"
-      boxShadow="0px 6px 14px #D8DAE6;"
+      boxShadow={`0px 6px 14px ${shadowColour};`}
       direction="column"
       onClick={toggleDmEnabled}
       cursor="pointer"
     >
       <Flex>
-        <Text fontWeight="bold" fontSize="md" color="#2B2B4C">
-          Enable Double Movement
-        </Text>
+        <Text variant="heading">Enable Double Movement</Text>
         <Spacer />
         {/* Render switch as Div so onClick doesn't get triggered twice: https://github.com/chakra-ui/chakra-ui/issues/2854 */}
         <Switch colorScheme="yellow" isChecked={dmEnabled} as="div"></Switch>
       </Flex>
-      <Text pt="6" fontSize="md" color="rgba(43, 43, 76, 0.33)">
+      <Text pt="6" fontSize="md" variant="body">
         Or use the hotkey Ctrl+Shift+X to toggle double movement.
         <br />
         <br />
