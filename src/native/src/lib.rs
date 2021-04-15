@@ -11,13 +11,20 @@ use std::time::Duration;
 
 mod config;
 mod controller;
+#[cfg(windows)]
 mod service;
+
 use config::ServiceConfiguration;
+#[cfg(windows)]
 use service::Service;
 
 lazy_static! {
     static ref MSG_THREAD_RUNNING: AtomicBool = AtomicBool::new(false);
     static ref MESSAGE_LOOP: Mutex<Option<thread::JoinHandle<()>>> = Mutex::new(None);
+}
+
+#[cfg(windows)]
+lazy_static! {
     static ref SERVICE: Arc<Mutex<Service>> = Arc::new(Mutex::new(Service::new()));
 }
 
@@ -50,6 +57,7 @@ fn start_service(mut cx: FunctionContext) -> JsResult<JsBoolean> {
     let config: ServiceConfiguration = serde_json::from_str(&config_arg[..]).unwrap();
 
     // We can unwrap this because panics get given up to javascript as regular errors
+    #[cfg(windows)]
     match std::panic::catch_unwind(|| SERVICE.lock().unwrap().init(config)) {
         Ok(res) => res.unwrap(),
         Err(e) => {
@@ -91,23 +99,28 @@ fn stop_service(mut cx: FunctionContext) -> JsResult<JsNull> {
             thread.join().expect("Thread failed to join");
         }
     }
+    #[cfg(windows)]
     SERVICE.lock().unwrap().stop();
     return Ok(cx.null());
 }
 
 fn get_xinput_slot(mut cx: FunctionContext) -> JsResult<JsValue> {
+    #[cfg(windows)]
     let slot = SERVICE.lock().unwrap().get_xinput_slot();
+
+    #[cfg(windows)]
     if let Some(slot) = slot {
         return Ok(cx.number(slot).upcast());
-    } else {
-        return Ok(cx.null().upcast());
     }
+
+    return Ok(cx.null().upcast());
 }
 
 fn set_config(mut cx: FunctionContext) -> JsResult<JsNull> {
     let config_arg = cx.argument::<JsString>(0)?.value(&mut cx);
     let config: ServiceConfiguration = serde_json::from_str(&config_arg[..]).unwrap();
     info!("Received config {:?}", config);
+    #[cfg(windows)]
     SERVICE.lock().unwrap().set_config(config);
     return Ok(cx.null());
 }

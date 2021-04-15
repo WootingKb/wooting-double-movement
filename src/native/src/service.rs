@@ -48,8 +48,9 @@ unsafe extern "C" fn _handle(
 pub struct Service {
     vigem: Vigem,
     controller: Option<Target>,
-    controller_state: ControllerState,
     input_manager: RawInputManager,
+
+    controller_state: ControllerState,
     initd: bool,
     config: ServiceConfiguration,
 }

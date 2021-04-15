@@ -1,3 +1,4 @@
+#[cfg(windows)]
 use multiinput::{KeyId, ToPrimitive};
 use serde::{Deserialize, Serialize};
 
@@ -26,11 +27,19 @@ pub struct KeyMapping {
 impl Default for KeyMapping {
     fn default() -> Self {
         KeyMapping {
+            #[cfg(windows)]
             left_joystick: JoystickKeyMapping {
                 up: KeyId::to_u8(&KeyId::W).unwrap(),
                 down: KeyId::to_u8(&KeyId::S).unwrap(),
                 left: KeyId::to_u8(&KeyId::A).unwrap(),
                 right: KeyId::to_u8(&KeyId::D).unwrap(),
+            },
+            #[cfg(not(windows))]
+            left_joystick: JoystickKeyMapping {
+                up: 0,
+                down: 0,
+                left: 0,
+                right: 0,
             },
         }
     }
