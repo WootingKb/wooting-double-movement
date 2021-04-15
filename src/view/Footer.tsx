@@ -12,9 +12,6 @@ export function Footer() {
     <Flex
       p="6"
       pt="0"
-      background="#ffffff"
-      borderBottomLeftRadius="18px"
-      borderBottomRightRadius="18px"
     >
       <Link
         color="rgba(43, 43, 76, 0.33)"
