@@ -1,5 +1,6 @@
+use crate::config::JoystickAngleConfiguration;
 #[cfg(windows)]
-use vigem::XUSBReport;
+use vigem::{DSReport, XUSBReport};
 
 pub enum JoystickDirection {
     Up,
@@ -53,6 +54,14 @@ mod utils {
 
         value
     }
+
+    pub fn float_to_ds4_js_axis(value: f32) -> u8 {
+        let mut value = (value.max(-1.0).min(1.0) * 127.0) + 127.0;
+        if value > (u8::MAX - 2) as f32 {
+            return u8::MAX;
+        }
+        value as u8
+    }
 }
 
 impl JoystickState {
@@ -93,7 +102,7 @@ impl JoystickState {
         (x, y)
     }
 
-    pub fn get_xusb_direction(&self) -> (i16, i16) {
+    pub fn get_basic_direction(&self, config: Option<&JoystickAngleConfiguration>) -> (f32, f32) {
         let mut x: f32 = 0.0;
         let mut y: f32 = 0.0;
 
@@ -109,11 +118,30 @@ impl JoystickState {
             x = 1.0;
         }
 
-        let (x, y) = utils::process_circular_direction(x, y, 0.67);
+        let (x, y) = utils::process_circular_direction(
+            x,
+            y,
+            config.map(|v| v.right_up_angle).unwrap_or(0.67),
+        );
+
+        (x, y)
+    }
+
+    pub fn get_xusb_direction(&self, config: Option<&JoystickAngleConfiguration>) -> (i16, i16) {
+        let (x, y) = self.get_basic_direction(config);
 
         (
             utils::float_to_xusb_js_axis(x),
             utils::float_to_xusb_js_axis(y),
+        )
+    }
+
+    pub fn get_ds4_direction(&self, config: Option<&JoystickAngleConfiguration>) -> (u8, u8) {
+        let (x, y) = self.get_basic_direction(config);
+
+        (
+            utils::float_to_ds4_js_axis(x),
+            255 - utils::float_to_ds4_js_axis(y),
         )
     }
 }
@@ -132,15 +160,33 @@ impl ControllerState {
     }
 
     #[cfg(windows)]
-    pub fn get_xusb_report(&self) -> XUSBReport {
-        let (lx, ly) = self.left_joystick.get_xusb_direction();
-        let (rx, ry) = self.right_joystick.get_xusb_direction();
+    pub fn get_xusb_report(
+        &self,
+        left_joystick: Option<&JoystickAngleConfiguration>,
+    ) -> XUSBReport {
+        let (lx, ly) = self.left_joystick.get_xusb_direction(left_joystick);
+        let (rx, ry) = self.right_joystick.get_xusb_direction(None);
         XUSBReport {
             s_thumb_lx: lx,
             s_thumb_ly: ly,
             s_thumb_rx: rx,
             s_thumb_ry: ry,
             ..XUSBReport::default()
+        }
+    }
+
+    #[cfg(windows)]
+    pub fn get_ds4_report(&self, left_joystick: Option<&JoystickAngleConfiguration>) -> DSReport {
+        let (lx, ly) = self.left_joystick.get_ds4_direction(left_joystick);
+        let (rx, ry) = self.right_joystick.get_ds4_direction(None);
+        DSReport {
+            b_thumb_lx: lx,
+            b_thumb_ly: ly,
+            b_thumb_rx: rx,
+            b_thumb_ry: ry,
+            b_trigger_l: 127,
+            b_trigger_r: 127,
+            ..DSReport::default()
         }
     }
 }

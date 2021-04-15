@@ -1,12 +1,86 @@
 import React, { useEffect, useState } from "react";
+import { RemoteStore } from "./ipc";
+
 import {
+  Box,
   Switch,
   Text,
   Flex,
   Spacer,
+  Slider,
+  SliderFilledTrack,
+  SliderThumb,
+  SliderTrack,
+  SliderProps,
   useColorModeValue,
 } from "@chakra-ui/react";
-import { RemoteStore } from "./ipc";
+import { JoystickAngleConfiguration } from "src/native/types";
+
+function AngleSlider(
+  props: {
+    value: number;
+    valueChanged: (value: number) => void;
+  } & SliderProps
+) {
+  const { value, valueChanged, ...rest } = props;
+  return (
+    <Slider
+      aria-label="slider-ex-1"
+      min={0}
+      max={1}
+      step={0.01}
+      value={value}
+      onChange={valueChanged}
+      {...rest}
+    >
+      <SliderTrack>
+        <SliderFilledTrack />
+      </SliderTrack>
+      <SliderThumb boxSize={8}>
+        <Text size="xs">{(value * 90).toFixed(0)}°</Text>
+      </SliderThumb>
+    </Slider>
+  );
+}
+
+function AngleControl() {
+  const [
+    joystickAngles,
+    _setJoystickAngles,
+  ] = useState<JoystickAngleConfiguration>({
+    leftUpAngle: 0.5,
+    rightUpAngle: 0.5,
+  });
+
+  useEffect(() => {
+    RemoteStore.leftJoystickAngles().then((value) => {
+      _setJoystickAngles(value);
+    });
+
+    const unsubscribe = RemoteStore.onChange("leftJoystickAngles", (value) => {
+      _setJoystickAngles(value);
+    });
+
+    return unsubscribe;
+  }, []);
+
+  function setJoystickAngles(values: JoystickAngleConfiguration) {
+    _setJoystickAngles(values);
+    RemoteStore.setLeftJoystickAngles(values);
+  }
+
+  return (
+    <>
+      <Text>Right Up Diagonal</Text>
+      <AngleSlider
+        value={joystickAngles.rightUpAngle}
+        valueChanged={(value) =>
+          setJoystickAngles({ ...joystickAngles, rightUpAngle: value })
+        }
+      />
+    </>
+  );
+}
 
 export function Content() {
   const [dmEnabled, _setDmEnabled] = useState(false);
@@ -35,32 +109,35 @@ export function Content() {
   const shadowColour = useColorModeValue("#D8DAE6", "grey");
 
   return (
-    <Flex
-      m="6"
-      my="8"
-      p="6"
-      borderRadius="14"
-      boxShadow={`0px 6px 14px ${shadowColour};`}
-      direction="column"
-      onClick={toggleDmEnabled}
-      cursor="pointer"
-    >
-      <Flex>
-        <Text variant="heading">Enable Double Movement</Text>
-        <Spacer />
-        {/* Render switch as Div so onClick doesn't get triggered twice: https://github.com/chakra-ui/chakra-ui/issues/2854 */}
-        <Switch colorScheme="yellow" isChecked={dmEnabled} as="div"></Switch>
+    <>
+      <Flex
+        m="6"
+        my="8"
+        p="6"
+        borderRadius="14"
+        boxShadow={`0px 6px 14px ${shadowColour};`}
+        direction="column"
+        onClick={toggleDmEnabled}
+        cursor="pointer"
+      >
+        <Flex>
+          <Text variant="heading">Enable Double Movement</Text>
+          <Spacer />
+          {/* Render switch as Div so onClick doesn't get triggered twice: https://github.com/chakra-ui/chakra-ui/issues/2854 */}
+          <Switch colorScheme="yellow" isChecked={dmEnabled} as="div"></Switch>
+        </Flex>
+        <Text pt="6" fontSize="md" variant="body">
+          Or use the hotkey Ctrl+Shift+X to toggle double movement.
+          <br />
+          <br />
+          You need to configure two things in Fortnite:
+          <br />
+          1. Disable WASD keyboard movement bindings
+          <br />
+          2. Lock input method as mouse
+        </Text>
       </Flex>
-      <Text pt="6" fontSize="md" variant="body">
-        Or use the hotkey Ctrl+Shift+X to toggle double movement.
-        <br />
-        <br />
-        You need to configure two things in Fortnite:
-        <br />
-        1. Disable WASD keyboard movement bindings
-        <br />
-        2. Lock input method as mouse
-      </Text>
-    </Flex>
+      {/* <AngleControl /> */}
+    </>
   );
 }

@@ -2,6 +2,7 @@ use crate::controller::*;
 #[cfg(windows)]
 use multiinput::*;
 
+use crate::config::ServiceConfiguration;
 use anyhow::{Context, Result};
 use log::*;
 #[cfg(windows)]
@@ -50,6 +51,7 @@ pub struct Service {
     controller_state: ControllerState,
     input_manager: RawInputManager,
     initd: bool,
+    config: ServiceConfiguration,
 }
 
 // Service should be wrapped in Mutex if used across threads so minimise unsafety
@@ -64,13 +66,16 @@ impl Service {
             controller_state: ControllerState::new(),
             input_manager: RawInputManager::new().unwrap(),
             initd: false,
+            config: ServiceConfiguration::default(),
         }
     }
 
-    pub fn init(&mut self) -> Result<()> {
+    pub fn init(&mut self, config: ServiceConfiguration) -> Result<()> {
         if self.initd {
             return Ok(());
         }
+        self.config = config;
+
         info!("Service init");
 
         self.input_manager.register_devices(DeviceType::Keyboards);
@@ -98,7 +103,7 @@ impl Service {
             target.state()
         );
 
-        let report = self.controller_state.get_xusb_report();
+        let report = self.controller_state.get_xusb_report(None);
         target.update(&report)?;
 
         self.controller = Some(target);
@@ -141,7 +146,9 @@ impl Service {
                             }
                             _ => {}
                         }
-                        let report = self.controller_state.get_xusb_report();
+                        let report = self
+                            .controller_state
+                            .get_xusb_report(Some(&self.config.left_joystick));
                         controller.update(&report)?;
                     }
                     _ => (),
@@ -170,5 +177,9 @@ impl Service {
 
         self.vigem.disconnect();
         self.initd = false;
+    }
+
+    pub fn set_config(&mut self, config: ServiceConfiguration) {
+        self.config = config;
     }
 }

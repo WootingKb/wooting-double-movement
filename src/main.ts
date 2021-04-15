@@ -10,12 +10,17 @@ import {
   shell,
   Tray,
 } from "electron";
-import { get_xinput_slot, start_service, stop_service } from "./native";
+import { get_xinput_slot, start_service, stop_service } from "./native/native";
 import ElectronStore from "electron-store";
 import { AppSettings } from "./common";
 import path from "path";
 import install, { REACT_DEVELOPER_TOOLS } from "electron-devtools-installer";
 import { create } from "domain";
+import { setServiceConfig, startService, stopService } from "./native";
+import {
+  JoystickAngleConfiguration,
+  ServiceConfiguration,
+} from "./native/types";
 
 app.allowRendererProcessReuse = false;
 
@@ -175,10 +180,18 @@ function create_tray() {
   tray.setContextMenu(contextMenu);
 }
 
+const defaultJoystickAngles: JoystickAngleConfiguration = {
+  leftUpAngle: 0.67,
+  rightUpAngle: 0.67,
+};
+
 class ServiceManager {
   running: boolean = false;
   store = new ElectronStore<AppSettings>({
-    defaults: { doubleMovementEnabled: false },
+    defaults: {
+      doubleMovementEnabled: false,
+      leftJoystickAngles: defaultJoystickAngles,
+    },
   });
 
   init() {
@@ -193,6 +206,11 @@ class ServiceManager {
     ipcMain.on("store_set", (_, name: string, value) => {
       this.store.set(name, value);
       this.update_state();
+
+      if (name == "leftJoystickAngles") {
+        // TODO: Make it so we can just update the configuration without restarting it
+        this.update_config();
+      }
     });
 
     const ret = globalShortcut.register("CommandOrControl+Shift+X", () => {
@@ -217,6 +235,21 @@ class ServiceManager {
   set_double_movement_enabled(value: boolean) {
     this.store_set("doubleMovementEnabled", value);
     this.update_state();
+  }
+
+  serviceConfiguration(): ServiceConfiguration {
+    return {
+      leftJoystick: {
+        ...defaultJoystickAngles,
+        ...this.store.get("leftJoystickAngles"),
+      },
+    };
+  }
+
+  update_config() {
+    if (this.running) {
+      setServiceConfig(this.serviceConfiguration());
+    }
   }
 
   update_state() {
@@ -244,10 +277,15 @@ class ServiceManager {
     this.set_double_movement_enabled(false);
   };
 
+  restart() {
+    this.stop();
+    this.start();
+  }
+
   start() {
     if (!this.running) {
       try {
-        start_service(this.onError);
+        startService(this.serviceConfiguration(), this.onError);
         setTimeout(() => {
           const slot = get_xinput_slot();
           if (slot != null && slot > 0) {
@@ -269,7 +307,7 @@ class ServiceManager {
 
   stop() {
     if (this.running) {
-      stop_service();
+      stopService();
       this.running = false;
     }
   }

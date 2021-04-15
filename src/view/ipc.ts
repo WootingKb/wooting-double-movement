@@ -1,4 +1,5 @@
 import { ipcRenderer, IpcRendererEvent } from "electron";
+import { JoystickAngleConfiguration } from "src/native/types";
 import { AppSettings } from "../common";
 
 const storeChangedChannel = "store_changed";
@@ -23,6 +24,14 @@ export class RemoteStore {
 
   static setDoubleMovementEnabled(enabled: boolean) {
     store_set("doubleMovementEnabled", enabled);
+  }
+
+  static async leftJoystickAngles(): Promise<JoystickAngleConfiguration> {
+    return await store_get("leftJoystickAngles");
+  }
+
+  static setLeftJoystickAngles(value: JoystickAngleConfiguration) {
+    store_set("leftJoystickAngles", value);
   }
 
   /// Returns function to unsubscribe to changes

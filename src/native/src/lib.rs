@@ -9,8 +9,10 @@ use std::sync::{Arc, Mutex};
 use std::thread;
 use std::time::Duration;
 
+mod config;
 mod controller;
 mod service;
+use config::ServiceConfiguration;
 use service::Service;
 
 lazy_static! {
@@ -30,6 +32,7 @@ fn main(mut cx: ModuleContext) -> NeonResult<()> {
     cx.export_function("start_service", start_service)?;
     cx.export_function("stop_service", stop_service)?;
     cx.export_function("get_xinput_slot", get_xinput_slot)?;
+    cx.export_function("set_config", set_config)?;
 
     Ok(())
 }
@@ -41,12 +44,16 @@ fn start_service(mut cx: FunctionContext) -> JsResult<JsNull> {
         return Ok(cx.null());
     }
 
-    SERVICE.lock().unwrap().init().unwrap();
-
     MSG_THREAD_RUNNING.store(true, Ordering::SeqCst);
+    let config_arg = cx.argument::<JsString>(0)?.value(&mut cx);
+    info!("Received config {}", config_arg);
+    let config: ServiceConfiguration = serde_json::from_str(&config_arg[..]).unwrap();
+
+    // We can unwrap this because panics get given up to javascript as regular errors
+    SERVICE.lock().unwrap().init(config).unwrap();
+
     // let callback = cx.argument::<JsFunction>(0)?.root(&mut cx);
     // let queue = cx.queue();
-
     info!("Starting service");
     #[cfg(windows)]
     MESSAGE_LOOP.lock().unwrap().replace(thread::spawn(move || {
@@ -89,4 +96,12 @@ fn get_xinput_slot(mut cx: FunctionContext) -> JsResult<JsValue> {
     } else {
         return Ok(cx.null().upcast());
     }
+}
+
+fn set_config(mut cx: FunctionContext) -> JsResult<JsNull> {
+    let config_arg = cx.argument::<JsString>(0)?.value(&mut cx);
+    let config: ServiceConfiguration = serde_json::from_str(&config_arg[..]).unwrap();
+
+    SERVICE.lock().unwrap().set_config(config);
+    return Ok(cx.null());
 }
