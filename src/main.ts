@@ -239,7 +239,7 @@ class ServiceManager {
     console.error(error);
     dialog.showErrorBox(
       "Wooting Double Movement errored",
-      `An unexpected error occurred in the service, it's going to be disabled, please try again.\n\n${error}`
+      `An unexpected error occurred in the service, it's going to be disabled, please try again.\n\nPlease ensure that "Nefarius Virtual Gamepad Emulation Bus" is correctly installed.\n\n${error}`
     );
     this.set_double_movement_enabled(false);
   };
