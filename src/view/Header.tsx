@@ -47,9 +47,10 @@ export function Header() {
       <Spacer />
       <Flex style={{ WebkitAppRegion: "no-drag" }}>
         <IconButton
+          variant="ghost"
           aria-label="Color Mode"
           onClick={toggleColorMode}
-          icon={colorMode === "light" ? <SunIcon /> : <MoonIcon />}
+          icon={colorMode === "light" ? <MoonIcon /> : <SunIcon />}
         />
         <IconButton
           aria-label="Minimise"
