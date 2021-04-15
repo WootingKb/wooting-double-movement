@@ -8,7 +8,7 @@ One-click install for getting double movement in Fortnite.
 
 ## Project stack
 
-The project uses Rust to interact with [ViGem](https://github.com/ViGEm). ViGem is a Windows kernel-mode driver that emulates USB game controllers. The GUI is made with Electron / React / Typescript.
+The project uses Rust to interact with [ViGEm](https://github.com/ViGEm). ViGem is a Windows kernel-mode driver that emulates USB game controllers. The GUI is made with Electron / React / Typescript.
 
 ## Contributing
 
