@@ -265,6 +265,7 @@ class ServiceManager {
   resetAdvancedConfig() {
     this.store_set("keyMapping", defaultKeyMapping);
     this.store_set("leftJoystickAngles", defaultJoystickAngles);
+    this.update_config();
   }
 
   update_config() {
