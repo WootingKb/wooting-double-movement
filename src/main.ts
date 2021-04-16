@@ -23,8 +23,10 @@ import {
   ServiceConfiguration,
 } from "./native/types";
 import { Key } from "ts-keycode-enum";
+import { log, functions } from "electron-log";
 import { autoUpdater } from "electron-updater";
 
+Object.assign(console, functions);
 app.allowRendererProcessReuse = false;
 
 declare var __dirname: any, process: any;
@@ -236,7 +238,6 @@ class ServiceManager {
       this.update_state();
 
       if (name == "leftJoystickAngles" || name === "keyMapping") {
-        // TODO: Make it so we can just update the configuration without restarting it
         this.update_config();
       }
     });

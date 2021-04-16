@@ -1,9 +1,11 @@
 #[macro_use]
 extern crate lazy_static;
 
-use env_logger::Env;
+use dirs::config_dir;
 use log::*;
 use neon::prelude::*;
+use simplelog::*;
+use std::fs::{File, OpenOptions};
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::{Arc, Mutex};
 use std::thread;
@@ -30,11 +32,29 @@ lazy_static! {
 
 #[neon::main]
 fn main(mut cx: ModuleContext) -> NeonResult<()> {
-    if let Err(e) = env_logger::try_init_from_env(Env::new().default_filter_or("info")) {
-        println!("Failed to init env logger {}", e);
-    } else {
-        info!("Logger initialised");
-    }
+    let log_path = config_dir()
+        .unwrap()
+        .join("wooting-double-movement/logs/service.log");
+    CombinedLogger::init(vec![
+        TermLogger::new(
+            LevelFilter::Debug,
+            Config::default(),
+            TerminalMode::Mixed,
+            ColorChoice::Always,
+        ),
+        WriteLogger::new(
+            LevelFilter::Debug,
+            Config::default(),
+            OpenOptions::new()
+                .write(true)
+                .append(true)
+                .open(log_path)
+                .unwrap(),
+        ),
+    ])
+    .unwrap();
+
+    info!("Service module initialized");
 
     cx.export_function("start_service", start_service)?;
     cx.export_function("stop_service", stop_service)?;

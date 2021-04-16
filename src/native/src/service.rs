@@ -109,7 +109,7 @@ impl Service {
         };
 
         // Get controller state - as target isnt connected state is "Initialized"
-        dbg!(target.state());
+        debug!("Controller state {:?}", target.state());
 
         // Add target to VigemBUS
         self.vigem
@@ -117,7 +117,7 @@ impl Service {
             .context("Failed to add target to ViGEmBus")?;
 
         // Now it's connected!
-        dbg!(target.state());
+        debug!("Controller state {:?}", target.state());
 
         info!(
             "Added Controller target to ViGEm with state {:?}",
