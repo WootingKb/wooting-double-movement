@@ -52,6 +52,17 @@ const theme = extendTheme({
         }),
       },
     },
+
+    Switch: {
+      parts: ["track"],
+      baseStyle: (props) => ({
+        track: {
+          _checked: {
+            bg: `${props.colorScheme}.500`,
+          },
+        },
+      }),
+    },
   },
 });
 
