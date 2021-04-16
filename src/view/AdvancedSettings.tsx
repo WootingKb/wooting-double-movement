@@ -43,6 +43,8 @@ import { Card } from "./Components";
 import { useRemoteValue, setWindowSize, RemoteStore } from "./ipc";
 import { parse } from "path";
 
+const angleRange: [number, number] = [15, 72];
+
 function AngleSlider(
   props: {
     value: number;
@@ -57,8 +59,8 @@ function AngleSlider(
       <Slider
         mr="20px"
         aria-label="slider-ex-1"
-        min={0}
-        max={1}
+        min={angleRange[0] / 90}
+        max={angleRange[1] / 90}
         step={0.01}
         value={value}
         onChange={valueChanged}
@@ -81,8 +83,8 @@ function AngleSlider(
           }
         }}
         value={degreeValue + "°"}
-        max={90}
-        min={0}
+        max={angleRange[1]}
+        min={angleRange[0]}
         maxW="100px"
         size="sm"
         // allowMouseWheel
