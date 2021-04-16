@@ -3,6 +3,7 @@ export interface AppSettings {
   doubleMovementEnabled: boolean;
   leftJoystickAngles: JoystickAngleConfiguration;
   keyMapping: KeyMapping;
+  startOnBoot: boolean;
 }
 
 type Size = [width: number, height: number];

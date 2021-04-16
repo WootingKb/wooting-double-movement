@@ -30,6 +30,7 @@ import {
   NumberIncrementStepper,
   NumberInputField,
   NumberInputStepper,
+  Switch,
 } from "@chakra-ui/react";
 import React, { useState } from "react";
 import { bigWindowSize, smallWindowSize } from "../common";
@@ -223,6 +224,17 @@ export function KeyBinding() {
   );
 }
 
+function StartOnBootSetting() {
+  const [startOnBoot, setStartOnBoot] = useRemoteValue("startOnBoot", false);
+
+  return (
+    <Switch
+      checked={startOnBoot}
+      onChange={(_) => setStartOnBoot(!startOnBoot)}
+    ></Switch>
+  );
+}
+
 export function AdvancedSettingsCard() {
   function updateWindowSize(index: ExpandedIndex) {
     console.log("Accordian index: ", index);
@@ -260,6 +272,7 @@ export function AdvancedSettingsCard() {
               >
                 Reset settings to Wooting recommended
               </Link>
+              <StartOnBootSetting />
             </VStack>
           </AccordionPanel>
         </AccordionItem>

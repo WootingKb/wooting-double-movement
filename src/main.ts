@@ -8,22 +8,18 @@ import {
   shell,
   Tray,
 } from "electron";
-import { get_xinput_slot, start_service, stop_service } from "./native/native";
+import { get_xinput_slot } from "./native/native";
 import ElectronStore from "electron-store";
 import { AppSettings, smallWindowSize } from "./common";
-import path from "path";
 import install, { REACT_DEVELOPER_TOOLS } from "electron-devtools-installer";
-import { create } from "domain";
 import { setServiceConfig, startService, stopService } from "./native";
 import {
   defaultJoystickAngles,
   defaultKeyMapping,
-  JoystickAngleConfiguration,
-  KeyMapping,
   ServiceConfiguration,
 } from "./native/types";
-import { Key } from "ts-keycode-enum";
-import { log, functions } from "electron-log";
+
+import { functions } from "electron-log";
 import { autoUpdater } from "electron-updater";
 
 Object.assign(console, functions);
@@ -139,7 +135,11 @@ if (isSingleInstance) {
 app.on("ready", () => {
   serviceManager.init();
   registerHandlers();
-  createMainWindow();
+
+  if (!app.commandLine.hasSwitch("hidden")) {
+    createMainWindow();
+  }
+
   create_tray();
   if (isDev()) {
     install(REACT_DEVELOPER_TOOLS, {
@@ -222,6 +222,7 @@ class ServiceManager {
       doubleMovementEnabled: false,
       leftJoystickAngles: defaultJoystickAngles,
       keyMapping: defaultKeyMapping,
+      startOnBoot: false,
     },
   });
 
@@ -241,6 +242,10 @@ class ServiceManager {
       if (name == "leftJoystickAngles" || name === "keyMapping") {
         this.update_config();
       }
+
+      if (name == "startOnBoot") {
+        this.updateStartOnBoot(this.store.get("startOnBoot"));
+      }
     });
 
     ipcMain.on("reset-advanced", (_) => {
@@ -254,6 +259,21 @@ class ServiceManager {
 
     if (!ret) {
       console.error("Failed to register globalShortcut");
+    }
+
+    this.updateStartOnBoot(this.store.get("startOnBoot"));
+  }
+
+  updateStartOnBoot(enabled: boolean) {
+    if (enabled) {
+      app.setLoginItemSettings({
+        openAtLogin: true,
+        args: ["--hidden"],
+      });
+    } else {
+      app.setLoginItemSettings({
+        openAtLogin: false,
+      });
     }
   }
 
