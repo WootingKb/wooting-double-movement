@@ -73,7 +73,6 @@ function createMainWindow() {
     resizable: false,
     show: false,
     fullscreenable: false,
-
     webPreferences: {
       nodeIntegration: true,
       contextIsolation: false,
