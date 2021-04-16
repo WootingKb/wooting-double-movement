@@ -55,6 +55,7 @@ function AngleSlider(
   return (
     <HStack align="stretch" width="100%">
       <Slider
+        mr="20px"
         aria-label="slider-ex-1"
         min={0}
         max={1}
@@ -66,7 +67,7 @@ function AngleSlider(
         <SliderTrack>
           <SliderFilledTrack backgroundColor="yellow.500" />
         </SliderTrack>
-        <SliderThumb />
+        <SliderThumb _focus={{ boxShadow: "base" }} />
       </Slider>
       {/* <InputGroup size="sm" borderRadius="10px" maxWidth="100px">
         <Input value={degreeValue} />
