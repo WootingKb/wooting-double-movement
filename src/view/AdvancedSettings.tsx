@@ -252,7 +252,7 @@ export function AdvancedSettingsCard() {
     <Card p="2">
       <Accordion allowToggle={true} onChange={updateWindowSize}>
         <AccordionItem border="none">
-          <AccordionButton>
+          <AccordionButton _hover={{ bg: "none" }}>
             <Text variant="heading" flex="1" textAlign="left">
               Advanced mode
             </Text>
