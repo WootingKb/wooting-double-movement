@@ -213,8 +213,6 @@ impl ControllerState {
             b_thumb_ly: ly,
             b_thumb_rx: rx,
             b_thumb_ry: ry,
-            b_trigger_l: 127,
-            b_trigger_r: 127,
             ..DSReport::default()
         }
     }

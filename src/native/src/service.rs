@@ -1,5 +1,6 @@
 use crate::controller::*;
 #[cfg(windows)]
+#[cfg(feature = "rawinput")]
 use multiinput::*;
 
 use crate::config::{JoystickKeyMapping, ServiceConfiguration};
@@ -48,7 +49,8 @@ unsafe extern "C" fn _handle(
 pub struct Service {
     vigem: Vigem,
     controller: Option<Target>,
-    // input_manager: RawInputManager,
+    #[cfg(feature = "rawinput")]
+    input_manager: RawInputManager,
     controller_state: ControllerState,
     initd: bool,
     config: ServiceConfiguration,
@@ -64,7 +66,8 @@ impl Service {
             vigem: Vigem::new(),
             controller: None,
             controller_state: ControllerState::new(),
-            // input_manager: RawInputManager::new().unwrap(),
+            #[cfg(feature = "rawinput")]
+            input_manager: RawInputManager::new().unwrap(),
             initd: false,
             config: ServiceConfiguration::default(),
         }
@@ -78,52 +81,120 @@ impl Service {
 
         info!("Service init");
 
-        // self.input_manager.register_devices(DeviceType::Keyboards);
+        #[cfg(feature = "rawinput")]
+        self.input_manager.register_devices(DeviceType::Keyboards);
 
         // connect our client to a VigemBus
         self.vigem.connect().context(
             "Failed to connect to VigemBus. Please ensure you have ViGEmBus properly installed",
         )?;
-        // Make a new target which represent XBOX360 controller
-        let mut target = Target::new(TargetType::Xbox360);
-        target.set_vid(0x31e3);
-        target.set_pid(0xFFFF);
+
+        #[cfg(feature = "ds4")]
+        let mut target = {
+            // Make a new target which represent DualShock4 controller
+            let t = Target::new(TargetType::DualShock4);
+            // DS4 vid/pid
+            t.set_vid(0x054C);
+            t.set_pid(0x05C4);
+            t
+        };
+
+        #[cfg(not(feature = "ds4"))]
+        let mut target = {
+            // Make a new target which represent XBOX360 controller
+            let t = Target::new(TargetType::Xbox360);
+            t.set_vid(0x31e3);
+            t.set_pid(0xFFFF);
+            t
+        };
 
         // Get controller state - as target isnt connected state is "Initialized"
         dbg!(target.state());
+
         // Add target to VigemBUS
         self.vigem
             .target_add(&mut target)
             .context("Failed to add target to ViGEmBus")?;
+
         // Now it's connected!
         dbg!(target.state());
 
         info!(
-            "Added Xbox360 Controller target to ViGEm with state {:?}",
+            "Added Controller target to ViGEm with state {:?}",
             target.state()
         );
 
-        let report = self.controller_state.get_xusb_report(None);
-        target.update(&report)?;
-
         self.controller = Some(target);
+
+        self.update_controller()?;
 
         self.initd = true;
 
         Ok(())
     }
 
-    pub fn poll(&mut self) -> Result<()> {
+    fn update_controller(&mut self) -> Result<()> {
         if let Some(controller) = self.controller.as_mut() {
+            #[cfg(feature = "ds4")]
+            let report = self
+                .controller_state
+                .get_ds4_report(Some(&self.config.left_joystick_angles));
+
+            #[cfg(not(feature = "ds4"))]
+            let report = self
+                .controller_state
+                .get_xusb_report(Some(&self.config.left_joystick_angles));
+
+            controller.update(&report)?;
+        }
+        Ok(())
+    }
+
+    #[cfg(feature = "rawinput")]
+    fn process_rawinput_event(&mut self) -> bool {
+        if let Some(event) = self.input_manager.get_event() {
+            // debug!("{:?}", event);
+            match event {
+                RawEvent::KeyboardEvent(_, key, state) => match KeyId::to_u8(&key).unwrap() {
+                    x if x == self.config.key_mapping.left_joystick.up => self
+                        .controller_state
+                        .left_joystick
+                        .set_direction_state(JoystickDirection::Up, state == State::Pressed),
+                    x if x == self.config.key_mapping.left_joystick.down => self
+                        .controller_state
+                        .left_joystick
+                        .set_direction_state(JoystickDirection::Down, state == State::Pressed),
+                    x if x == self.config.key_mapping.left_joystick.left => self
+                        .controller_state
+                        .left_joystick
+                        .set_direction_state(JoystickDirection::Left, state == State::Pressed),
+                    x if x == self.config.key_mapping.left_joystick.right => self
+                        .controller_state
+                        .left_joystick
+                        .set_direction_state(JoystickDirection::Right, state == State::Pressed),
+                    _ => false,
+                },
+                _ => false,
+            }
+        } else {
+            false
+        }
+    }
+
+    pub fn poll(&mut self) -> Result<()> {
+        if self.initd {
+            #[cfg(feature = "rawinput")]
+            if self.process_rawinput_event() {
+                self.update_controller()?;
+            }
+
+            #[cfg(not(feature = "rawinput"))]
             if self
                 .controller_state
                 .left_joystick
                 .update_key_states(&self.config.key_mapping.left_joystick)
             {
-                let report = self
-                    .controller_state
-                    .get_xusb_report(Some(&self.config.left_joystick_angles));
-                controller.update(&report)?;
+                self.update_controller()?;
             }
         }
 

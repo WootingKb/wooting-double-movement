@@ -31,3 +31,8 @@ winapi = { version = "0.3", features = ["winuser", "impl-default"] }
 # multiinput = { path="../../../../../../multiinput-rust" }
 multiinput = { git="https://github.com/simon-wh/multiinput-rust.git" }
 
+
+[features]
+rawinput = []
+ds4 = []
+default=[]
