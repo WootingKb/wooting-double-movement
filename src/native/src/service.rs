@@ -120,9 +120,6 @@ impl Service {
             unsafe {
                 let state =
                     GetAsyncKeyState(self.config.key_mapping.left_joystick.up as i32) as u32;
-                // if  {
-
-                // }
                 self.controller_state
                     .left_joystick
                     .set_direction_state(JoystickDirection::Up, state & 0x8000 != 0);
@@ -153,46 +150,6 @@ impl Service {
                 .controller_state
                 .get_xusb_report(Some(&self.config.left_joystick_angles));
             controller.update(&report)?;
-            
-            // if let Some(event) = self.input_manager.get_event() {
-            //     // debug!("{:?}", event);
-            //     match event {
-            //         RawEvent::KeyboardEvent(_, key, state) => {
-            //             match KeyId::to_u8(&key).unwrap() {
-            //                 x if x == self.config.key_mapping.left_joystick.up => {
-            //                     self.controller_state.left_joystick.set_direction_state(
-            //                         JoystickDirection::Up,
-            //                         state == State::Pressed,
-            //                     );
-            //                 }
-            //                 x if x == self.config.key_mapping.left_joystick.down => {
-            //                     self.controller_state.left_joystick.set_direction_state(
-            //                         JoystickDirection::Down,
-            //                         state == State::Pressed,
-            //                     );
-            //                 }
-            //                 x if x == self.config.key_mapping.left_joystick.left => {
-            //                     self.controller_state.left_joystick.set_direction_state(
-            //                         JoystickDirection::Left,
-            //                         state == State::Pressed,
-            //                     );
-            //                 }
-            //                 x if x == self.config.key_mapping.left_joystick.right => {
-            //                     self.controller_state.left_joystick.set_direction_state(
-            //                         JoystickDirection::Right,
-            //                         state == State::Pressed,
-            //                     );
-            //                 }
-            //                 _ => {}
-            //             }
-            //             let report = self
-            //                 .controller_state
-            //                 .get_xusb_report(Some(&self.config.left_joystick_angles));
-            //             controller.update(&report)?;
-            //         }
-            //         _ => (),
-            //     }
-            // }
         }
 
         Ok(())
