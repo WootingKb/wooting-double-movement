@@ -6,7 +6,7 @@ import { extendTheme } from "@chakra-ui/react";
 import { mode } from "@chakra-ui/theme-tools";
 
 const lightTextColour = "rgba(43, 43, 76, 0.33)";
-const darkTextColour = "#4D5561";
+const darkTextColour = "#828e9e";
 
 const theme = extendTheme({
   shadows: { outline: "0 !important" },
