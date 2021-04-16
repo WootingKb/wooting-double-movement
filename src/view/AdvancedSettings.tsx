@@ -228,10 +228,15 @@ function StartOnBootSetting() {
   const [startOnBoot, setStartOnBoot] = useRemoteValue("startOnBoot", false);
 
   return (
-    <Switch
-      checked={startOnBoot}
-      onChange={(_) => setStartOnBoot(!startOnBoot)}
-    ></Switch>
+    <HStack width="100%" justifyContent="space-between">
+      <Text variant="heading" flex="1" textAlign="left">
+        Start app on boot
+      </Text>
+      <Switch
+        checked={startOnBoot}
+        onChange={(_) => setStartOnBoot(!startOnBoot)}
+      />
+    </HStack>
   );
 }
 
