@@ -73,10 +73,6 @@ function AngleSlider(
         </SliderTrack>
         <SliderThumb _focus={{ boxShadow: "base" }} />
       </Slider>
-      {/* <InputGroup size="sm" borderRadius="10px" maxWidth="100px">
-        <Input value={degreeValue} />
-        <InputRightAddon children="°" />
-      </InputGroup> */}
       <NumberInput
         onChange={(_, value) => {
           if (!Number.isNaN(value)) {
