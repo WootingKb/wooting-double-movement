@@ -121,6 +121,6 @@ fn set_config(mut cx: FunctionContext) -> JsResult<JsNull> {
     let config: ServiceConfiguration = serde_json::from_str(&config_arg[..]).unwrap();
     info!("Received config {:?}", config);
     #[cfg(windows)]
-    SERVICE.lock().unwrap().set_config(config);
+    SERVICE.lock().unwrap().set_config(config).unwrap();
     return Ok(cx.null());
 }

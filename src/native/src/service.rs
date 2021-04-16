@@ -221,7 +221,9 @@ impl Service {
         self.initd = false;
     }
 
-    pub fn set_config(&mut self, config: ServiceConfiguration) {
+    pub fn set_config(&mut self, config: ServiceConfiguration) -> Result<()> {
         self.config = config;
+        self.update_controller()?;
+        Ok(())
     }
 }
