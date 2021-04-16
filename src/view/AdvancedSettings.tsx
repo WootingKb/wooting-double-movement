@@ -233,6 +233,7 @@ function StartOnBootSetting() {
         Start app on boot
       </Text>
       <Switch
+        colorScheme="yellow"
         checked={startOnBoot}
         onChange={(_) => setStartOnBoot(!startOnBoot)}
       />
