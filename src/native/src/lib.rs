@@ -5,7 +5,7 @@ use dirs::config_dir;
 use log::*;
 use neon::prelude::*;
 use simplelog::*;
-use std::fs::OpenOptions;
+use std::fs::{create_dir_all, OpenOptions};
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::{Arc, Mutex};
 use std::thread;
@@ -32,27 +32,43 @@ lazy_static! {
 
 #[neon::main]
 fn main(mut cx: ModuleContext) -> NeonResult<()> {
-    let log_path = config_dir()
-        .unwrap()
-        .join("wooting-double-movement/logs/service.log");
-    CombinedLogger::init(vec![
-        TermLogger::new(
-            LevelFilter::Debug,
-            Config::default(),
-            TerminalMode::Mixed,
-            ColorChoice::Always,
-        ),
-        WriteLogger::new(
-            LevelFilter::Debug,
-            Config::default(),
-            OpenOptions::new()
+    let mut targets: Vec<Box<dyn SharedLogger>> = vec![TermLogger::new(
+        LevelFilter::Debug,
+        Config::default(),
+        TerminalMode::Mixed,
+        ColorChoice::Always,
+    )];
+    let dir = config_dir().unwrap().join("wooting-double-movement/logs");
+    match create_dir_all(&dir) {
+        Ok(_) => {
+            let log_path = dir.join("service.log");
+            match OpenOptions::new()
+                .create(true)
                 .write(true)
                 .append(true)
                 .open(log_path)
-                .unwrap(),
-        ),
-    ])
-    .unwrap();
+            {
+                Ok(file) => {
+                    targets.push(WriteLogger::new(
+                        LevelFilter::Debug,
+                        Config::default(),
+                        file,
+                    ));
+                    println!("Successfully created WriteLogger");
+                }
+                Err(e) => {
+                    println!("Error creating service log file {:?}", e);
+                }
+            }
+        }
+        Err(e) => {
+            println!("Error creating logging directory {:?}", e);
+        }
+    }
+
+    if let Err(e) = CombinedLogger::init(targets) {
+        println!("Failed to init CombinedLogger {:?}", e);
+    }
 
     info!("Service module initialized");
 
