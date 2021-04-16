@@ -44,6 +44,7 @@ export function UpdateToast() {
               </AlertDescription>
               <Button
                 onClick={() => ipcRenderer.invoke("update_restart_and_install")}
+                size="sm"
               >
                 Restart
               </Button>
