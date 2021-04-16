@@ -104,8 +104,13 @@ impl JoystickState {
 
     #[allow(dead_code)]
     pub fn update_key_state(&mut self, direction: JoystickDirection, binding: u8) -> bool {
-        let state = unsafe { GetAsyncKeyState(binding as i32) as u32 };
-        self.set_direction_state(direction, state & 0x8000 != 0)
+        #[cfg(windows)]
+        {
+            let state = unsafe { GetAsyncKeyState(binding as i32) as u32 };
+            self.set_direction_state(direction, state & 0x8000 != 0)
+        }
+        #[cfg(not(windows))]
+        false
     }
 
     #[allow(dead_code)]
