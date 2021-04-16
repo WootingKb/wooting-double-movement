@@ -4,6 +4,9 @@ import { background, ChakraProvider } from "@chakra-ui/react";
 import { MainWindow } from "./MainWindow";
 import { extendTheme } from "@chakra-ui/react";
 import { mode } from "@chakra-ui/theme-tools";
+import { functions } from "electron-log";
+
+Object.assign(console, functions);
 
 const lightTextColour = "rgba(43, 43, 76, 0.33)";
 const darkTextColour = "#4D5561";
