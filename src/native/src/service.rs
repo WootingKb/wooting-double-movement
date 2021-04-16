@@ -84,48 +84,49 @@ impl Service {
         #[cfg(feature = "rawinput")]
         self.input_manager.register_devices(DeviceType::Keyboards);
 
-        // connect our client to a VigemBus
-        self.vigem.connect().context(
-            "Failed to connect to VigemBus. Please ensure you have ViGEmBus properly installed",
-        )?;
+        if self.controller.is_none() {
+            // connect our client to a VigemBus
+            self.vigem.connect().context(
+                "Failed to connect to VigemBus. Please ensure you have ViGEmBus properly installed",
+            )?;
 
-        #[cfg(feature = "ds4")]
-        let mut target = {
-            // Make a new target which represent DualShock4 controller
-            let t = Target::new(TargetType::DualShock4);
-            // DS4 vid/pid
-            t.set_vid(0x054C);
-            t.set_pid(0x05C4);
-            t
-        };
+            #[cfg(feature = "ds4")]
+            let mut target = {
+                // Make a new target which represent DualShock4 controller
+                let t = Target::new(TargetType::DualShock4);
+                // DS4 vid/pid
+                t.set_vid(0x054C);
+                t.set_pid(0x05C4);
+                t
+            };
 
-        #[cfg(not(feature = "ds4"))]
-        let mut target = {
-            // Make a new target which represent XBOX360 controller
-            let t = Target::new(TargetType::Xbox360);
-            t.set_vid(0x31e3);
-            t.set_pid(0xFFFF);
-            t
-        };
+            #[cfg(not(feature = "ds4"))]
+            let mut target = {
+                // Make a new target which represent XBOX360 controller
+                let t = Target::new(TargetType::Xbox360);
+                t.set_vid(0x31e3);
+                t.set_pid(0xFFFF);
+                t
+            };
 
-        // Get controller state - as target isnt connected state is "Initialized"
-        debug!("Controller state {:?}", target.state());
+            // Get controller state - as target isnt connected state is "Initialized"
+            debug!("Controller state {:?}", target.state());
 
-        // Add target to VigemBUS
-        self.vigem
-            .target_add(&mut target)
-            .context("Failed to add target to ViGEmBus")?;
+            // Add target to VigemBUS
+            self.vigem
+                .target_add(&mut target)
+                .context("Failed to add target to ViGEmBus")?;
 
-        // Now it's connected!
-        debug!("Controller state {:?}", target.state());
+            // Now it's connected!
+            debug!("Controller state {:?}", target.state());
 
-        info!(
-            "Added Controller target to ViGEm with state {:?}",
-            target.state()
-        );
+            info!(
+                "Added Controller target to ViGEm with state {:?}",
+                target.state()
+            );
 
-        self.controller = Some(target);
-
+            self.controller = Some(target);
+        }
         self.update_controller()?;
 
         self.initd = true;
@@ -213,11 +214,11 @@ impl Service {
 
     pub fn stop(&mut self) {
         info!("Service stop");
-        if let Some(controller) = self.controller.take() {
-            drop(controller);
-        }
+        // if let Some(controller) = self.controller.take() {
+        //     drop(controller);
+        // }
 
-        self.vigem.disconnect();
+        // self.vigem.disconnect();
         self.initd = false;
     }
 
