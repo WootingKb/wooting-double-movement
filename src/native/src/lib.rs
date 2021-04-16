@@ -5,7 +5,7 @@ use dirs::config_dir;
 use log::*;
 use neon::prelude::*;
 use simplelog::*;
-use std::fs::{File, OpenOptions};
+use std::fs::OpenOptions;
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::{Arc, Mutex};
 use std::thread;
