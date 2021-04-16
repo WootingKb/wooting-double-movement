@@ -39,20 +39,30 @@ fn main(mut cx: ModuleContext) -> NeonResult<()> {
         ColorChoice::Always,
     )];
     let dir = config_dir().unwrap().join("wooting-double-movement/logs");
-    if let Ok(_) = create_dir_all(&dir) {
-        let log_path = dir.join("service.log");
-        if let Ok(file) = OpenOptions::new()
-            .create(true)
-            .write(true)
-            .append(true)
-            .open(log_path)
-        {
-            targets.push(WriteLogger::new(
-                LevelFilter::Debug,
-                Config::default(),
-                file,
-            ));
-            println!("Successfully created WriteLogger");
+    match create_dir_all(&dir) {
+        Ok(_) => {
+            let log_path = dir.join("service.log");
+            match OpenOptions::new()
+                .create(true)
+                .write(true)
+                .append(true)
+                .open(log_path)
+            {
+                Ok(file) => {
+                    targets.push(WriteLogger::new(
+                        LevelFilter::Debug,
+                        Config::default(),
+                        file,
+                    ));
+                    println!("Successfully created WriteLogger");
+                }
+                Err(e) => {
+                    println!("Error creating service log file {:?}", e);
+                }
+            }
+        }
+        Err(e) => {
+            println!("Error creating logging directory {:?}", e);
         }
     }
 
