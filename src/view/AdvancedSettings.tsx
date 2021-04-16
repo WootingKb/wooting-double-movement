@@ -140,7 +140,7 @@ export function EditKeyBind(props: EditKeybindProps & InputProps) {
       { once: true }
     );
   }
-  // return <Button onClick={assignNewBind}>{Key[props.value]}</Button>;
+
   return (
     <Input
       value={!isEditing ? Key[props.value] : ""}
@@ -180,19 +180,6 @@ export function KeyBinding() {
     "keyMapping",
     defaultKeyMapping
   );
-
-  // useEffect(() => {
-  //   function cancelKeyEvent(e: KeyboardEvent) {
-  //     console.log(e);
-  //     // e.preventDefault();
-  //   }
-
-  //   window.addEventListener("keydown", cancelKeyEvent);
-
-  //   return () => {
-  //     window.removeEventListener("keydown", cancelKeyEvent);
-  //   };
-  // }, []);
 
   function assignNewJoystickBind(key: keyof JoystickKeyMapping, value: number) {
     setKeyMapping({
