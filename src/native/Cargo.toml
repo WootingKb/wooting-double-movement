@@ -20,12 +20,19 @@ lazy_static = "*"
 anyhow = "1.0"
 log = "0.4"
 env_logger = "0.8"
-# vigem = "0.9.1"
+serde_json = "1.0"
+serde = { version = "1.0", features = ["derive"] }
 
 [target.'cfg(windows)'.dependencies]
+# vigem = "0.9.1"
 vigem = { git="https://github.com/DuckerMan/vigem.git" }
 winapi = { version = "0.3", features = ["winuser", "impl-default"] }
 # multiinput = "0.1.0"
 # multiinput = { path="../../../../../../multiinput-rust" }
 multiinput = { git="https://github.com/simon-wh/multiinput-rust.git" }
 
+
+[features]
+rawinput = []
+ds4 = []
+default=[]

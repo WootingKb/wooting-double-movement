@@ -9,13 +9,22 @@ use std::sync::{Arc, Mutex};
 use std::thread;
 use std::time::Duration;
 
+mod config;
 mod controller;
+#[cfg(windows)]
 mod service;
+
+use config::ServiceConfiguration;
+#[cfg(windows)]
 use service::Service;
 
 lazy_static! {
     static ref MSG_THREAD_RUNNING: AtomicBool = AtomicBool::new(false);
     static ref MESSAGE_LOOP: Mutex<Option<thread::JoinHandle<()>>> = Mutex::new(None);
+}
+
+#[cfg(windows)]
+lazy_static! {
     static ref SERVICE: Arc<Mutex<Service>> = Arc::new(Mutex::new(Service::new()));
 }
 
@@ -30,23 +39,35 @@ fn main(mut cx: ModuleContext) -> NeonResult<()> {
     cx.export_function("start_service", start_service)?;
     cx.export_function("stop_service", stop_service)?;
     cx.export_function("get_xinput_slot", get_xinput_slot)?;
+    cx.export_function("set_config", set_config)?;
 
     Ok(())
 }
 
-fn start_service(mut cx: FunctionContext) -> JsResult<JsNull> {
+fn start_service(mut cx: FunctionContext) -> JsResult<JsBoolean> {
     if MESSAGE_LOOP.lock().unwrap().is_some() {
         // This means the service has already been started
         warn!("start_service was called when the service was already running, ignoring...");
-        return Ok(cx.null());
+        return Ok(cx.boolean(true));
     }
 
-    SERVICE.lock().unwrap().init().unwrap();
-
     MSG_THREAD_RUNNING.store(true, Ordering::SeqCst);
+    let config_arg = cx.argument::<JsString>(0)?.value(&mut cx);
+    info!("Received config {}", config_arg);
+    let config: ServiceConfiguration = serde_json::from_str(&config_arg[..]).unwrap();
+
+    // We can unwrap this because panics get given up to javascript as regular errors
+    #[cfg(windows)]
+    match std::panic::catch_unwind(|| SERVICE.lock().unwrap().init(config)) {
+        Ok(res) => res.unwrap(),
+        Err(e) => {
+            error!("The service init panicked {:#?}", e);
+            return Ok(cx.boolean(false));
+        }
+    }
+
     // let callback = cx.argument::<JsFunction>(0)?.root(&mut cx);
     // let queue = cx.queue();
-
     info!("Starting service");
     #[cfg(windows)]
     MESSAGE_LOOP.lock().unwrap().replace(thread::spawn(move || {
@@ -66,7 +87,7 @@ fn start_service(mut cx: FunctionContext) -> JsResult<JsNull> {
         }
     }));
 
-    return Ok(cx.null());
+    return Ok(cx.boolean(true));
 }
 
 fn stop_service(mut cx: FunctionContext) -> JsResult<JsNull> {
@@ -78,15 +99,28 @@ fn stop_service(mut cx: FunctionContext) -> JsResult<JsNull> {
             thread.join().expect("Thread failed to join");
         }
     }
+    #[cfg(windows)]
     SERVICE.lock().unwrap().stop();
     return Ok(cx.null());
 }
 
 fn get_xinput_slot(mut cx: FunctionContext) -> JsResult<JsValue> {
+    #[cfg(windows)]
     let slot = SERVICE.lock().unwrap().get_xinput_slot();
+
+    #[cfg(windows)]
     if let Some(slot) = slot {
         return Ok(cx.number(slot).upcast());
-    } else {
-        return Ok(cx.null().upcast());
     }
+
+    return Ok(cx.null().upcast());
+}
+
+fn set_config(mut cx: FunctionContext) -> JsResult<JsNull> {
+    let config_arg = cx.argument::<JsString>(0)?.value(&mut cx);
+    let config: ServiceConfiguration = serde_json::from_str(&config_arg[..]).unwrap();
+    info!("Received config {:?}", config);
+    #[cfg(windows)]
+    SERVICE.lock().unwrap().set_config(config).unwrap();
+    return Ok(cx.null());
 }

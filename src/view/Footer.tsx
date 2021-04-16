@@ -9,18 +9,19 @@ export function Footer() {
   ipcRenderer.invoke("getVersion").then(setVersion).catch(console.error);
 
   return (
-    <Flex p="6" pt="0">
-      <Link
-        as={Text}
-        variant="body"
-        fontSize="sm"
-        href="https://wooting.io/double-movement"
-        isExternal
-      >
-        More information
-        <ExternalLinkIcon mx="2px" />
-      </Link>
-      <Spacer />
+    <Flex p="6" pt="0" justifyContent="space-between">
+      <Text variant="body" fontSize="sm">
+        <Link href="https://wooting.io/double-movement" isExternal>
+          More information
+          <ExternalLinkIcon mx="2px" />
+        </Link>
+      </Text>
+      <Text variant="body" fontSize="sm">
+        <Link href="https://github.com/ViGEm" isExternal>
+          Powered by ViGEm
+          <ExternalLinkIcon mx="2px" />
+        </Link>
+      </Text>
       <Text variant="body" fontSize="sm">
         Version: {version}
       </Text>

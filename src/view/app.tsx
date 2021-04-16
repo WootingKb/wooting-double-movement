@@ -1,11 +1,12 @@
 import React from "react";
 import ReactDOM from "react-dom";
-import { ChakraProvider } from "@chakra-ui/react";
+import { background, ChakraProvider } from "@chakra-ui/react";
 import { MainWindow } from "./MainWindow";
 import { extendTheme } from "@chakra-ui/react";
 import { mode } from "@chakra-ui/theme-tools";
 
 const lightTextColour = "rgba(43, 43, 76, 0.33)";
+const darkTextColour = "#4D5561";
 
 const theme = extendTheme({
   shadows: { outline: "0 !important" },
@@ -25,19 +26,21 @@ const theme = extendTheme({
   },
   styles: {
     global: {
-      body: { bg: "unset" },
+      body: {
+        bg: "unset",
+      },
     },
   },
   components: {
     Text: {
       variants: {
         heading: (props) => ({
-          color: mode("#2B2B4C", "white")(props),
+          color: mode("#2B2B4C", "#828A93")(props),
           fontSize: "md",
           fontWeight: "bold",
         }),
         body: (props) => ({
-          color: mode(lightTextColour, "white")(props),
+          color: mode(lightTextColour, darkTextColour)(props),
         }),
       },
     },
@@ -45,9 +48,20 @@ const theme = extendTheme({
     Link: {
       variants: {
         body: (props) => ({
-          color: mode(lightTextColour, "white")(props),
+          color: mode(lightTextColour, darkTextColour)(props),
         }),
       },
+    },
+
+    Switch: {
+      parts: ["track"],
+      baseStyle: (props) => ({
+        track: {
+          _checked: {
+            bg: `${props.colorScheme}.500`,
+          },
+        },
+      }),
     },
   },
 });

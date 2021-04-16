@@ -1,28 +1,38 @@
 import { ipcRenderer, IpcRendererEvent } from "electron";
+import { useEffect, useState } from "react";
+import { JoystickAngleConfiguration } from "src/native/types";
 import { AppSettings } from "../common";
 
 const storeChangedChannel = "store_changed";
 
-async function store_get<Key extends keyof AppSettings>(
-  name: Key
-): Promise<AppSettings[Key]> {
-  return await ipcRenderer.invoke("store_get", name);
-}
-
-function store_set<Key extends keyof AppSettings>(
-  name: Key,
-  value: AppSettings[Key]
-) {
-  ipcRenderer.send("store_set", name, value);
-}
-
 export class RemoteStore {
+  static async getValue<Key extends keyof AppSettings>(
+    name: Key
+  ): Promise<AppSettings[Key]> {
+    return await ipcRenderer.invoke("store_get", name);
+  }
+
+  static setValue<Key extends keyof AppSettings>(
+    name: Key,
+    value: AppSettings[Key]
+  ) {
+    ipcRenderer.send("store_set", name, value);
+  }
+
   static async doubleMovementEnabled(): Promise<boolean> {
-    return await store_get("doubleMovementEnabled");
+    return await this.getValue("doubleMovementEnabled");
   }
 
   static setDoubleMovementEnabled(enabled: boolean) {
-    store_set("doubleMovementEnabled", enabled);
+    this.setValue("doubleMovementEnabled", enabled);
+  }
+
+  static async leftJoystickAngles(): Promise<JoystickAngleConfiguration> {
+    return await this.getValue("leftJoystickAngles");
+  }
+
+  static setLeftJoystickAngles(value: JoystickAngleConfiguration) {
+    this.setValue("leftJoystickAngles", value);
   }
 
   /// Returns function to unsubscribe to changes
@@ -31,8 +41,8 @@ export class RemoteStore {
     callback: (value: AppSettings[Key]) => void
   ): () => void {
     function listener(_: IpcRendererEvent, cb_name: string, value: any) {
-      console.debug("onChange listener got ", cb_name, value);
       if (name == cb_name) {
+        console.debug("onChange listener got ", cb_name, value);
         callback(value as AppSettings[Key]);
       }
     }
@@ -42,4 +52,38 @@ export class RemoteStore {
       ipcRenderer.removeListener(storeChangedChannel, listener);
     };
   }
+
+  static resetSettings() {
+    ipcRenderer.send("reset-advanced");
+  }
+}
+
+export function useRemoteValue<Key extends keyof AppSettings>(
+  name: Key,
+  initialState: AppSettings[Key]
+): [AppSettings[Key], (value: AppSettings[Key]) => void] {
+  const [value, _setValue] = useState<AppSettings[Key]>(initialState);
+
+  useEffect(() => {
+    RemoteStore.getValue(name).then((value) => {
+      _setValue(value);
+    });
+
+    const unsubscribe = RemoteStore.onChange(name, (value) => {
+      _setValue(value);
+    });
+
+    return unsubscribe;
+  }, []);
+
+  function setValue(value: AppSettings[Key]) {
+    _setValue(value);
+    RemoteStore.setValue(name, value);
+  }
+
+  return [value, setValue];
+}
+
+export function setWindowSize(width: number, height: number) {
+  ipcRenderer.send("resize-me", width, height);
 }
