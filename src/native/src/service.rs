@@ -2,7 +2,7 @@ use crate::controller::*;
 #[cfg(windows)]
 use multiinput::*;
 
-use crate::config::ServiceConfiguration;
+use crate::config::{JoystickKeyMapping, ServiceConfiguration};
 use anyhow::{Context, Result};
 use log::*;
 #[cfg(windows)]
@@ -11,8 +11,6 @@ use vigem::{
     raw::{LPVOID, PVIGEM_CLIENT, PVIGEM_TARGET, UCHAR},
     *,
 };
-
-use winapi::um::winuser::GetAsyncKeyState;
 
 #[cfg(windows)]
 unsafe extern "C" fn _handle(
@@ -117,39 +115,16 @@ impl Service {
 
     pub fn poll(&mut self) -> Result<()> {
         if let Some(controller) = self.controller.as_mut() {
-            unsafe {
-                let state =
-                    GetAsyncKeyState(self.config.key_mapping.left_joystick.up as i32) as u32;
-                self.controller_state
-                    .left_joystick
-                    .set_direction_state(JoystickDirection::Up, state & 0x8000 != 0);
-
-                let state =
-                    GetAsyncKeyState(self.config.key_mapping.left_joystick.down as i32) as u32;
-
-                self.controller_state
-                    .left_joystick
-                    .set_direction_state(JoystickDirection::Down, state & 0x8000 != 0);
-
-                let state =
-                    GetAsyncKeyState(self.config.key_mapping.left_joystick.left as i32) as u32;
-
-                self.controller_state
-                    .left_joystick
-                    .set_direction_state(JoystickDirection::Left, state & 0x8000 != 0);
-
-                let state =
-                    GetAsyncKeyState(self.config.key_mapping.left_joystick.right as i32) as u32;
-
-                self.controller_state
-                    .left_joystick
-                    .set_direction_state(JoystickDirection::Right, state & 0x8000 != 0);
-            }
-
-            let report = self
+            if self
                 .controller_state
-                .get_xusb_report(Some(&self.config.left_joystick_angles));
-            controller.update(&report)?;
+                .left_joystick
+                .update_key_states(&self.config.key_mapping.left_joystick)
+            {
+                let report = self
+                    .controller_state
+                    .get_xusb_report(Some(&self.config.left_joystick_angles));
+                controller.update(&report)?;
+            }
         }
 
         Ok(())

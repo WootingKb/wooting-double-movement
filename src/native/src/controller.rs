@@ -1,6 +1,8 @@
-use crate::config::JoystickAngleConfiguration;
+use crate::config::{JoystickAngleConfiguration, JoystickKeyMapping};
 #[cfg(windows)]
 use vigem::{DSReport, XUSBReport};
+#[cfg(windows)]
+use winapi::um::winuser::GetAsyncKeyState;
 
 pub enum JoystickDirection {
     Up,
@@ -14,6 +16,21 @@ pub struct JoystickState {
     down: bool,
     left: bool,
     right: bool,
+}
+
+trait UpdateValue {
+    fn update(&mut self, value: Self) -> bool;
+}
+
+impl UpdateValue for bool {
+    fn update(&mut self, value: bool) -> bool {
+        if *self != value {
+            *self = value;
+            true
+        } else {
+            false
+        }
+    }
 }
 
 mod utils {
@@ -74,13 +91,25 @@ impl JoystickState {
         }
     }
 
-    pub fn set_direction_state(&mut self, direction: JoystickDirection, state: bool) {
+    pub fn set_direction_state(&mut self, direction: JoystickDirection, state: bool) -> bool {
         match direction {
-            JoystickDirection::Up => self.up = state,
-            JoystickDirection::Down => self.down = state,
-            JoystickDirection::Left => self.left = state,
-            JoystickDirection::Right => self.right = state,
+            JoystickDirection::Up => self.up.update(state),
+            JoystickDirection::Down => self.down.update(state),
+            JoystickDirection::Left => self.left.update(state),
+            JoystickDirection::Right => self.right.update(state),
         }
+    }
+
+    pub fn update_key_state(&mut self, direction: JoystickDirection, binding: u8) -> bool {
+        let state = unsafe { GetAsyncKeyState(binding as i32) as u32 };
+        self.set_direction_state(direction, state & 0x8000 != 0)
+    }
+
+    pub fn update_key_states(&mut self, mappings: &JoystickKeyMapping) -> bool {
+        self.update_key_state(JoystickDirection::Up, mappings.up)
+            | self.update_key_state(JoystickDirection::Down, mappings.down)
+            | self.update_key_state(JoystickDirection::Left, mappings.left)
+            | self.update_key_state(JoystickDirection::Right, mappings.right)
     }
 
     pub fn _get_xusb_direction_basic(&self) -> (i16, i16) {
