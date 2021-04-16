@@ -3,7 +3,7 @@ use crate::controller::*;
 #[cfg(feature = "rawinput")]
 use multiinput::*;
 
-use crate::config::{JoystickKeyMapping, ServiceConfiguration};
+use crate::config::ServiceConfiguration;
 use anyhow::{Context, Result};
 use log::*;
 #[cfg(windows)]
@@ -202,13 +202,13 @@ impl Service {
     }
 
     pub fn get_xinput_slot(&mut self) -> Option<u32> {
+        #[cfg(not(feature = "ds4"))]
         if let Some(controller) = self.controller.as_ref() {
             let slot = self.vigem.xbox_get_user_index(&controller);
             info!("We got slot {}", slot);
-            Some(slot)
-        } else {
-            None
+            return Some(slot);
         }
+        None
     }
 
     pub fn stop(&mut self) {
