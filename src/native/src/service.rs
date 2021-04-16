@@ -134,6 +134,19 @@ impl Service {
         Ok(())
     }
 
+    fn empty_update_controller(&mut self) -> Result<()> {
+        if let Some(controller) = self.controller.as_mut() {
+            #[cfg(feature = "ds4")]
+            let report = DSReport::default();
+
+            #[cfg(not(feature = "ds4"))]
+            let report = XUSBReport::default();
+
+            controller.update(&report)?;
+        }
+        Ok(())
+    }
+
     fn update_controller(&mut self) -> Result<()> {
         if let Some(controller) = self.controller.as_mut() {
             #[cfg(feature = "ds4")]
@@ -219,6 +232,7 @@ impl Service {
         // }
 
         // self.vigem.disconnect();
+        self.empty_update_controller();
         self.initd = false;
     }
 
