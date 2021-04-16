@@ -43,15 +43,17 @@ import { Card } from "./Components";
 import { useRemoteValue, setWindowSize, RemoteStore } from "./ipc";
 import { parse } from "path";
 
-const angleRange: [number, number] = [15, 72];
+const strafeAngleRange: [number, number] = [15 / 90, 72 / 90];
 
 function AngleSlider(
   props: {
     value: number;
     valueChanged: (value: number) => void;
+    min: number;
+    max: number;
   } & SliderProps
 ) {
-  const { value, valueChanged, ...rest } = props;
+  const { value, valueChanged, min, max, ...rest } = props;
   const degreeValue = (value * 90).toFixed(0);
 
   return (
@@ -59,8 +61,8 @@ function AngleSlider(
       <Slider
         mr="20px"
         aria-label="slider-ex-1"
-        min={angleRange[0] / 90}
-        max={angleRange[1] / 90}
+        min={min}
+        max={max}
         step={0.01}
         value={value}
         onChange={valueChanged}
@@ -83,8 +85,8 @@ function AngleSlider(
           }
         }}
         value={degreeValue + "°"}
-        max={angleRange[1]}
-        min={angleRange[0]}
+        max={max * 90}
+        min={min * 90}
         maxW="100px"
         size="sm"
         // allowMouseWheel
@@ -114,6 +116,8 @@ function AngleControl() {
         valueChanged={(value) =>
           setJoystickAngles({ ...joystickAngles, rightUpAngle: value })
         }
+        min={strafeAngleRange[0]}
+        max={strafeAngleRange[1]}
       />
     </>
   );
