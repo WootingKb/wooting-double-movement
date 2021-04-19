@@ -247,8 +247,8 @@ class ServiceManager {
       this.resetAdvancedConfig();
     });
 
-    const ret = globalShortcut.register("CommandOrControl+Shift+X", () => {
-      console.debug("CommandOrControl+Shift+X is pressed");
+    const ret = globalShortcut.register("Alt+P", () => {
+      console.debug("Alt+P is pressed");
       this.set_double_movement_enabled(!this.doubleMovementEnabled());
     });
 
