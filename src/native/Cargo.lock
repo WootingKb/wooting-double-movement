@@ -453,7 +453,7 @@ checksum = "f7fe0bb3479651439c9112f72b6c505038574c9fbb575ed1bf3b797fa39dd564"
 [[package]]
 name = "vigem"
 version = "0.9.2"
-source = "git+https://github.com/DuckerMan/vigem.git#a931a3f57066724c2d83c1fc8443422c8618e852"
+source = "git+https://github.com/simon-wh/vigem.git#d62de1623e437ac1648b866d7aadc5877ad306bb"
 dependencies = [
  "bitflags",
  "vigem-sys",

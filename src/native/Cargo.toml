@@ -26,7 +26,9 @@ serde = { version = "1.0", features = ["derive"] }
 
 [target.'cfg(windows)'.dependencies]
 # vigem = "0.9.1"
-vigem = { git="https://github.com/DuckerMan/vigem.git" }
+# vigem = { git="https://github.com/DuckerMan/vigem.git" }
+vigem = { git="https://github.com/simon-wh/vigem.git" }
+# vigem = { path="../../../vigem" }
 winapi = { version = "0.3", features = ["winuser", "impl-default"] }
 # multiinput = "0.1.0"
 # multiinput = { path="../../../../../../multiinput-rust" }
