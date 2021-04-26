@@ -8,17 +8,25 @@ use winapi::um::winuser::GetAsyncKeyState;
 
 pub enum JoystickDirection {
     Up,
+    UpTwo,
     Down,
+    DownTwo,
     Left,
+    LeftTwo,
     Right,
-}
+    RightTwo,
+} 
 
 #[derive(Debug)]
 pub struct JoystickState {
     up: bool,
+    up_two: bool,
     down: bool,
+    down_two: bool,
     left: bool,
+    left_two: bool,
     right: bool,
+    right_two: bool
 }
 
 trait UpdateValue {
@@ -90,18 +98,26 @@ impl JoystickState {
     pub fn new() -> Self {
         Self {
             up: false,
+            up_two: false,
             down: false,
+            down_two: false,
             left: false,
+            left_two: false,
             right: false,
+            right_two: false,
         }
     }
 
     pub fn set_direction_state(&mut self, direction: JoystickDirection, state: bool) -> bool {
         match direction {
             JoystickDirection::Up => self.up.update(state),
+            JoystickDirection::UpTwo => self.up_two.update(state),
             JoystickDirection::Down => self.down.update(state),
+            JoystickDirection::DownTwo => self.down_two.update(state),
             JoystickDirection::Left => self.left.update(state),
+            JoystickDirection::LeftTwo => self.left_two.update(state),
             JoystickDirection::Right => self.right.update(state),
+            JoystickDirection::RightTwo => self.right_two.update(state),
         }
     }
 
@@ -119,24 +135,28 @@ impl JoystickState {
     #[allow(dead_code)]
     pub fn update_key_states(&mut self, mappings: &JoystickKeyMapping) -> bool {
         self.update_key_state(JoystickDirection::Up, mappings.up)
+            | self.update_key_state(JoystickDirection::UpTwo, mappings.up_two)
             | self.update_key_state(JoystickDirection::Down, mappings.down)
+            | self.update_key_state(JoystickDirection::DownTwo, mappings.down_two)
             | self.update_key_state(JoystickDirection::Left, mappings.left)
+            | self.update_key_state(JoystickDirection::LeftTwo, mappings.left_two)
             | self.update_key_state(JoystickDirection::Right, mappings.right)
+            | self.update_key_state(JoystickDirection::RightTwo, mappings.right_two)
     }
 
     pub fn _get_xusb_direction_basic(&self) -> (i16, i16) {
         let mut x: i16 = 0;
         let mut y: i16 = 0;
 
-        if self.down && !self.up {
+        if (self.down || self.down_two) && !(self.up || self.up_two) {
             y = i16::MIN;
-        } else if self.up && !self.down {
+        } else if (self.up || self.up_two) && !(self.down || self.down_two) {
             y = i16::MAX;
         }
 
-        if self.left && !self.right {
+        if (self.left || self.left_two) && !(self.right || self.right_two) {
             x = i16::MIN;
-        } else if self.right && !self.left {
+        } else if (self.right || self.right_two) && !(self.left || self.left_two) {
             x = i16::MAX;
         }
 
@@ -147,15 +167,15 @@ impl JoystickState {
         let mut x: f32 = 0.0;
         let mut y: f32 = 0.0;
 
-        if self.down && !self.up {
+        if (self.down || self.down_two) && !(self.up || self.up_two) {
             y = -1.0;
-        } else if self.up && !self.down {
+        } else if (self.up || self.up_two) && !(self.down || self.down_two) {
             y = 1.0;
         }
 
-        if self.left && !self.right {
+        if (self.left || self.left_two) && !(self.right || self.right_two) {
             x = -1.0;
-        } else if self.right && !self.left {
+        } else if (self.right || self.right_two) && !(self.left || self.left_two) {
             x = 1.0;
         }
 

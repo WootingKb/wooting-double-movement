@@ -160,18 +160,34 @@ impl Service {
                         .controller_state
                         .left_joystick
                         .set_direction_state(JoystickDirection::Up, state == State::Pressed),
+                    x if x == self.config.key_mapping.left_joystick.up_two => self
+                    .controller_state
+                    .left_joystick
+                    .set_direction_state(JoystickDirection::UpTwo, state == State::Pressed),
                     x if x == self.config.key_mapping.left_joystick.down => self
                         .controller_state
                         .left_joystick
                         .set_direction_state(JoystickDirection::Down, state == State::Pressed),
+                    x if x == self.config.key_mapping.left_joystick.down_two => self
+                        .controller_state
+                        .left_joystick
+                        .set_direction_state(JoystickDirection::DownTwo, state == State::Pressed),
                     x if x == self.config.key_mapping.left_joystick.left => self
                         .controller_state
                         .left_joystick
                         .set_direction_state(JoystickDirection::Left, state == State::Pressed),
+                    x if x == self.config.key_mapping.left_joystick.left_two => self
+                        .controller_state
+                        .left_joystick
+                        .set_direction_state(JoystickDirection::LeftTwo, state == State::Pressed),
                     x if x == self.config.key_mapping.left_joystick.right => self
                         .controller_state
                         .left_joystick
                         .set_direction_state(JoystickDirection::Right, state == State::Pressed),
+                    x if x == self.config.key_mapping.left_joystick.right_two => self
+                        .controller_state
+                        .left_joystick
+                        .set_direction_state(JoystickDirection::RightTwo, state == State::Pressed),
                     _ => false,
                 },
                 _ => false,

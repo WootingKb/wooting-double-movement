@@ -1,47 +1,36 @@
+import { ArrowBackIcon, ArrowDownIcon, ArrowForwardIcon, ArrowUpIcon, } from "@chakra-ui/icons";
 import {
-  ArrowUpIcon,
-  ArrowDownIcon,
-  ArrowBackIcon,
-  ArrowForwardIcon,
-} from "@chakra-ui/icons";
-import {
-  SliderProps,
-  InputProps,
-  StackProps,
-  ExpandedIndex,
   Accordion,
   AccordionButton,
   AccordionIcon,
   AccordionItem,
   AccordionPanel,
+  ExpandedIndex,
+  Flex,
   HStack,
   Input,
-  InputGroup,
-  InputRightAddon,
+  InputProps,
   Link,
-  Slider,
-  SliderFilledTrack,
-  SliderThumb,
-  SliderTrack,
-  Text,
-  VStack,
-  NumberInput,
   NumberDecrementStepper,
   NumberIncrementStepper,
+  NumberInput,
   NumberInputField,
   NumberInputStepper,
+  Slider,
+  SliderFilledTrack,
+  SliderProps,
+  SliderThumb,
+  SliderTrack,
+  StackProps,
+  Text,
+  VStack,
 } from "@chakra-ui/react";
 import React, { useState } from "react";
 import { bigWindowSize, smallWindowSize } from "../common";
-import {
-  defaultJoystickAngles,
-  defaultKeyMapping,
-  JoystickKeyMapping,
-} from "../native/types";
+import { defaultJoystickAngles, defaultKeyMapping, JoystickKeyMapping, } from "../native/types";
 import { Key } from "ts-keycode-enum";
 import { Card } from "./Components";
-import { useRemoteValue, setWindowSize, RemoteStore } from "./ipc";
-import { parse } from "path";
+import { RemoteStore, setWindowSize, useRemoteValue } from "./ipc";
 
 const strafeAngleRange: [number, number] = [15 / 90, 72 / 90];
 
@@ -155,24 +144,32 @@ export function EditKeyBind(props: EditKeybindProps & InputProps) {
 }
 
 interface EditKeybindRowProps {
-  label: string;
+  label: string | null;
   leftIcon: React.ReactFragment;
 }
 
 export function EditKeybindRow(
   props: EditKeybindRowProps & EditKeybindProps & StackProps
 ) {
-  const { leftIcon, label, value, valueChanged, ...rest } = props;
+  const {leftIcon, label, value, valueChanged, ...rest} = props;
 
-  return (
-    <HStack {...rest} justifyContent="space-between">
-      {leftIcon}
-      <Text width="200px" variant="body">
-        {label}
-      </Text>
-      <EditKeyBind value={value} valueChanged={valueChanged} />
-    </HStack>
-  );
+  if (label !== null)
+    return (
+      <HStack {...rest} justifyContent="space-between">
+        {leftIcon}
+        <Text width="200px" variant="body">
+          {label}
+        </Text>
+        <EditKeyBind value={value} valueChanged={valueChanged}/>
+      </HStack>
+    );
+  else {
+    return (
+      <HStack {...rest} justifyContent="space-between">
+        <EditKeyBind value={value} valueChanged={valueChanged}/>
+      </HStack>
+    );
+  }
 }
 
 export function KeyBinding() {
@@ -194,30 +191,70 @@ export function KeyBinding() {
     <>
       <VStack align="left">
         <Text variant="heading">Key bindings</Text>
-        <EditKeybindRow
-          leftIcon={<ArrowUpIcon color={iconColor} />}
-          label="Forward"
-          value={keyMapping.leftJoystick.up}
-          valueChanged={(value) => assignNewJoystickBind("up", value)}
-        />
-        <EditKeybindRow
-          leftIcon={<ArrowDownIcon color={iconColor} />}
-          label="Back"
-          value={keyMapping.leftJoystick.down}
-          valueChanged={(value) => assignNewJoystickBind("down", value)}
-        />
-        <EditKeybindRow
-          leftIcon={<ArrowBackIcon color={iconColor} />}
-          label="Left"
-          value={keyMapping.leftJoystick.left}
-          valueChanged={(value) => assignNewJoystickBind("left", value)}
-        />
-        <EditKeybindRow
-          leftIcon={<ArrowForwardIcon color={iconColor} />}
-          label="Right"
-          value={keyMapping.leftJoystick.right}
-          valueChanged={(value) => assignNewJoystickBind("right", value)}
-        />
+        <Flex>
+          <EditKeybindRow
+            mr={1} flex={1}
+            leftIcon={<ArrowUpIcon color={iconColor}/>}
+            label="Forward"
+            value={keyMapping.leftJoystick.up}
+            valueChanged={(value) => assignNewJoystickBind("up", value)}
+          />
+          <EditKeybindRow
+            flex={1}
+            leftIcon={<ArrowUpIcon color={iconColor}/>}
+            label={null}
+            value={keyMapping.leftJoystick.up_two}
+            valueChanged={(value) => assignNewJoystickBind("up_two", value)}
+          />
+        </Flex>
+        <Flex>
+          <EditKeybindRow
+            mr={1} flex={1}
+            leftIcon={<ArrowDownIcon color={iconColor}/>}
+            label="Back"
+            value={keyMapping.leftJoystick.down}
+            valueChanged={(value) => assignNewJoystickBind("down", value)}
+          />
+          <EditKeybindRow
+            flex={1}
+            leftIcon={<ArrowDownIcon color={iconColor}/>}
+            label={null}
+            value={keyMapping.leftJoystick.down_two}
+            valueChanged={(value) => assignNewJoystickBind("down_two", value)}
+          />
+        </Flex>
+        <Flex>
+          <EditKeybindRow
+            mr={1} flex={1}
+            leftIcon={<ArrowBackIcon color={iconColor}/>}
+            label="Left"
+            value={keyMapping.leftJoystick.left}
+            valueChanged={(value) => assignNewJoystickBind("left", value)}
+          />
+          <EditKeybindRow
+            flex={1}
+            leftIcon={<ArrowBackIcon color={iconColor}/>}
+            label={null}
+            value={keyMapping.leftJoystick.left_two}
+            valueChanged={(value) => assignNewJoystickBind("left_two", value)}
+          />
+        </Flex>
+        <Flex>
+          <EditKeybindRow
+            mr={1} flex={1}
+            leftIcon={<ArrowForwardIcon color={iconColor}/>}
+            label="Right"
+            value={keyMapping.leftJoystick.right}
+            valueChanged={(value) => assignNewJoystickBind("right", value)}
+          />
+          <EditKeybindRow
+            flex={1}
+            leftIcon={<ArrowForwardIcon color={iconColor}/>}
+            label={null}
+            value={keyMapping.leftJoystick.right_two}
+            valueChanged={(value) => assignNewJoystickBind("right_two", value)}
+          />
+        </Flex>
       </VStack>
     </>
   );
