@@ -8,6 +8,12 @@ pub struct JoystickAngleConfiguration {
     pub left_up_angle: f32,
     #[serde(rename = "rightUpAngle")]
     pub right_up_angle: f32,
+    #[serde(rename = "isAdvancedStrafeOn")]
+    pub is_advanced_strafe_on: bool,
+    #[serde(rename = "leftAngle")]
+    pub left_angle: f32,
+    #[serde(rename = "rightAngle")]
+    pub right_angle: f32,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -71,6 +77,9 @@ impl Default for ServiceConfiguration {
             left_joystick_angles: JoystickAngleConfiguration {
                 left_up_angle: 0.67,
                 right_up_angle: 0.67,
+                left_angle: 0.67,
+                right_angle: 0.67,
+                is_advanced_strafe_on: false,
             },
             key_mapping: KeyMapping::default(),
         }

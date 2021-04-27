@@ -167,22 +167,48 @@ impl JoystickState {
         let mut x: f32 = 0.0;
         let mut y: f32 = 0.0;
 
-        if (self.down || self.down_two) && !(self.up || self.up_two) {
+        let mut angle: f32 = config.map(|v| v.right_up_angle).unwrap_or(0.67);
+
+        let is_advanced_strafe_on: bool = config.map(|v| v.is_advanced_strafe_on).unwrap_or(false);
+        
+        let up: bool = self.up || self.up_two;
+        let down: bool = self.down || self.down_two;
+        let left: bool = self.left || self.left_two;
+        let right: bool = self.right || self.right_two;
+
+        // down && !up
+        if down && !up {
             y = -1.0;
-        } else if (self.up || self.up_two) && !(self.down || self.down_two) {
+        } 
+        // up && !down
+        else if up && !down {
             y = 1.0;
         }
 
-        if (self.left || self.left_two) && !(self.right || self.right_two) {
+        // left && !right
+        if  left && !right {
             x = -1.0;
-        } else if (self.right || self.right_two) && !(self.left || self.left_two) {
+        } 
+        // right && !left
+        else if right && !left {
             x = 1.0;
         }
 
+        if is_advanced_strafe_on && left && !up && !down && !right {
+            y = 1.0;
+            x = -1.0;
+            angle = config.map(|v| v.right_angle).unwrap_or(0.67);
+        } 
+        else if is_advanced_strafe_on && right && !up && !down && !left {
+            y = 1.0;
+            x = 1.0;
+            angle = config.map(|v| v.right_angle).unwrap_or(0.67);
+        }
+        
         let (x, y) = utils::process_circular_direction(
             x,
             y,
-            config.map(|v| v.right_up_angle).unwrap_or(0.67),
+            angle,
         );
 
         (x, y)

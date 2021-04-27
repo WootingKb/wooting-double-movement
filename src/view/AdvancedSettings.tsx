@@ -1,10 +1,6 @@
 import { ArrowBackIcon, ArrowDownIcon, ArrowForwardIcon, ArrowUpIcon, } from "@chakra-ui/icons";
 import {
-  Accordion,
-  AccordionButton,
-  AccordionIcon,
-  AccordionItem,
-  AccordionPanel,
+  Box,
   ExpandedIndex,
   Flex,
   HStack,
@@ -21,7 +17,9 @@ import {
   SliderProps,
   SliderThumb,
   SliderTrack,
+  Spacer,
   StackProps,
+  Switch,
   Text,
   VStack,
 } from "@chakra-ui/react";
@@ -32,7 +30,8 @@ import { Key } from "ts-keycode-enum";
 import { Card } from "./Components";
 import { RemoteStore, setWindowSize, useRemoteValue } from "./ipc";
 
-const strafeAngleRange: [number, number] = [15 / 90, 72 / 90];
+const upLeftRightStrafeAngleRange: [number, number] = [15 / 90, 72 / 90];
+const leftRightStrafeAngleRange: [number, number] = [15 / 90, 90 / 90];
 
 function AngleSlider(
   props: {
@@ -42,7 +41,7 @@ function AngleSlider(
     max: number;
   } & SliderProps
 ) {
-  const { value, valueChanged, min, max, ...rest } = props;
+  const {value, valueChanged, min, max, ...rest} = props;
   const degreeValue = (value * 90).toFixed(0);
 
   return (
@@ -58,9 +57,9 @@ function AngleSlider(
         {...rest}
       >
         <SliderTrack>
-          <SliderFilledTrack backgroundColor="yellow.500" />
+          <SliderFilledTrack backgroundColor="yellow.500"/>
         </SliderTrack>
-        <SliderThumb _focus={{ boxShadow: "base" }} />
+        <SliderThumb _focus={{boxShadow: "base"}}/>
       </Slider>
       <NumberInput
         onChange={(_, value) => {
@@ -77,17 +76,17 @@ function AngleSlider(
         // allowMouseWheel
         focusInputOnChange={false}
       >
-        <NumberInputField />
+        <NumberInputField/>
         <NumberInputStepper>
-          <NumberIncrementStepper />
-          <NumberDecrementStepper />
+          <NumberIncrementStepper/>
+          <NumberDecrementStepper/>
         </NumberInputStepper>
       </NumberInput>
     </HStack>
   );
 }
 
-function AngleControl() {
+function UpLeftRightAngleControl() {
   const [joystickAngles, setJoystickAngles] = useRemoteValue(
     "leftJoystickAngles",
     defaultJoystickAngles
@@ -95,15 +94,57 @@ function AngleControl() {
 
   return (
     <>
-      <Text variant="heading">Strafe angle</Text>
+      <Text variant="heading">Forward & Back + Left or Right Strafe Angle</Text>
       <AngleSlider
         value={joystickAngles.rightUpAngle}
         valueChanged={(value) =>
-          setJoystickAngles({ ...joystickAngles, rightUpAngle: value })
+          setJoystickAngles({...joystickAngles, rightUpAngle: value})
         }
-        min={strafeAngleRange[0]}
-        max={strafeAngleRange[1]}
+        min={upLeftRightStrafeAngleRange[0]}
+        max={upLeftRightStrafeAngleRange[1]}
       />
+    </>
+  );
+}
+
+
+function LeftRightStrafeAngleControl() {
+  const [joystickAngles, setJoystickAngles] = useRemoteValue(
+    "leftJoystickAngles",
+    defaultJoystickAngles
+  );
+
+  function toggleEnabled() {
+    const value = !joystickAngles.isAdvancedStrafeOn;
+    setJoystickAngles({...joystickAngles, isAdvancedStrafeOn: value})
+  }
+
+  return (
+    <>
+      <Flex direction="column" onClick={toggleEnabled} cursor="pointer" pt="6" width="100%">
+        <Flex>
+          <Text variant="heading">Separate Left & Right Strafe Angle</Text>
+          <Spacer/>
+          {/* Render switch as Div so onClick doesn't get triggered twice: https://github.com/chakra-ui/chakra-ui/issues/2854 */}
+          <Switch colorScheme="yellow" isChecked={joystickAngles.isAdvancedStrafeOn} as="div"></Switch>
+        </Flex>
+      </Flex>
+      {joystickAngles.isAdvancedStrafeOn &&
+      <>
+        {/*<Text variant="heading">Left or Right Strafe Angle</Text>*/}
+        <AngleSlider
+          value={joystickAngles.rightAngle}
+          valueChanged={(value) =>
+            setJoystickAngles({...joystickAngles, rightAngle: value})
+          }
+          min={leftRightStrafeAngleRange[0]}
+          max={leftRightStrafeAngleRange[1]}
+        />
+        <Text pt="1" fontSize="sm" variant="body">
+          Set a different angle to strafe with only Left & Right
+        </Text>
+      </>
+      }
     </>
   );
 }
@@ -114,7 +155,7 @@ interface EditKeybindProps {
 }
 
 export function EditKeyBind(props: EditKeybindProps & InputProps) {
-  const { value, valueChanged, ...rest } = props;
+  const {value, valueChanged, ...rest} = props;
   const [isEditing, setIsEditing] = useState(false);
 
   function assignNewBind() {
@@ -126,7 +167,7 @@ export function EditKeyBind(props: EditKeybindProps & InputProps) {
         props.valueChanged(event.keyCode);
         setIsEditing(false);
       },
-      { once: true }
+      {once: true}
     );
   }
 
@@ -181,7 +222,7 @@ export function KeyBinding() {
   function assignNewJoystickBind(key: keyof JoystickKeyMapping, value: number) {
     setKeyMapping({
       ...keyMapping,
-      leftJoystick: { ...keyMapping.leftJoystick, [key]: value },
+      leftJoystick: {...keyMapping.leftJoystick, [key]: value},
     });
   }
 
@@ -197,14 +238,14 @@ export function KeyBinding() {
             leftIcon={<ArrowUpIcon color={iconColor}/>}
             label="Forward"
             value={keyMapping.leftJoystick.up}
-            valueChanged={(value) => assignNewJoystickBind("up", value)}
+            valueChanged={(value: number) => assignNewJoystickBind("up", value)}
           />
           <EditKeybindRow
             flex={1}
             leftIcon={<ArrowUpIcon color={iconColor}/>}
             label={null}
             value={keyMapping.leftJoystick.up_two}
-            valueChanged={(value) => assignNewJoystickBind("up_two", value)}
+            valueChanged={(value: number) => assignNewJoystickBind("up_two", value)}
           />
         </Flex>
         <Flex>
@@ -213,14 +254,14 @@ export function KeyBinding() {
             leftIcon={<ArrowDownIcon color={iconColor}/>}
             label="Back"
             value={keyMapping.leftJoystick.down}
-            valueChanged={(value) => assignNewJoystickBind("down", value)}
+            valueChanged={(value: number) => assignNewJoystickBind("down", value)}
           />
           <EditKeybindRow
             flex={1}
             leftIcon={<ArrowDownIcon color={iconColor}/>}
             label={null}
             value={keyMapping.leftJoystick.down_two}
-            valueChanged={(value) => assignNewJoystickBind("down_two", value)}
+            valueChanged={(value: number) => assignNewJoystickBind("down_two", value)}
           />
         </Flex>
         <Flex>
@@ -229,14 +270,14 @@ export function KeyBinding() {
             leftIcon={<ArrowBackIcon color={iconColor}/>}
             label="Left"
             value={keyMapping.leftJoystick.left}
-            valueChanged={(value) => assignNewJoystickBind("left", value)}
+            valueChanged={(value: number) => assignNewJoystickBind("left", value)}
           />
           <EditKeybindRow
             flex={1}
             leftIcon={<ArrowBackIcon color={iconColor}/>}
             label={null}
             value={keyMapping.leftJoystick.left_two}
-            valueChanged={(value) => assignNewJoystickBind("left_two", value)}
+            valueChanged={(value: number) => assignNewJoystickBind("left_two", value)}
           />
         </Flex>
         <Flex>
@@ -245,14 +286,14 @@ export function KeyBinding() {
             leftIcon={<ArrowForwardIcon color={iconColor}/>}
             label="Right"
             value={keyMapping.leftJoystick.right}
-            valueChanged={(value) => assignNewJoystickBind("right", value)}
+            valueChanged={(value: number) => assignNewJoystickBind("right", value)}
           />
           <EditKeybindRow
             flex={1}
             leftIcon={<ArrowForwardIcon color={iconColor}/>}
             label={null}
             value={keyMapping.leftJoystick.right_two}
-            valueChanged={(value) => assignNewJoystickBind("right_two", value)}
+            valueChanged={(value: number) => assignNewJoystickBind("right_two", value)}
           />
         </Flex>
       </VStack>
@@ -276,31 +317,35 @@ export function AdvancedSettingsCard() {
   }
 
   return (
-    <Card p="2">
-      <Accordion allowToggle={true} onChange={updateWindowSize}>
-        <AccordionItem border="none">
-          <AccordionButton _hover={{ bg: "none" }}>
-            <Text variant="heading" flex="1" textAlign="left">
-              Advanced mode
-            </Text>
-            <AccordionIcon />
-          </AccordionButton>
-          <AccordionPanel pb={4}>
+    <>
+
+      <Flex>
+        <Box flex="1">
+          <Card p="6">
             <VStack align="baseline" spacing="2">
-              <KeyBinding />
-              <AngleControl />
-              <Link
-                as={Text}
-                variant="body"
-                fontSize="sm"
-                onClick={setDefaultSettings}
-              >
-                Reset settings to Wooting recommended
-              </Link>
+              <KeyBinding/>
             </VStack>
-          </AccordionPanel>
-        </AccordionItem>
-      </Accordion>
-    </Card>
+          </Card>
+        </Box>
+        <Box flex="1">
+          <Card p="6">
+            <VStack align="baseline" spacing="2">
+              <UpLeftRightAngleControl/>
+              <LeftRightStrafeAngleControl/>
+            </VStack>
+          </Card>
+          <Card p="6">
+            <Link
+              as={Text}
+              variant="body"
+              fontSize="sm"
+              onClick={setDefaultSettings}
+            >
+              Reset settings to Wooting recommended
+            </Link>
+          </Card>
+        </Box>
+      </Flex>
+    </>
   );
 }
