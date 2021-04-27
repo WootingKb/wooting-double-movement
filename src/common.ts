@@ -9,5 +9,5 @@ export interface AppSettings {
 
 type Size = [width: number, height: number];
 
-export const smallWindowSize: Size = [500, 860];
-export const bigWindowSize: Size = [500, 860];
+export const smallWindowSize: Size = [500, 840];
+export const bigWindowSize: Size = [500, 840];

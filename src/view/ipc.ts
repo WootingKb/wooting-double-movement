@@ -1,6 +1,6 @@
 import { ipcRenderer, IpcRendererEvent } from "electron";
 import { useEffect, useState } from "react";
-import { JoystickAngleConfiguration } from "src/native/types";
+import { JoystickAngleConfiguration, KeyMapping } from "src/native/types";
 import { AppSettings } from "../common";
 
 const storeChangedChannel = "store_changed";
@@ -17,6 +17,10 @@ export class RemoteStore {
     value: AppSettings[Key]
   ) {
     ipcRenderer.send("store_set", name, value);
+  }
+
+  static async getKeyMapping(): Promise<KeyMapping> {
+    return await this.getValue("keyMapping");
   }
 
   static async doubleMovementEnabled(): Promise<boolean> {

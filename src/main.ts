@@ -1,29 +1,18 @@
-import {
-  app,
-  BrowserWindow,
-  dialog,
-  globalShortcut,
-  ipcMain,
-  Menu,
-  shell,
-  Tray,
-} from "electron";
-import { get_xinput_slot, start_service, stop_service } from "./native/native";
+import { app, BrowserWindow, dialog, globalShortcut, ipcMain, Menu, shell, Tray, } from "electron";
+import { get_xinput_slot } from "./native/native";
 import ElectronStore from "electron-store";
 import { AppSettings, smallWindowSize } from "./common";
-import path from "path";
 import install, { REACT_DEVELOPER_TOOLS } from "electron-devtools-installer";
-import { create } from "domain";
 import { setServiceConfig, startService, stopService } from "./native";
 import {
   defaultJoystickAngles,
-  defaultKeyMapping, defaultStrafeJoystickAngles,
+  defaultKeyMapping,
+  defaultStrafeJoystickAngles,
   JoystickAngleConfiguration,
   KeyMapping,
   ServiceConfiguration,
 } from "./native/types";
-import { Key } from "ts-keycode-enum";
-import { log, functions } from "electron-log";
+import { functions } from "electron-log";
 import { autoUpdater } from "electron-updater";
 
 Object.assign(console, functions);
@@ -110,7 +99,7 @@ function createMainWindow() {
       autoUpdater.on("update-available", () =>
         mainWindow?.webContents.send("update_available")
       );
-      autoUpdater.on("download-progress", ({ percent }) =>
+      autoUpdater.on("download-progress", ({percent}) =>
         mainWindow?.webContents.send("update_progress", percent)
       );
       autoUpdater.on("update-downloaded", () =>
@@ -143,7 +132,7 @@ app.on("ready", () => {
   create_tray();
   if (isDev()) {
     install(REACT_DEVELOPER_TOOLS, {
-      loadExtensionOptions: { allowFileAccess: true },
+      loadExtensionOptions: {allowFileAccess: true},
     })
       .then((name: string) => console.log(`Added Extension:  ${name}`))
       .catch((err: string) => console.log("An error occurred: ", err));
@@ -154,7 +143,8 @@ app.on("ready", () => {
   }
 });
 
-app.on("window-all-closed", () => {});
+app.on("window-all-closed", () => {
+});
 
 app.on("will-quit", () => {
   globalShortcut.unregisterAll();
@@ -188,9 +178,9 @@ const contextMenu = Menu.buildFromTemplate([
     type: "checkbox",
     //We can tell from the ServiceState whether the service is enabled or not
     checked: false,
-    click: ({ checked }) => serviceManager.set_double_movement_enabled(checked),
+    click: ({checked}) => serviceManager.set_double_movement_enabled(checked),
   },
-  { type: "separator" },
+  {type: "separator"},
   {
     label: "Quit",
     click: () => app.quit(),
@@ -220,7 +210,7 @@ class ServiceManager {
   store = new ElectronStore<AppSettings>({
     defaults: {
       doubleMovementEnabled: false,
-      isAdvancedStrafeOn:false,
+      isAdvancedStrafeOn: false,
       leftJoystickAngles: defaultJoystickAngles,
       leftStrafeJoystickAngles: defaultStrafeJoystickAngles,
       keyMapping: defaultKeyMapping,
@@ -269,8 +259,24 @@ class ServiceManager {
     this.store.set(name, value);
   }
 
+  getKeyMapping(): KeyMapping {
+    return this.store.get("keyMapping");
+  }
+
+  getLeftJoystickAngles(): JoystickAngleConfiguration {
+    return this.store.get("leftJoystickAngles");
+  }
+
+  getLeftStrafeJoystickAngles(): JoystickAngleConfiguration {
+    return this.store.get("leftStrafeJoystickAngles");
+  }
+
   doubleMovementEnabled(): boolean {
     return this.store.get("doubleMovementEnabled");
+  }
+
+  isAdvancedStrafeOn(): boolean {
+    return this.store.get("isAdvancedStrafeOn");
   }
 
   set_double_movement_enabled(value: boolean) {
@@ -282,17 +288,17 @@ class ServiceManager {
     return {
       leftJoystickAngles: {
         ...defaultJoystickAngles,
-        ...this.store.get("leftJoystickAngles"),
+        ...this.getLeftJoystickAngles(),
       },
       leftStrafeJoystickAngles: {
-        ...defaultJoystickAngles,
-        ...this.store.get("leftStrafeJoystickAngles"),
+        ...defaultStrafeJoystickAngles,
+        ...this.getLeftStrafeJoystickAngles(),
       },
       keyMapping: {
         ...defaultKeyMapping,
-        ...this.store.get("keyMapping"),
+        ...this.getKeyMapping(),
       },
-      isAdvancedStrafeOn: this.store.get("isAdvancedStrafeOn") || false
+      isAdvancedStrafeOn: this.isAdvancedStrafeOn() || false
     };
   }
 
@@ -377,4 +383,5 @@ class ServiceManager {
     }
   }
 }
+
 const serviceManager = new ServiceManager();
