@@ -6,13 +6,17 @@ import { Footer } from "./Footer";
 import { UpdateToast } from "./UpdateToast";
 
 export function MainWindow() {
-  const bg = useColorModeValue("white", "#1C2226");
+  const bgBorder = useColorModeValue("#eeeeee", "#2b323b");
+  const bg = useColorModeValue("#ffffff", "#1C2226");
   return (
     <Flex
       userSelect="none"
       h="100vh"
       direction="column"
       borderRadius="18px"
+      borderWidth="2px"
+      borderStyle="solid"
+      borderColor={bgBorder}
       backgroundColor={bg}
       overflow="hidden"
     >
