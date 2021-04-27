@@ -4,12 +4,6 @@ use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct JoystickAngleConfiguration {
-    #[serde(rename = "leftUpAngle")]
-    pub left_up_angle: f32,
-    #[serde(rename = "rightUpAngle")]
-    pub right_up_angle: f32,
-    #[serde(rename = "isAdvancedStrafeOn")]
-    pub is_advanced_strafe_on: bool,
     #[serde(rename = "leftAngle")]
     pub left_angle: f32,
     #[serde(rename = "rightAngle")]
@@ -67,21 +61,27 @@ impl Default for KeyMapping {
 pub struct ServiceConfiguration {
     #[serde(rename = "leftJoystickAngles")]
     pub left_joystick_angles: JoystickAngleConfiguration,
+    #[serde(rename = "leftStrafeJoystickAngles")]
+    pub left_strafe_joystick_angles: JoystickAngleConfiguration,
     #[serde(rename = "keyMapping")]
     pub key_mapping: KeyMapping,
+    #[serde(rename = "isAdvancedStrafeOn")]
+    pub is_advanced_strafe_on: bool,
 }
 
 impl Default for ServiceConfiguration {
     fn default() -> Self {
         ServiceConfiguration {
             left_joystick_angles: JoystickAngleConfiguration {
-                left_up_angle: 0.67,
-                right_up_angle: 0.67,
                 left_angle: 0.67,
                 right_angle: 0.67,
-                is_advanced_strafe_on: false,
+            },
+            left_strafe_joystick_angles: JoystickAngleConfiguration {
+                left_angle: 0.67,
+                right_angle: 0.67,
             },
             key_mapping: KeyMapping::default(),
+            is_advanced_strafe_on: false,
         }
     }
 }

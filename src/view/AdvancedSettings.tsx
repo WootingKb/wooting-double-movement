@@ -1,6 +1,5 @@
 import { ArrowBackIcon, ArrowDownIcon, ArrowForwardIcon, ArrowUpIcon, } from "@chakra-ui/icons";
 import {
-  Box,
   ExpandedIndex,
   Flex,
   HStack,
@@ -20,12 +19,22 @@ import {
   Spacer,
   StackProps,
   Switch,
+  Tab,
+  TabList,
+  TabPanel,
+  TabPanels,
+  Tabs,
   Text,
   VStack,
 } from "@chakra-ui/react";
 import React, { useState } from "react";
 import { bigWindowSize, smallWindowSize } from "../common";
-import { defaultJoystickAngles, defaultKeyMapping, JoystickKeyMapping, } from "../native/types";
+import {
+  defaultJoystickAngles,
+  defaultKeyMapping,
+  defaultStrafeJoystickAngles,
+  JoystickKeyMapping,
+} from "../native/types";
 import { Key } from "ts-keycode-enum";
 import { Card } from "./Components";
 import { RemoteStore, setWindowSize, useRemoteValue } from "./ipc";
@@ -96,9 +105,9 @@ function UpLeftRightAngleControl() {
     <>
       <Text variant="heading">Forward & Back + Left or Right Strafe Angle</Text>
       <AngleSlider
-        value={joystickAngles.rightUpAngle}
+        value={joystickAngles.rightAngle}
         valueChanged={(value) =>
-          setJoystickAngles({...joystickAngles, rightUpAngle: value})
+          setJoystickAngles({...joystickAngles, rightAngle: value})
         }
         min={upLeftRightStrafeAngleRange[0]}
         max={upLeftRightStrafeAngleRange[1]}
@@ -109,14 +118,19 @@ function UpLeftRightAngleControl() {
 
 
 function LeftRightStrafeAngleControl() {
-  const [joystickAngles, setJoystickAngles] = useRemoteValue(
-    "leftJoystickAngles",
-    defaultJoystickAngles
+  const [strafeJoystickAngles, setStrafeJoystickAngles] = useRemoteValue(
+    "leftStrafeJoystickAngles",
+    defaultStrafeJoystickAngles
+  );
+
+  const [isAdvancedStrafeOn, setIsAdvancedStrafeOn] = useRemoteValue(
+    "isAdvancedStrafeOn",
+    false
   );
 
   function toggleEnabled() {
-    const value = !joystickAngles.isAdvancedStrafeOn;
-    setJoystickAngles({...joystickAngles, isAdvancedStrafeOn: value})
+    const value = !isAdvancedStrafeOn;
+    setIsAdvancedStrafeOn(value)
   }
 
   return (
@@ -126,16 +140,16 @@ function LeftRightStrafeAngleControl() {
           <Text variant="heading">Separate Left & Right Strafe Angle</Text>
           <Spacer/>
           {/* Render switch as Div so onClick doesn't get triggered twice: https://github.com/chakra-ui/chakra-ui/issues/2854 */}
-          <Switch colorScheme="yellow" isChecked={joystickAngles.isAdvancedStrafeOn} as="div"></Switch>
+          <Switch colorScheme="yellow" isChecked={isAdvancedStrafeOn} as="div"></Switch>
         </Flex>
       </Flex>
-      {joystickAngles.isAdvancedStrafeOn &&
+      {isAdvancedStrafeOn &&
       <>
         {/*<Text variant="heading">Left or Right Strafe Angle</Text>*/}
         <AngleSlider
-          value={joystickAngles.rightAngle}
+          value={strafeJoystickAngles.rightAngle}
           valueChanged={(value) =>
-            setJoystickAngles({...joystickAngles, rightAngle: value})
+            setStrafeJoystickAngles({...strafeJoystickAngles, rightAngle: value})
           }
           min={leftRightStrafeAngleRange[0]}
           max={leftRightStrafeAngleRange[1]}
@@ -318,34 +332,41 @@ export function AdvancedSettingsCard() {
 
   return (
     <>
+      <Card p="6" minHeight="315px">
+        <Tabs variant="soft-rounded" colorScheme="yellow">
+          <TabList>
+            <Tab mr={3}>Keybinds</Tab>
+            <Tab>Strafing</Tab>
+          </TabList>
 
-      <Flex>
-        <Box flex="1">
-          <Card p="6">
-            <VStack align="baseline" spacing="2">
-              <KeyBinding/>
-            </VStack>
-          </Card>
-        </Box>
-        <Box flex="1">
-          <Card p="6">
-            <VStack align="baseline" spacing="2">
-              <UpLeftRightAngleControl/>
-              <LeftRightStrafeAngleControl/>
-            </VStack>
-          </Card>
-          <Card p="6">
-            <Link
-              as={Text}
-              variant="body"
-              fontSize="sm"
-              onClick={setDefaultSettings}
-            >
-              Reset settings to Wooting recommended
-            </Link>
-          </Card>
-        </Box>
-      </Flex>
+          <TabPanels>
+
+            <TabPanel>
+              <VStack align="baseline" spacing="2">
+                <KeyBinding/>
+              </VStack>
+            </TabPanel>
+
+            <TabPanel>
+              <VStack align="baseline" spacing="2">
+                <UpLeftRightAngleControl/>
+                <LeftRightStrafeAngleControl/>
+              </VStack>
+            </TabPanel>
+
+          </TabPanels>
+        </Tabs>
+      </Card>
+      <Card p="6">
+        <Link
+          as={Text}
+          variant="body"
+          fontSize="sm"
+          onClick={setDefaultSettings}
+        >
+          Reset settings to Wooting recommended
+        </Link>
+      </Card>
     </>
   );
 }

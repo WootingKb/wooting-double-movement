@@ -78,6 +78,7 @@ export function useRemoteValue<Key extends keyof AppSettings>(
 
   function setValue(value: AppSettings[Key]) {
     _setValue(value);
+    console.log("set", name, value)
     RemoteStore.setValue(name, value);
   }
 

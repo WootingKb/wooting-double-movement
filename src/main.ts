@@ -17,7 +17,7 @@ import { create } from "domain";
 import { setServiceConfig, startService, stopService } from "./native";
 import {
   defaultJoystickAngles,
-  defaultKeyMapping,
+  defaultKeyMapping, defaultStrafeJoystickAngles,
   JoystickAngleConfiguration,
   KeyMapping,
   ServiceConfiguration,
@@ -220,7 +220,9 @@ class ServiceManager {
   store = new ElectronStore<AppSettings>({
     defaults: {
       doubleMovementEnabled: false,
+      isAdvancedStrafeOn:false,
       leftJoystickAngles: defaultJoystickAngles,
+      leftStrafeJoystickAngles: defaultStrafeJoystickAngles,
       keyMapping: defaultKeyMapping,
     },
   });
@@ -238,7 +240,12 @@ class ServiceManager {
       this.store.set(name, value);
       this.update_state();
 
-      if (name == "leftJoystickAngles" || name === "keyMapping") {
+      if (
+        name == "leftJoystickAngles" ||
+        name == "leftStrafeJoystickAngles" ||
+        name == "isAdvancedStrafeOn" ||
+        name === "keyMapping"
+      ) {
         this.update_config();
       }
     });
@@ -277,16 +284,23 @@ class ServiceManager {
         ...defaultJoystickAngles,
         ...this.store.get("leftJoystickAngles"),
       },
+      leftStrafeJoystickAngles: {
+        ...defaultJoystickAngles,
+        ...this.store.get("leftStrafeJoystickAngles"),
+      },
       keyMapping: {
         ...defaultKeyMapping,
         ...this.store.get("keyMapping"),
       },
+      isAdvancedStrafeOn: this.store.get("isAdvancedStrafeOn") || false
     };
   }
 
   resetAdvancedConfig() {
     this.store_set("keyMapping", defaultKeyMapping);
+    this.store_set("isAdvancedStrafeOn", false);
     this.store_set("leftJoystickAngles", defaultJoystickAngles);
+    this.store_set("leftStrafeJoystickAngles", defaultStrafeJoystickAngles);
     this.update_config();
   }
 

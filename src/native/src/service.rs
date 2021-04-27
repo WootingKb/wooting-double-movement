@@ -138,12 +138,12 @@ impl Service {
             #[cfg(feature = "ds4")]
             let report = self
                 .controller_state
-                .get_ds4_report(Some(&self.config.left_joystick_angles));
+                .get_ds4_report(Some(&self.config));
 
             #[cfg(not(feature = "ds4"))]
             let report = self
                 .controller_state
-                .get_xusb_report(Some(&self.config.left_joystick_angles));
+                .get_xusb_report(Some(&self.config));
 
             controller.update(&report)?;
         }
