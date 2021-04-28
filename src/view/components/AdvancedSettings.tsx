@@ -5,7 +5,15 @@ import {
   AccordionItem,
   AccordionPanel,
   ExpandedIndex,
-  Link, Tab, TabList, TabPanel, TabPanels, Tabs,
+  Flex,
+  Link,
+  Spacer,
+  Switch,
+  Tab,
+  TabList,
+  TabPanel,
+  TabPanels,
+  Tabs,
   Text,
   VStack,
 } from "@chakra-ui/react";
@@ -15,7 +23,7 @@ import { RemoteStore, setWindowSize, useRemoteValue } from "../../ipc";
 import { KeyBindControl } from "./settings/key-bind/KeyBindControl";
 import { AngleControl } from "./settings/angle/AngleControl";
 import { Card } from "./card/Card";
-import { defaultJoystickAngles } from "../../native/types";
+import { defaultLeftJoystickSingleKeyStrafingAngles } from "../../native/types";
 
 
 export function AdvancedSettingsCard() {
@@ -33,7 +41,15 @@ export function AdvancedSettingsCard() {
     RemoteStore.resetSettings();
   }
 
-  const leftJoystickValues = useRemoteValue("leftJoystickAngles", defaultJoystickAngles);
+  const [isAdvancedStrafeOn, setIsAdvancedStrafeOn] = useRemoteValue("isAdvancedStrafeOn", false);
+
+  function toggleEnabled() {
+    const value = !isAdvancedStrafeOn;
+    setIsAdvancedStrafeOn(value)
+  }
+
+  const leftJoystickValues = useRemoteValue("leftJoystickStrafingAngles", defaultLeftJoystickSingleKeyStrafingAngles);
+  const leftJoystickSingleKeyStrafingValues = useRemoteValue("leftJoystickSingleKeyStrafingAngles", defaultLeftJoystickSingleKeyStrafingAngles);
 
   const minTabHeight = "180px";
 
@@ -42,7 +58,7 @@ export function AdvancedSettingsCard() {
       <Accordion allowToggle={true} onChange={updateWindowSize}>
         <AccordionItem border="none">
 
-          <AccordionButton _hover={{bg: "none"}}>
+          <AccordionButton _hover={{ bg: "none" }}>
             <Text variant="heading" flex="1" textAlign="left">
               Advanced mode
             </Text>
@@ -69,8 +85,26 @@ export function AdvancedSettingsCard() {
                       remoteValue={leftJoystickValues}
                       min={15}
                       max={72}
-                      label="Strafe angle"
-                    />
+                    >
+                      <Text variant="heading">Strafe angle</Text>
+                    </AngleControl>
+                    <Flex direction="column" onClick={toggleEnabled} cursor="pointer" pt="6" width="100%">
+                      <Flex>
+                        <Text variant="heading"> Enable Single Key Strafing </Text>
+                        <Spacer/>
+                        {/* Render switch as Div so onClick doesn't get triggered twice: https://github.com/chakra-ui/chakra-ui/issues/2854 */}
+                        <Switch colorScheme="yellow" isChecked={isAdvancedStrafeOn} as="div"></Switch>
+                      </Flex>
+                    </Flex>
+                    {
+                      isAdvancedStrafeOn &&
+                      <AngleControl
+                        remoteValue={leftJoystickSingleKeyStrafingValues}
+                        min={15}
+                        max={90}
+                      >
+                      </AngleControl>
+                    }
                   </VStack>
                 </TabPanel>
 

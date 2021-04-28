@@ -1,7 +1,10 @@
 import { JoystickAngleConfiguration, KeyMapping } from "./native/types";
+
 export interface AppSettings {
   doubleMovementEnabled: boolean;
-  leftJoystickAngles: JoystickAngleConfiguration;
+  isAdvancedStrafeOn: boolean;
+  leftJoystickStrafingAngles: JoystickAngleConfiguration;
+  leftJoystickSingleKeyStrafingAngles: JoystickAngleConfiguration;
   keyMapping: KeyMapping;
 }
 

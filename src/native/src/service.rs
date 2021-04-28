@@ -58,6 +58,7 @@ pub struct Service {
 
 // Service should be wrapped in Mutex if used across threads so minimise unsafety
 unsafe impl Send for Service {}
+
 unsafe impl Sync for Service {}
 
 impl Service {
@@ -82,7 +83,7 @@ impl Service {
         info!("Service init");
 
         #[cfg(feature = "rawinput")]
-        self.input_manager.register_devices(DeviceType::Keyboards);
+            self.input_manager.register_devices(DeviceType::Keyboards);
 
         // connect our client to a VigemBus
         self.vigem.connect().context(
@@ -90,7 +91,7 @@ impl Service {
         )?;
 
         #[cfg(feature = "ds4")]
-        let mut target = {
+            let mut target = {
             // Make a new target which represent DualShock4 controller
             let t = Target::new(TargetType::DualShock4);
             // DS4 vid/pid
@@ -100,7 +101,7 @@ impl Service {
         };
 
         #[cfg(not(feature = "ds4"))]
-        let mut target = {
+            let mut target = {
             // Make a new target which represent XBOX360 controller
             let t = Target::new(TargetType::Xbox360);
             t.set_vid(0x31e3);
@@ -136,14 +137,14 @@ impl Service {
     fn update_controller(&mut self) -> Result<()> {
         if let Some(controller) = self.controller.as_mut() {
             #[cfg(feature = "ds4")]
-            let report = self
+                let report = self
                 .controller_state
-                .get_ds4_report(Some(&self.config.left_joystick_angles));
+                .get_ds4_report(Some(&self.config));
 
             #[cfg(not(feature = "ds4"))]
-            let report = self
+                let report = self
                 .controller_state
-                .get_xusb_report(Some(&self.config.left_joystick_angles));
+                .get_xusb_report(Some(&self.config));
 
             controller.update(&report)?;
         }
@@ -161,9 +162,9 @@ impl Service {
                         .left_joystick
                         .set_direction_state(JoystickDirection::Up, state == State::Pressed),
                     x if x == self.config.key_mapping.left_joystick.up_two => self
-                    .controller_state
-                    .left_joystick
-                    .set_direction_state(JoystickDirection::UpTwo, state == State::Pressed),
+                        .controller_state
+                        .left_joystick
+                        .set_direction_state(JoystickDirection::UpTwo, state == State::Pressed),
                     x if x == self.config.key_mapping.left_joystick.down => self
                         .controller_state
                         .left_joystick

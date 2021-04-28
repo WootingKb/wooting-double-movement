@@ -1,16 +1,6 @@
 import React from "react";
-import {
-  Flex,
-  Spacer,
-  Icon,
-  IconButton,
-  Center,
-  Button,
-  useColorMode,
-  color,
-  useColorModeValue,
-} from "@chakra-ui/react";
-import { MinusIcon, CloseIcon, MoonIcon, SunIcon } from "@chakra-ui/icons";
+import { Center, Flex, Icon, IconButton, Spacer, useColorMode, useColorModeValue, } from "@chakra-ui/react";
+import { CloseIcon, MinusIcon, MoonIcon } from "@chakra-ui/icons";
 import { ipcRenderer } from "electron";
 import { WootSunIcon } from "./WootSunIcon";
 
@@ -21,7 +11,7 @@ declare module "react" {
 }
 
 export function Header() {
-  const {colorMode, toggleColorMode} = useColorMode();
+  const { colorMode, toggleColorMode } = useColorMode();
   const logoColour = useColorModeValue("#191919", "white");
 
   return (
@@ -30,7 +20,7 @@ export function Header() {
       w="full"
       p="6"
       pb="0"
-      style={{WebkitAppRegion: "drag"}}
+      style={{ WebkitAppRegion: "drag" }}
     >
       <Center>
         <Icon viewBox="0 0 250 155" color={logoColour} w={12} h={8}>
@@ -46,7 +36,7 @@ export function Header() {
         </Icon>
       </Center>
       <Spacer/>
-      <Flex style={{WebkitAppRegion: "no-drag"}}>
+      <Flex style={{ WebkitAppRegion: "no-drag" }}>
         <IconButton
           variant="ghost"
           aria-label="Color Mode"

@@ -1,29 +1,16 @@
-import {
-  app,
-  BrowserWindow,
-  dialog,
-  globalShortcut,
-  ipcMain,
-  Menu,
-  shell,
-  Tray,
-} from "electron";
-import { get_xinput_slot, start_service, stop_service } from "./native/native";
+import { app, BrowserWindow, dialog, globalShortcut, ipcMain, Menu, shell, Tray, } from "electron";
+import { get_xinput_slot } from "./native/native";
 import ElectronStore from "electron-store";
 import { AppSettings, smallWindowSize } from "./common";
-import path from "path";
 import install, { REACT_DEVELOPER_TOOLS } from "electron-devtools-installer";
-import { create } from "domain";
 import { setServiceConfig, startService, stopService } from "./native";
 import {
-  defaultJoystickAngles,
   defaultKeyMapping,
-  JoystickAngleConfiguration,
-  KeyMapping,
+  defaultLeftJoystickSingleKeyStrafingAngles,
+  defaultLeftJoystickStrafingAngles,
   ServiceConfiguration,
 } from "./native/types";
-import { Key } from "ts-keycode-enum";
-import { log, functions } from "electron-log";
+import { functions } from "electron-log";
 import { autoUpdater } from "electron-updater";
 
 Object.assign(console, functions);
@@ -220,7 +207,9 @@ class ServiceManager {
   store = new ElectronStore<AppSettings>({
     defaults: {
       doubleMovementEnabled: false,
-      leftJoystickAngles: defaultJoystickAngles,
+      isAdvancedStrafeOn: false,
+      leftJoystickStrafingAngles: defaultLeftJoystickSingleKeyStrafingAngles,
+      leftJoystickSingleKeyStrafingAngles: defaultLeftJoystickSingleKeyStrafingAngles,
       keyMapping: defaultKeyMapping,
     },
   });
@@ -238,7 +227,7 @@ class ServiceManager {
       this.store.set(name, value);
       this.update_state();
 
-      if (name == "leftJoystickAngles" || name === "keyMapping") {
+      if (name == "leftJoystickStrafingAngles" || name == "leftJoystickSingleKeyStrafingAngles" || name === "keyMapping" || name === "isAdvancedStrafeOn") {
         this.update_config();
       }
     });
@@ -273,20 +262,27 @@ class ServiceManager {
 
   serviceConfiguration(): ServiceConfiguration {
     return {
-      leftJoystickAngles: {
-        ...defaultJoystickAngles,
-        ...this.store.get("leftJoystickAngles"),
+      leftJoystickStrafingAngles: {
+        ...defaultLeftJoystickSingleKeyStrafingAngles,
+        ...this.store.get("leftJoystickStrafingAngles"),
+      },
+      leftJoystickSingleKeyStrafingAngles: {
+        ...defaultLeftJoystickSingleKeyStrafingAngles,
+        ...this.store.get("leftJoystickSingleKeyStrafingAngles"),
       },
       keyMapping: {
         ...defaultKeyMapping,
         ...this.store.get("keyMapping"),
       },
+      isAdvancedStrafeOn: this.store.get("isAdvancedStrafeOn") ?? false
     };
   }
 
   resetAdvancedConfig() {
     this.store_set("keyMapping", defaultKeyMapping);
-    this.store_set("leftJoystickAngles", defaultJoystickAngles);
+    this.store_set("leftJoystickSingleKeyStrafingAngles", defaultLeftJoystickSingleKeyStrafingAngles);
+    this.store_set("leftJoystickStrafingAngles", defaultLeftJoystickStrafingAngles);
+    this.store_set("isAdvancedStrafeOn", false);
     this.update_config();
   }
 
@@ -363,4 +359,5 @@ class ServiceManager {
     }
   }
 }
+
 const serviceManager = new ServiceManager();

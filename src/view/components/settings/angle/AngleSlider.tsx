@@ -1,6 +1,10 @@
 import {
-  HStack, NumberDecrementStepper, NumberIncrementStepper,
-  NumberInput, NumberInputField, NumberInputStepper,
+  HStack,
+  NumberDecrementStepper,
+  NumberIncrementStepper,
+  NumberInput,
+  NumberInputField,
+  NumberInputStepper,
   Slider,
   SliderFilledTrack,
   SliderProps,
@@ -17,7 +21,7 @@ export function AngleSlider(
     max: number;
   } & SliderProps
 ) {
-  const {value, valueChanged, min, max, ...rest} = props;
+  const { value, valueChanged, min, max, ...rest } = props;
   const degreeValue = (value * 90).toFixed(0);
 
   return (
@@ -35,7 +39,7 @@ export function AngleSlider(
         <SliderTrack>
           <SliderFilledTrack backgroundColor="yellow.500"/>
         </SliderTrack>
-        <SliderThumb _focus={{boxShadow: "base"}}/>
+        <SliderThumb _focus={{ boxShadow: "base" }}/>
       </Slider>
       <NumberInput
         onChange={(_, value) => {

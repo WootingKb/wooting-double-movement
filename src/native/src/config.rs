@@ -59,20 +59,29 @@ impl Default for KeyMapping {
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct ServiceConfiguration {
-    #[serde(rename = "leftJoystickAngles")]
-    pub left_joystick_angles: JoystickAngleConfiguration,
+    #[serde(rename = "leftJoystickStrafingAngles")]
+    pub left_joystick_strafing_angles: JoystickAngleConfiguration,
+    #[serde(rename = "leftJoystickSingleKeyStrafingAngles")]
+    pub left_joystick_single_key_strafing_angles: JoystickAngleConfiguration,
     #[serde(rename = "keyMapping")]
     pub key_mapping: KeyMapping,
+    #[serde(rename = "isAdvancedStrafeOn")]
+    pub is_advanced_strafe_on: bool,
 }
 
 impl Default for ServiceConfiguration {
     fn default() -> Self {
         ServiceConfiguration {
-            left_joystick_angles: JoystickAngleConfiguration {
+            left_joystick_strafing_angles: JoystickAngleConfiguration {
+                left_up_angle: 0.67,
+                right_up_angle: 0.67,
+            },
+            left_joystick_single_key_strafing_angles: JoystickAngleConfiguration {
                 left_up_angle: 0.67,
                 right_up_angle: 0.67,
             },
             key_mapping: KeyMapping::default(),
+            is_advanced_strafe_on: false,
         }
     }
 }

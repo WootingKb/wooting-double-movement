@@ -1,8 +1,7 @@
 import React from "react";
 import ReactDOM from "react-dom";
-import { background, ChakraProvider } from "@chakra-ui/react";
+import { ChakraProvider, extendTheme } from "@chakra-ui/react";
 import { MainWindow } from "./MainWindow";
-import { extendTheme } from "@chakra-ui/react";
 import { mode } from "@chakra-ui/theme-tools";
 import { functions } from "electron-log";
 
@@ -72,9 +71,9 @@ const theme = extendTheme({
 function AppRoot() {
   return (
     <ChakraProvider theme={theme}>
-      <MainWindow />
+      <MainWindow/>
     </ChakraProvider>
   );
 }
 
-ReactDOM.render(<AppRoot />, document.getElementById("root"));
+ReactDOM.render(<AppRoot/>, document.getElementById("root"));

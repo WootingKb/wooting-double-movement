@@ -2,7 +2,6 @@ import React from "react";
 import { useRemoteValue } from "../../ipc";
 
 import { Flex, Kbd, Spacer, Switch, Text } from "@chakra-ui/react";
-import { AdvancedSettingsCard } from "./AdvancedSettings";
 import { Card } from "./card/Card";
 
 export function SimpleEnableCard() {

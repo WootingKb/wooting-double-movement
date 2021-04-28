@@ -28,11 +28,11 @@ export class RemoteStore {
   }
 
   static async leftJoystickAngles(): Promise<JoystickAngleConfiguration> {
-    return await this.getValue("leftJoystickAngles");
+    return await this.getValue("leftJoystickStrafingAngles");
   }
 
   static setLeftJoystickAngles(value: JoystickAngleConfiguration) {
-    this.setValue("leftJoystickAngles", value);
+    this.setValue("leftJoystickStrafingAngles", value);
   }
 
   /// Returns function to unsubscribe to changes
@@ -46,6 +46,7 @@ export class RemoteStore {
         callback(value as AppSettings[Key]);
       }
     }
+
     ipcRenderer.on(storeChangedChannel, listener);
 
     return () => {

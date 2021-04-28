@@ -15,7 +15,7 @@ export function KeyBindControl() {
   function assignNewJoystickBind(key: keyof JoystickKeyMapping, value: number) {
     setKeyMapping({
       ...keyMapping,
-      leftJoystick: {...keyMapping.leftJoystick, [key]: value},
+      leftJoystick: { ...keyMapping.leftJoystick, [key]: value },
     });
   }
 

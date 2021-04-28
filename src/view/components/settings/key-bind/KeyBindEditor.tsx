@@ -8,7 +8,7 @@ interface EditKeyBindProps {
 }
 
 export function KeyBindEditor(props: EditKeyBindProps & InputProps) {
-  const {value, valueChanged, ...rest} = props;
+  const { value, valueChanged, ...rest } = props;
   const [isEditing, setIsEditing] = useState(false);
 
   function assignNewBind() {
@@ -20,7 +20,7 @@ export function KeyBindEditor(props: EditKeyBindProps & InputProps) {
         props.valueChanged(event.keyCode);
         setIsEditing(false);
       },
-      {once: true}
+      { once: true }
     );
   }
 

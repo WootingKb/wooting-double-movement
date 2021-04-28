@@ -5,7 +5,11 @@ export interface JoystickAngleConfiguration {
   rightUpAngle: number;
 }
 
-export const defaultJoystickAngles: JoystickAngleConfiguration = {
+export const defaultLeftJoystickSingleKeyStrafingAngles: JoystickAngleConfiguration = {
+  leftUpAngle: 0.78,
+  rightUpAngle: 0.78,
+};
+export const defaultLeftJoystickStrafingAngles: JoystickAngleConfiguration = {
   leftUpAngle: 0.67,
   rightUpAngle: 0.67,
 };
@@ -37,7 +41,10 @@ export const defaultKeyMapping: KeyMapping = {
     right_two: Key.D
   },
 };
+
 export interface ServiceConfiguration {
-  leftJoystickAngles: JoystickAngleConfiguration;
+  isAdvancedStrafeOn: boolean;
+  leftJoystickStrafingAngles: JoystickAngleConfiguration;
+  leftJoystickSingleKeyStrafingAngles: JoystickAngleConfiguration;
   keyMapping: KeyMapping;
 }
