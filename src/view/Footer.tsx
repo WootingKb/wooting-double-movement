@@ -13,13 +13,13 @@ export function Footer() {
       <Text variant="body" fontSize="sm">
         <Link href="https://wooting.io/double-movement" isExternal>
           More information
-          <ExternalLinkIcon mx="2px" />
+          <ExternalLinkIcon mx="2px"/>
         </Link>
       </Text>
       <Text variant="body" fontSize="sm">
         <Link href="https://github.com/ViGEm" isExternal>
           Powered by ViGEm
-          <ExternalLinkIcon mx="2px" />
+          <ExternalLinkIcon mx="2px"/>
         </Link>
       </Text>
       <Text variant="body" fontSize="sm">

@@ -12,7 +12,7 @@ import {
 } from "@chakra-ui/react";
 import { MinusIcon, CloseIcon, MoonIcon, SunIcon } from "@chakra-ui/icons";
 import { ipcRenderer } from "electron";
-import { WootSunIcon } from "./Components";
+import { WootSunIcon } from "./WootSunIcon";
 
 declare module "react" {
   interface CSSProperties {
@@ -21,7 +21,7 @@ declare module "react" {
 }
 
 export function Header() {
-  const { colorMode, toggleColorMode } = useColorMode();
+  const {colorMode, toggleColorMode} = useColorMode();
   const logoColour = useColorModeValue("#191919", "white");
 
   return (
@@ -30,7 +30,7 @@ export function Header() {
       w="full"
       p="6"
       pb="0"
-      style={{ WebkitAppRegion: "drag" }}
+      style={{WebkitAppRegion: "drag"}}
     >
       <Center>
         <Icon viewBox="0 0 250 155" color={logoColour} w={12} h={8}>
@@ -45,15 +45,15 @@ export function Header() {
           />
         </Icon>
       </Center>
-      <Spacer />
-      <Flex style={{ WebkitAppRegion: "no-drag" }}>
+      <Spacer/>
+      <Flex style={{WebkitAppRegion: "no-drag"}}>
         <IconButton
           variant="ghost"
           aria-label="Color Mode"
           onClick={toggleColorMode}
           icon={
             colorMode === "light" ? (
-              <MoonIcon />
+              <MoonIcon/>
             ) : (
               <WootSunIcon
                 viewBox="0 0 250 250"
@@ -67,14 +67,14 @@ export function Header() {
         <IconButton
           aria-label="Minimise"
           onClick={() => ipcRenderer.send("windowMinimize")}
-          icon={<MinusIcon />}
+          icon={<MinusIcon/>}
           variant="ghost"
         />
         <IconButton
           aria-label="Close"
           ml="1"
           onClick={() => ipcRenderer.send("windowClose")}
-          icon={<CloseIcon />}
+          icon={<CloseIcon/>}
           variant="ghost"
         />
       </Flex>

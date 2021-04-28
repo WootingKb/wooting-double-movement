@@ -36,7 +36,7 @@ export function UpdateToast() {
             textAlign="start"
             width="auto"
           >
-            <AlertIcon />
+            <AlertIcon/>
             <Box flex="1">
               <AlertTitle>Update complete</AlertTitle>
               <AlertDescription display="block">
