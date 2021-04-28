@@ -1,16 +1,16 @@
 import { Flex, HStack, Text, VStack } from "@chakra-ui/react";
 import React from "react";
-import { useRemoteValue } from "../../../../ipc";
-import { defaultKeyMapping, JoystickKeyMapping } from "../../../../native/types";
+import { JoystickKeyMapping, KeyMapping } from "../../../../native/types";
 import { ArrowBackIcon, ArrowDownIcon, ArrowForwardIcon, ArrowUpIcon } from "@chakra-ui/icons";
 import { KeyBindEditor } from "./KeyBindEditor";
 
+interface KeyBindControlProps {
+  KeyMappingRemoteValue: [keyMapping: KeyMapping, setKeyMapping: (value: KeyMapping) => void];
+}
 
-export function KeyBindControl() {
-  const [keyMapping, setKeyMapping] = useRemoteValue(
-    "keyMapping",
-    defaultKeyMapping
-  );
+export function KeyBindControl(props: KeyBindControlProps) {
+  const { KeyMappingRemoteValue } = props;
+  const [keyMapping, setKeyMapping] = KeyMappingRemoteValue;
 
   function assignNewJoystickBind(key: keyof JoystickKeyMapping, value: number) {
     setKeyMapping({

@@ -6,7 +6,13 @@ import {
   AccordionPanel,
   ExpandedIndex,
   Flex,
+  Kbd,
   Link,
+  Popover,
+  PopoverArrow,
+  PopoverBody,
+  PopoverContent,
+  PopoverTrigger,
   Spacer,
   Switch,
   Tab,
@@ -15,6 +21,7 @@ import {
   TabPanels,
   Tabs,
   Text,
+  useColorModeValue,
   VStack,
 } from "@chakra-ui/react";
 import React from "react";
@@ -23,8 +30,17 @@ import { RemoteStore, setWindowSize, useRemoteValue } from "../../ipc";
 import { KeyBindControl } from "./settings/key-bind/KeyBindControl";
 import { AngleControl } from "./settings/angle/AngleControl";
 import { Card } from "./card/Card";
-import { defaultLeftJoystickSingleKeyStrafingAngles } from "../../native/types";
+import { defaultKeyMapping, defaultLeftJoystickSingleKeyStrafingAngles } from "../../native/types";
+import { Key } from "ts-keycode-enum";
+import { InfoOutlineIcon } from "@chakra-ui/icons";
 
+function calcDisplay(keyOne: number, keyTwo: number | null = null) {
+  if (keyOne === keyTwo || keyTwo == null) {
+    return (<Kbd>{Key[keyOne]}</Kbd>);
+  } else {
+    return (<><Kbd>{Key[keyOne]}</Kbd>, <Kbd>{Key[keyTwo]}</Kbd></>);
+  }
+}
 
 export function AdvancedSettingsCard() {
   function updateWindowSize(index: ExpandedIndex) {
@@ -41,7 +57,13 @@ export function AdvancedSettingsCard() {
     RemoteStore.resetSettings();
   }
 
+  const bg = useColorModeValue("white", "#1C2226");
+  const iconColor = "yellow.500";
+
+  const keyMappingRemoteValue = useRemoteValue("keyMapping", defaultKeyMapping);
+
   const [isAdvancedStrafeOn, setIsAdvancedStrafeOn] = useRemoteValue("isAdvancedStrafeOn", false);
+  const [keyMapping, setKeymapping] = keyMappingRemoteValue;
 
   function toggleEnabled() {
     const value = !isAdvancedStrafeOn;
@@ -75,7 +97,7 @@ export function AdvancedSettingsCard() {
               <TabPanels>
                 <TabPanel>
                   <VStack align="baseline" spacing="2" minHeight={minTabHeight}>
-                    <KeyBindControl/>
+                    <KeyBindControl KeyMappingRemoteValue={keyMappingRemoteValue}/>
                   </VStack>
                 </TabPanel>
 
@@ -86,11 +108,40 @@ export function AdvancedSettingsCard() {
                       min={15}
                       max={72}
                     >
-                      <Text variant="heading">Strafe angle</Text>
+                      <Text variant="heading" as="div">Strafe Angle <Popover trigger="hover" placement="top">
+                        <PopoverTrigger>
+                          <InfoOutlineIcon cursor="pointer" color={iconColor}/>
+                        </PopoverTrigger>
+                        <PopoverContent backgroundColor={bg}>
+                          <PopoverArrow/>
+                          <PopoverBody>
+                            <Text pt="1" fontSize="sm" variant="body">
+                              This option allows you to adjust the angle you will strafe by
+                              pressing <Kbd>Left</Kbd>/<Kbd>Right</Kbd> at
+                              the same time
+                              as <Kbd>Forward</Kbd>/<Kbd>Back</Kbd> (e.g. {calcDisplay(keyMapping.leftJoystick.up)}+{calcDisplay(keyMapping.leftJoystick.right)})
+                            </Text>
+                          </PopoverBody>
+                        </PopoverContent>
+                      </Popover></Text>
                     </AngleControl>
                     <Flex direction="column" onClick={toggleEnabled} cursor="pointer" pt="6" width="100%">
                       <Flex>
-                        <Text variant="heading"> Enable Single Key Strafing </Text>
+                        <Text variant="heading">Enable Single Key Strafing <Popover trigger="hover" placement="top">
+                          <PopoverTrigger>
+                            <InfoOutlineIcon cursor="pointer" color={iconColor}/>
+                          </PopoverTrigger>
+                          <PopoverContent backgroundColor={bg}>
+                            <PopoverArrow/>
+                            <PopoverBody>
+                              <Text pt="1" fontSize="sm" variant="body">
+                                This option allows you to adjust the angle you will strafe by pressing just one of
+                                the <Kbd>Left</Kbd>/<Kbd>Right</Kbd> keys
+                                (e.g. {calcDisplay(keyMapping.leftJoystick.right)})
+                              </Text>
+                            </PopoverBody>
+                          </PopoverContent>
+                        </Popover></Text>
                         <Spacer/>
                         {/* Render switch as Div so onClick doesn't get triggered twice: https://github.com/chakra-ui/chakra-ui/issues/2854 */}
                         <Switch colorScheme="yellow" isChecked={isAdvancedStrafeOn} as="div"></Switch>
