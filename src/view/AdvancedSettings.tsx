@@ -183,7 +183,7 @@ export function KeyBinding() {
           <HStack justifyContent="space-between">
             <ArrowDownIcon color={iconColor}/>
             <Text width="100px" variant="body">
-              Forward
+              Back
             </Text>
           </HStack>
           <EditKeyBind
@@ -201,7 +201,7 @@ export function KeyBinding() {
           <HStack justifyContent="space-between">
             <ArrowBackIcon color={iconColor}/>
             <Text width="100px" variant="body">
-              Forward
+              Left
             </Text>
           </HStack>
           <EditKeyBind
@@ -219,7 +219,7 @@ export function KeyBinding() {
           <HStack justifyContent="space-between">
             <ArrowForwardIcon color={iconColor}/>
             <Text width="100px" variant="body">
-              Forward
+              Right
             </Text>
           </HStack>
           <EditKeyBind
