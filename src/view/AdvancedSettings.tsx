@@ -21,7 +21,6 @@ import {
   SliderProps,
   SliderThumb,
   SliderTrack,
-  StackProps,
   Text,
   VStack,
 } from "@chakra-ui/react";
@@ -143,35 +142,6 @@ export function EditKeyBind(props: EditKeybindProps & InputProps) {
   );
 }
 
-interface EditKeybindRowProps {
-  label: string | null;
-  leftIcon: React.ReactFragment;
-}
-
-export function EditKeybindRow(
-  props: EditKeybindRowProps & EditKeybindProps & StackProps
-) {
-  const {leftIcon, label, value, valueChanged, ...rest} = props;
-
-  if (label !== null)
-    return (
-      <HStack {...rest} justifyContent="space-between">
-        {leftIcon}
-        <Text width="200px" variant="body">
-          {label}
-        </Text>
-        <EditKeyBind value={value} valueChanged={valueChanged}/>
-      </HStack>
-    );
-  else {
-    return (
-      <HStack {...rest} justifyContent="space-between">
-        <EditKeyBind value={value} valueChanged={valueChanged}/>
-      </HStack>
-    );
-  }
-}
-
 export function KeyBinding() {
   const [keyMapping, setKeyMapping] = useRemoteValue(
     "keyMapping",
@@ -192,65 +162,73 @@ export function KeyBinding() {
       <VStack align="left">
         <Text variant="heading">Key bindings</Text>
         <Flex>
-          <EditKeybindRow
+          <HStack justifyContent="space-between">
+            <ArrowUpIcon color={iconColor}/>
+            <Text width="100px" variant="body">
+              Forward
+            </Text>
+          </HStack>
+          <EditKeyBind
             mr={1} flex={1}
-            leftIcon={<ArrowUpIcon color={iconColor}/>}
-            label="Forward"
             value={keyMapping.leftJoystick.up}
             valueChanged={(value) => assignNewJoystickBind("up", value)}
           />
-          <EditKeybindRow
+          <EditKeyBind
             flex={1}
-            leftIcon={<ArrowUpIcon color={iconColor}/>}
-            label={null}
             value={keyMapping.leftJoystick.up_two}
             valueChanged={(value) => assignNewJoystickBind("up_two", value)}
           />
         </Flex>
         <Flex>
-          <EditKeybindRow
+          <HStack justifyContent="space-between">
+            <ArrowDownIcon color={iconColor}/>
+            <Text width="100px" variant="body">
+              Forward
+            </Text>
+          </HStack>
+          <EditKeyBind
             mr={1} flex={1}
-            leftIcon={<ArrowDownIcon color={iconColor}/>}
-            label="Back"
             value={keyMapping.leftJoystick.down}
-            valueChanged={(value) => assignNewJoystickBind("down", value)}
+            valueChanged={(value)=> assignNewJoystickBind("down", value)}
           />
-          <EditKeybindRow
+          <EditKeyBind
             flex={1}
-            leftIcon={<ArrowDownIcon color={iconColor}/>}
-            label={null}
             value={keyMapping.leftJoystick.down_two}
             valueChanged={(value) => assignNewJoystickBind("down_two", value)}
           />
         </Flex>
         <Flex>
-          <EditKeybindRow
+          <HStack justifyContent="space-between">
+            <ArrowBackIcon color={iconColor}/>
+            <Text width="100px" variant="body">
+              Forward
+            </Text>
+          </HStack>
+          <EditKeyBind
             mr={1} flex={1}
-            leftIcon={<ArrowBackIcon color={iconColor}/>}
-            label="Left"
             value={keyMapping.leftJoystick.left}
             valueChanged={(value) => assignNewJoystickBind("left", value)}
           />
-          <EditKeybindRow
+          <EditKeyBind
             flex={1}
-            leftIcon={<ArrowBackIcon color={iconColor}/>}
-            label={null}
             value={keyMapping.leftJoystick.left_two}
             valueChanged={(value) => assignNewJoystickBind("left_two", value)}
           />
         </Flex>
         <Flex>
-          <EditKeybindRow
+          <HStack justifyContent="space-between">
+            <ArrowForwardIcon color={iconColor}/>
+            <Text width="100px" variant="body">
+              Forward
+            </Text>
+          </HStack>
+          <EditKeyBind
             mr={1} flex={1}
-            leftIcon={<ArrowForwardIcon color={iconColor}/>}
-            label="Right"
             value={keyMapping.leftJoystick.right}
             valueChanged={(value) => assignNewJoystickBind("right", value)}
           />
-          <EditKeybindRow
+          <EditKeyBind
             flex={1}
-            leftIcon={<ArrowForwardIcon color={iconColor}/>}
-            label={null}
             value={keyMapping.leftJoystick.right_two}
             valueChanged={(value) => assignNewJoystickBind("right_two", value)}
           />
