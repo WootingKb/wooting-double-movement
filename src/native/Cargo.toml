@@ -38,4 +38,4 @@ multiinput = { git="https://github.com/simon-wh/multiinput-rust.git" }
 [features]
 rawinput = []
 ds4 = []
-default=["ds4", "rawinput"]
+default=["ds4"]
