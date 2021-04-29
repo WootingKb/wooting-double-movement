@@ -213,11 +213,11 @@ impl Service {
                         self.controller_state.left_joystick.set_direction_state(JoystickDirection::Right, self.key_bind_state.right, self.key_bind_state.right_two)
                     }
                     x if x == self.config.key_mapping.left_joystick.left => {
-                        self.key_bind_state.right = state == State::Pressed;
+                        self.key_bind_state.left = state == State::Pressed;
                         self.controller_state.left_joystick.set_direction_state(JoystickDirection::Left, self.key_bind_state.left, self.key_bind_state.left_two)
                     }
                     x if Some(x) == self.config.key_mapping.left_joystick.left_two => {
-                        self.key_bind_state.right_two = state == State::Pressed;
+                        self.key_bind_state.left_two = state == State::Pressed;
                         self.controller_state.left_joystick.set_direction_state(JoystickDirection::Left, self.key_bind_state.left, self.key_bind_state.left_two)
                     }
                     _ => false,
