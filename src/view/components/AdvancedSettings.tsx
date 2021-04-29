@@ -108,9 +108,9 @@ export function AdvancedSettingsCard() {
                       min={15}
                       max={72}
                     >
-                      <Text variant="heading" as="div">Strafe Angle <Popover trigger="hover" placement="top">
+                      <Flex><Text variant="heading">Strafe Angle</Text><Popover trigger="hover" placement="top">
                         <PopoverTrigger>
-                          <InfoOutlineIcon cursor="pointer" color={iconColor}/>
+                          <InfoOutlineIcon ml="7px" mt="5px" cursor="pointer" color={iconColor}/>
                         </PopoverTrigger>
                         <PopoverContent backgroundColor={bg}>
                           <PopoverArrow/>
@@ -123,13 +123,14 @@ export function AdvancedSettingsCard() {
                             </Text>
                           </PopoverBody>
                         </PopoverContent>
-                      </Popover></Text>
+                      </Popover></Flex>
                     </AngleControl>
                     <Flex direction="column" onClick={toggleEnabled} cursor="pointer" pt="6" width="100%">
                       <Flex>
-                        <Text variant="heading">Enable Single Key Strafing <Popover trigger="hover" placement="top">
+                        <Flex><Text variant="heading">Enable Single Key Strafing</Text><Popover trigger="hover"
+                                                                                                placement="top">
                           <PopoverTrigger>
-                            <InfoOutlineIcon cursor="pointer" color={iconColor}/>
+                            <InfoOutlineIcon ml="7px" mt="5px" cursor="pointer" color={iconColor}/>
                           </PopoverTrigger>
                           <PopoverContent backgroundColor={bg}>
                             <PopoverArrow/>
@@ -141,7 +142,7 @@ export function AdvancedSettingsCard() {
                               </Text>
                             </PopoverBody>
                           </PopoverContent>
-                        </Popover></Text>
+                        </Popover></Flex>
                         <Spacer/>
                         {/* Render switch as Div so onClick doesn't get triggered twice: https://github.com/chakra-ui/chakra-ui/issues/2854 */}
                         <Switch colorScheme="yellow" isChecked={isAdvancedStrafeOn} as="div"></Switch>
