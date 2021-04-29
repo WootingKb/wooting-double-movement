@@ -46,6 +46,7 @@ unsafe extern "C" fn _handle(
     dbg!(notification.userdata());
 }
 
+#[cfg(feature = "rawinput")]
 pub struct KeyBindState {
     up: bool,
     up_two: bool,
@@ -57,6 +58,7 @@ pub struct KeyBindState {
     right_two: bool,
 }
 
+#[cfg(feature = "rawinput")]
 impl KeyBindState {
     pub fn new() -> Self {
         KeyBindState {
@@ -73,6 +75,7 @@ impl KeyBindState {
 }
 
 pub struct Service {
+    #[cfg(feature = "rawinput")]
     key_bind_state: KeyBindState,
     vigem: Vigem,
     controller: Option<Target>,
@@ -90,6 +93,7 @@ unsafe impl Sync for Service {}
 impl Service {
     pub fn new() -> Self {
         Service {
+            #[cfg(feature = "rawinput")]
             key_bind_state: KeyBindState::new(),
             vigem: Vigem::new(),
             controller: None,
