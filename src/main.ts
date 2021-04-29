@@ -263,7 +263,7 @@ class ServiceManager {
   serviceConfiguration(): ServiceConfiguration {
     return {
       leftJoystickStrafingAngles: {
-        ...defaultLeftJoystickSingleKeyStrafingAngles,
+        ...defaultLeftJoystickStrafingAngles,
         ...this.store.get("leftJoystickStrafingAngles"),
       },
       leftJoystickSingleKeyStrafingAngles: {
