@@ -57,9 +57,9 @@ function AngleSlider(
         {...rest}
       >
         <SliderTrack>
-          <SliderFilledTrack backgroundColor="yellow.500" />
+          <SliderFilledTrack backgroundColor="yellow.500"/>
         </SliderTrack>
-        <SliderThumb _focus={{ boxShadow: "base" }} />
+        <SliderThumb _focus={{ boxShadow: "base" }}/>
       </Slider>
       <NumberInput
         onChange={(_, value) => {
@@ -76,10 +76,10 @@ function AngleSlider(
         // allowMouseWheel
         focusInputOnChange={false}
       >
-        <NumberInputField />
+        <NumberInputField/>
         <NumberInputStepper>
-          <NumberIncrementStepper />
-          <NumberDecrementStepper />
+          <NumberIncrementStepper/>
+          <NumberDecrementStepper/>
         </NumberInputStepper>
       </NumberInput>
     </HStack>
@@ -108,12 +108,13 @@ function AngleControl() {
 }
 
 interface EditKeybindProps {
-  value: number;
-  valueChanged: (value: number) => void;
+  optional: boolean;
+  value?: number;
+  valueChanged: (value?: number) => void;
 }
 
 export function EditKeyBind(props: EditKeybindProps & InputProps) {
-  const { value, valueChanged, ...rest } = props;
+  const { optional, value, valueChanged, ...rest } = props;
   const [isEditing, setIsEditing] = useState(false);
 
   function assignNewBind() {
@@ -121,8 +122,8 @@ export function EditKeyBind(props: EditKeybindProps & InputProps) {
     window.addEventListener(
       "keydown",
       (event) => {
-        console.log(event);
-        props.valueChanged(event.keyCode);
+        console.log(event, optional, event.keyCode === Key.Escape && optional ? null : event.keyCode);
+        props.valueChanged(event.keyCode === Key.Escape && optional ? undefined : event.keyCode);
         setIsEditing(false);
       },
       { once: true }
@@ -131,10 +132,10 @@ export function EditKeyBind(props: EditKeybindProps & InputProps) {
 
   return (
     <Input
-      value={!isEditing ? Key[props.value] : ""}
+      value={!isEditing ? (props.value ? Key[props.value] : "") : ""}
       onClick={assignNewBind}
       isReadOnly={true}
-      placeholder="Press any key"
+      placeholder={isEditing ? "Press any key" : "Click to set"}
       size="sm"
       cursor="pointer"
       {...rest}
@@ -148,7 +149,7 @@ export function KeyBinding() {
     defaultKeyMapping
   );
 
-  function assignNewJoystickBind(key: keyof JoystickKeyMapping, value: number) {
+  function assignNewJoystickBind(key: keyof JoystickKeyMapping, value?: number) {
     setKeyMapping({
       ...keyMapping,
       leftJoystick: { ...keyMapping.leftJoystick, [key]: value },
@@ -169,11 +170,13 @@ export function KeyBinding() {
             </Text>
           </HStack>
           <EditKeyBind
+            optional={false}
             mr={1} flex={1}
             value={keyMapping.leftJoystick.up}
             valueChanged={(value) => assignNewJoystickBind("up", value)}
           />
           <EditKeyBind
+            optional={true}
             flex={1}
             value={keyMapping.leftJoystick.up_two}
             valueChanged={(value) => assignNewJoystickBind("up_two", value)}
@@ -187,11 +190,13 @@ export function KeyBinding() {
             </Text>
           </HStack>
           <EditKeyBind
+            optional={false}
             mr={1} flex={1}
             value={keyMapping.leftJoystick.down}
-            valueChanged={(value)=> assignNewJoystickBind("down", value)}
+            valueChanged={(value) => assignNewJoystickBind("down", value)}
           />
           <EditKeyBind
+            optional={true}
             flex={1}
             value={keyMapping.leftJoystick.down_two}
             valueChanged={(value) => assignNewJoystickBind("down_two", value)}
@@ -205,11 +210,13 @@ export function KeyBinding() {
             </Text>
           </HStack>
           <EditKeyBind
+            optional={false}
             mr={1} flex={1}
             value={keyMapping.leftJoystick.left}
             valueChanged={(value) => assignNewJoystickBind("left", value)}
           />
           <EditKeyBind
+            optional={true}
             flex={1}
             value={keyMapping.leftJoystick.left_two}
             valueChanged={(value) => assignNewJoystickBind("left_two", value)}
@@ -223,12 +230,14 @@ export function KeyBinding() {
             </Text>
           </HStack>
           <EditKeyBind
+            optional={false}
             mr={1} flex={1}
             value={keyMapping.leftJoystick.right}
             valueChanged={(value) => assignNewJoystickBind("right", value)}
           />
           <EditKeyBind
             flex={1}
+            optional={true}
             value={keyMapping.leftJoystick.right_two}
             valueChanged={(value) => assignNewJoystickBind("right_two", value)}
           />
@@ -261,12 +270,12 @@ export function AdvancedSettingsCard() {
             <Text variant="heading" flex="1" textAlign="left">
               Advanced mode
             </Text>
-            <AccordionIcon />
+            <AccordionIcon/>
           </AccordionButton>
           <AccordionPanel pb={4}>
             <VStack align="baseline" spacing="2">
-              <KeyBinding />
-              <AngleControl />
+              <KeyBinding/>
+              <AngleControl/>
               <Link
                 as={Text}
                 variant="body"
