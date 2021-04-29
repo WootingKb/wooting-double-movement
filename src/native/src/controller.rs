@@ -97,12 +97,12 @@ impl JoystickState {
         }
     }
 
-    pub fn set_direction_state(&mut self, direction: JoystickDirection, state: bool) -> bool {
+    pub fn set_direction_state(&mut self, direction: JoystickDirection, state: bool, state_two: bool) -> bool {
         match direction {
-            JoystickDirection::Up => self.up.update(state),
-            JoystickDirection::Down => self.down.update(state),
-            JoystickDirection::Left => self.left.update(state),
-            JoystickDirection::Right => self.right.update(state),
+            JoystickDirection::Up => self.up.update(state || state_two),
+            JoystickDirection::Down => self.down.update(state || state_two),
+            JoystickDirection::Left => self.left.update(state || state_two),
+            JoystickDirection::Right => self.right.update(state || state_two),
         }
     }
 
@@ -112,7 +112,7 @@ impl JoystickState {
             {
                 let bind_one_state = unsafe { GetAsyncKeyState(bind_one as i32) as u32 };
                 let bind_two_state = unsafe { GetAsyncKeyState(bind_two as i32) as u32 };
-                self.set_direction_state(direction, (bind_one_state & 0x8000 != 0) || (bind_two_state & 0x8000 != 0))
+                self.set_direction_state(direction, bind_one_state & 0x8000 != 0, bind_two_state & 0x8000 != 0)
             }
         #[cfg(not(windows))]
             false
