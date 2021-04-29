@@ -208,7 +208,7 @@ class ServiceManager {
     defaults: {
       doubleMovementEnabled: false,
       isAdvancedStrafeOn: false,
-      leftJoystickStrafingAngles: defaultLeftJoystickSingleKeyStrafingAngles,
+      leftJoystickStrafingAngles: defaultLeftJoystickStrafingAngles,
       leftJoystickSingleKeyStrafingAngles: defaultLeftJoystickSingleKeyStrafingAngles,
       keyMapping: defaultKeyMapping,
     },
