@@ -1,18 +1,20 @@
 import { Flex, HStack, Text, VStack } from "@chakra-ui/react";
 import React from "react";
-import { JoystickKeyMapping, KeyMapping } from "../../../../native/types";
+import { defaultKeyMapping, JoystickKeyMapping, KeyMapping } from "../../../../native/types";
 import { ArrowBackIcon, ArrowDownIcon, ArrowForwardIcon, ArrowUpIcon } from "@chakra-ui/icons";
 import { KeyBindEditor } from "./KeyBindEditor";
+import { useRemoteValue } from "../../../../ipc";
 
 interface KeyBindControlProps {
   KeyMappingRemoteValue: [keyMapping: KeyMapping, setKeyMapping: (value: KeyMapping) => void];
 }
 
+
 export function KeyBindControl(props: KeyBindControlProps) {
   const { KeyMappingRemoteValue } = props;
   const [keyMapping, setKeyMapping] = KeyMappingRemoteValue;
 
-  function assignNewJoystickBind(key: keyof JoystickKeyMapping, value: number) {
+  function assignNewJoystickBind(key: keyof JoystickKeyMapping, value?: number) {
     setKeyMapping({
       ...keyMapping,
       leftJoystick: { ...keyMapping.leftJoystick, [key]: value },
@@ -24,6 +26,7 @@ export function KeyBindControl(props: KeyBindControlProps) {
   return (
     <>
       <VStack align="left">
+        <Text variant="heading">Key bindings</Text>
         <Flex>
           <HStack justifyContent="space-between">
             <ArrowUpIcon color={iconColor}/>
@@ -32,11 +35,13 @@ export function KeyBindControl(props: KeyBindControlProps) {
             </Text>
           </HStack>
           <KeyBindEditor
+            optional={false}
             mr={1} flex={1}
             value={keyMapping.leftJoystick.up}
             valueChanged={(value) => assignNewJoystickBind("up", value)}
           />
           <KeyBindEditor
+            optional={true}
             flex={1}
             value={keyMapping.leftJoystick.up_two}
             valueChanged={(value) => assignNewJoystickBind("up_two", value)}
@@ -50,11 +55,13 @@ export function KeyBindControl(props: KeyBindControlProps) {
             </Text>
           </HStack>
           <KeyBindEditor
+            optional={false}
             mr={1} flex={1}
             value={keyMapping.leftJoystick.down}
             valueChanged={(value) => assignNewJoystickBind("down", value)}
           />
           <KeyBindEditor
+            optional={true}
             flex={1}
             value={keyMapping.leftJoystick.down_two}
             valueChanged={(value) => assignNewJoystickBind("down_two", value)}
@@ -68,11 +75,13 @@ export function KeyBindControl(props: KeyBindControlProps) {
             </Text>
           </HStack>
           <KeyBindEditor
+            optional={false}
             mr={1} flex={1}
             value={keyMapping.leftJoystick.left}
             valueChanged={(value) => assignNewJoystickBind("left", value)}
           />
           <KeyBindEditor
+            optional={true}
             flex={1}
             value={keyMapping.leftJoystick.left_two}
             valueChanged={(value) => assignNewJoystickBind("left_two", value)}
@@ -86,12 +95,14 @@ export function KeyBindControl(props: KeyBindControlProps) {
             </Text>
           </HStack>
           <KeyBindEditor
+            optional={false}
             mr={1} flex={1}
             value={keyMapping.leftJoystick.right}
             valueChanged={(value) => assignNewJoystickBind("right", value)}
           />
           <KeyBindEditor
             flex={1}
+            optional={true}
             value={keyMapping.leftJoystick.right_two}
             valueChanged={(value) => assignNewJoystickBind("right_two", value)}
           />

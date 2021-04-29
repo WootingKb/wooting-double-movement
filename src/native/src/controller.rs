@@ -9,25 +9,17 @@ use crate::config::{JoystickKeyMapping, ServiceConfiguration};
 
 pub enum JoystickDirection {
     Up,
-    UpTwo,
     Down,
-    DownTwo,
     Left,
-    LeftTwo,
     Right,
-    RightTwo,
 }
 
 #[derive(Debug)]
 pub struct JoystickState {
     up: bool,
-    up_two: bool,
     down: bool,
-    down_two: bool,
     left: bool,
-    left_two: bool,
     right: bool,
-    right_two: bool,
 }
 
 trait UpdateValue {
@@ -99,35 +91,28 @@ impl JoystickState {
     pub fn new() -> Self {
         Self {
             up: false,
-            up_two: false,
             down: false,
-            down_two: false,
             left: false,
-            left_two: false,
             right: false,
-            right_two: false,
         }
     }
 
-    pub fn set_direction_state(&mut self, direction: JoystickDirection, state: bool) -> bool {
+    pub fn set_direction_state(&mut self, direction: JoystickDirection, state: bool, state_two: bool) -> bool {
         match direction {
-            JoystickDirection::Up => self.up.update(state),
-            JoystickDirection::UpTwo => self.up_two.update(state),
-            JoystickDirection::Down => self.down.update(state),
-            JoystickDirection::DownTwo => self.down_two.update(state),
-            JoystickDirection::Left => self.left.update(state),
-            JoystickDirection::LeftTwo => self.left_two.update(state),
-            JoystickDirection::Right => self.right.update(state),
-            JoystickDirection::RightTwo => self.right_two.update(state),
+            JoystickDirection::Up => self.up.update(state || state_two),
+            JoystickDirection::Down => self.down.update(state || state_two),
+            JoystickDirection::Left => self.left.update(state || state_two),
+            JoystickDirection::Right => self.right.update(state || state_two),
         }
     }
 
     #[allow(dead_code)]
-    pub fn update_key_state(&mut self, direction: JoystickDirection, binding: u8) -> bool {
+    pub fn update_key_state(&mut self, direction: JoystickDirection, bind_one: u8, bind_two: u8) -> bool {
         #[cfg(windows)]
             {
-                let state = unsafe { GetAsyncKeyState(binding as i32) as u32 };
-                self.set_direction_state(direction, state & 0x8000 != 0)
+                let bind_one_state = unsafe { GetAsyncKeyState(bind_one as i32) as u32 };
+                let bind_two_state = unsafe { GetAsyncKeyState(bind_two as i32) as u32 };
+                self.set_direction_state(direction, bind_one_state & 0x8000 != 0, bind_two_state & 0x8000 != 0)
             }
         #[cfg(not(windows))]
             false
@@ -135,29 +120,25 @@ impl JoystickState {
 
     #[allow(dead_code)]
     pub fn update_key_states(&mut self, mappings: &JoystickKeyMapping) -> bool {
-        self.update_key_state(JoystickDirection::Up, mappings.up)
-            | self.update_key_state(JoystickDirection::UpTwo, mappings.up_two)
-            | self.update_key_state(JoystickDirection::Down, mappings.down)
-            | self.update_key_state(JoystickDirection::DownTwo, mappings.down_two)
-            | self.update_key_state(JoystickDirection::Left, mappings.left)
-            | self.update_key_state(JoystickDirection::LeftTwo, mappings.left_two)
-            | self.update_key_state(JoystickDirection::Right, mappings.right)
-            | self.update_key_state(JoystickDirection::RightTwo, mappings.right_two)
+        self.update_key_state(JoystickDirection::Up, mappings.up, mappings.up_two.unwrap_or(mappings.up))
+            | self.update_key_state(JoystickDirection::Down, mappings.down, mappings.down_two.unwrap_or(mappings.down))
+            | self.update_key_state(JoystickDirection::Left, mappings.left, mappings.left_two.unwrap_or(mappings.left))
+            | self.update_key_state(JoystickDirection::Right, mappings.right, mappings.right_two.unwrap_or(mappings.right))
     }
 
     pub fn _get_xusb_direction_basic(&self) -> (i16, i16) {
         let mut x: i16 = 0;
         let mut y: i16 = 0;
 
-        if (self.down || self.down_two) && !(self.up || self.up_two) {
+        if self.down && !self.up {
             y = i16::MIN;
-        } else if (self.up || self.up_two) && !(self.down || self.down_two) {
+        } else if self.up && !self.down {
             y = i16::MAX;
         }
 
-        if (self.left || self.left_two) && !(self.right || self.right_two) {
+        if self.left && !self.right {
             x = i16::MIN;
-        } else if (self.right || self.right_two) && !(self.left || self.left_two) {
+        } else if self.right && !self.left {
             x = i16::MAX;
         }
 
@@ -172,28 +153,23 @@ impl JoystickState {
 
         let is_advanced_strafe_on: bool = config.map(|v| v.is_advanced_strafe_on).unwrap_or(false);
 
-        let up: bool = self.up || self.up_two;
-        let down: bool = self.down || self.down_two;
-        let left: bool = self.left || self.left_two;
-        let right: bool = self.right || self.right_two;
-
-        if down && !up {
+        if self.down && !self.up {
             y = -1.0;
-        } else if up && !down {
+        } else if self.up && !self.down {
             y = 1.0;
         }
 
-        if left && !right {
+        if self.left && !self.right {
             x = -1.0;
-        } else if right && !left {
+        } else if self.right && !self.left {
             x = 1.0;
         }
 
-        if is_advanced_strafe_on && left && !up && !down && !right {
+        if is_advanced_strafe_on && self.left && !self.up && !self.down && !self.right {
             y = 1.0;
             x = -1.0;
             angle = config.map(|v| v.left_joystick_single_key_strafing_angles.right_up_angle).unwrap_or(0.78);
-        } else if is_advanced_strafe_on && right && !up && !down && !left {
+        } else if is_advanced_strafe_on && self.right && !self.up && !self.down && !self.left {
             y = 1.0;
             x = 1.0;
             angle = config.map(|v| v.left_joystick_single_key_strafing_angles.right_up_angle).unwrap_or(0.78);
@@ -204,7 +180,6 @@ impl JoystickState {
             y,
             angle,
         );
-
         (x, y)
     }
 

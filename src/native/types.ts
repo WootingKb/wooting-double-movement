@@ -16,13 +16,13 @@ export const defaultLeftJoystickStrafingAngles: JoystickAngleConfiguration = {
 
 export interface JoystickKeyMapping {
   up: number;
-  up_two: number;
+  up_two?: number;
   down: number;
-  down_two: number;
+  down_two?: number;
   left: number;
-  left_two: number;
+  left_two?: number;
   right: number;
-  right_two: number;
+  right_two?: number;
 }
 
 export interface KeyMapping {
@@ -32,13 +32,13 @@ export interface KeyMapping {
 export const defaultKeyMapping: KeyMapping = {
   leftJoystick: {
     up: Key.W,
-    up_two: Key.W,
+    up_two: undefined,
     down: Key.S,
-    down_two: Key.S,
+    down_two: undefined,
     left: Key.A,
-    left_two: Key.A,
+    left_two: undefined,
     right: Key.D,
-    right_two: Key.D
+    right_two: undefined,
   },
 };
 

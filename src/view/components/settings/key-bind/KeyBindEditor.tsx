@@ -3,12 +3,14 @@ import React, { useState } from "react";
 import { Key } from "ts-keycode-enum";
 
 interface EditKeyBindProps {
-  value: number;
-  valueChanged: (value: number) => void;
+  optional: boolean;
+  value?: number;
+  valueChanged: (value?: number) => void;
 }
 
+
 export function KeyBindEditor(props: EditKeyBindProps & InputProps) {
-  const { value, valueChanged, ...rest } = props;
+  const { optional, value, valueChanged, ...rest } = props;
   const [isEditing, setIsEditing] = useState(false);
 
   function assignNewBind() {
@@ -16,8 +18,7 @@ export function KeyBindEditor(props: EditKeyBindProps & InputProps) {
     window.addEventListener(
       "keydown",
       (event) => {
-        console.log(event);
-        props.valueChanged(event.keyCode);
+        props.valueChanged(event.keyCode === Key.Escape && optional ? undefined : event.keyCode);
         setIsEditing(false);
       },
       { once: true }
@@ -26,10 +27,10 @@ export function KeyBindEditor(props: EditKeyBindProps & InputProps) {
 
   return (
     <Input
-      value={!isEditing ? Key[props.value] : ""}
+      value={!isEditing ? (props.value ? Key[props.value] : "") : ""}
       onClick={assignNewBind}
       isReadOnly={true}
-      placeholder="Press any key"
+      placeholder={isEditing ? "Press any key" : "Click to set"}
       size="sm"
       cursor="pointer"
       {...rest}
