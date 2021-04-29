@@ -122,8 +122,8 @@ impl JoystickState {
     pub fn update_key_states(&mut self, mappings: &JoystickKeyMapping) -> bool {
         self.update_key_state(JoystickDirection::Up, mappings.up, mappings.up_two.unwrap_or(mappings.up))
             | self.update_key_state(JoystickDirection::Down, mappings.down, mappings.down_two.unwrap_or(mappings.down))
-            | self.update_key_state(JoystickDirection::Left, mappings.left, mappings.left_two.unwrap_or(mappings.down))
-            | self.update_key_state(JoystickDirection::Right, mappings.right, mappings.right_two.unwrap_or(mappings.down))
+            | self.update_key_state(JoystickDirection::Left, mappings.left, mappings.left_two.unwrap_or(mappings.left))
+            | self.update_key_state(JoystickDirection::Right, mappings.right, mappings.right_two.unwrap_or(mappings.right))
     }
 
     pub fn _get_xusb_direction_basic(&self) -> (i16, i16) {
