@@ -17,13 +17,13 @@ export function MainWindow() {
       backgroundColor={bg}
       overflow="hidden"
     >
-      <Header/>
+      <Header />
       <Box flex="auto">
-        <SimpleEnableCard/>
-        <AdvancedSettingsCard/>
+        <SimpleEnableCard />
+        <AdvancedSettingsCard />
       </Box>
-      <Footer/>
-      <UpdateToast/>
+      <Footer />
+      <UpdateToast />
     </Flex>
   );
 }

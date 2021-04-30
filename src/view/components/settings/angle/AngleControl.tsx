@@ -5,7 +5,10 @@ import { AngleSlider } from "./AngleSlider";
 interface AngleControlProps {
   min: number;
   max: number;
-  remoteValue: [angle: JoystickAngleConfiguration, setAngle: (value: JoystickAngleConfiguration) => void];
+  remoteValue: [
+    angle: JoystickAngleConfiguration,
+    setAngle: (value: JoystickAngleConfiguration) => void
+  ];
   children: any;
 }
 

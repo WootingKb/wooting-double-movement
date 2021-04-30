@@ -1,5 +1,13 @@
 import React from "react";
-import { Center, Flex, Icon, IconButton, Spacer, useColorMode, useColorModeValue, } from "@chakra-ui/react";
+import {
+  Center,
+  Flex,
+  Icon,
+  IconButton,
+  Spacer,
+  useColorMode,
+  useColorModeValue,
+} from "@chakra-ui/react";
 import { CloseIcon, MinusIcon, MoonIcon } from "@chakra-ui/icons";
 import { ipcRenderer } from "electron";
 import { WootSunIcon } from "./WootSunIcon";
@@ -35,7 +43,7 @@ export function Header() {
           />
         </Icon>
       </Center>
-      <Spacer/>
+      <Spacer />
       <Flex style={{ WebkitAppRegion: "no-drag" }}>
         <IconButton
           variant="ghost"
@@ -43,7 +51,7 @@ export function Header() {
           onClick={toggleColorMode}
           icon={
             colorMode === "light" ? (
-              <MoonIcon/>
+              <MoonIcon />
             ) : (
               <WootSunIcon
                 viewBox="0 0 250 250"
@@ -57,14 +65,14 @@ export function Header() {
         <IconButton
           aria-label="Minimise"
           onClick={() => ipcRenderer.send("windowMinimize")}
-          icon={<MinusIcon/>}
+          icon={<MinusIcon />}
           variant="ghost"
         />
         <IconButton
           aria-label="Close"
           ml="1"
           onClick={() => ipcRenderer.send("windowClose")}
-          icon={<CloseIcon/>}
+          icon={<CloseIcon />}
           variant="ghost"
         />
       </Flex>

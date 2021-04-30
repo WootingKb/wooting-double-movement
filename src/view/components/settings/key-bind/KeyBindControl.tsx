@@ -1,20 +1,34 @@
 import { Flex, HStack, Text, VStack } from "@chakra-ui/react";
 import React from "react";
-import { defaultKeyMapping, JoystickKeyMapping, KeyMapping } from "../../../../native/types";
-import { ArrowBackIcon, ArrowDownIcon, ArrowForwardIcon, ArrowUpIcon } from "@chakra-ui/icons";
+import {
+  defaultKeyMapping,
+  JoystickKeyMapping,
+  KeyMapping,
+} from "../../../../native/types";
+import {
+  ArrowBackIcon,
+  ArrowDownIcon,
+  ArrowForwardIcon,
+  ArrowUpIcon,
+} from "@chakra-ui/icons";
 import { KeyBindEditor } from "./KeyBindEditor";
 import { useRemoteValue } from "../../../../ipc";
 
 interface KeyBindControlProps {
-  KeyMappingRemoteValue: [keyMapping: KeyMapping, setKeyMapping: (value: KeyMapping) => void];
+  KeyMappingRemoteValue: [
+    keyMapping: KeyMapping,
+    setKeyMapping: (value: KeyMapping) => void
+  ];
 }
-
 
 export function KeyBindControl(props: KeyBindControlProps) {
   const { KeyMappingRemoteValue } = props;
   const [keyMapping, setKeyMapping] = KeyMappingRemoteValue;
 
-  function assignNewJoystickBind(key: keyof JoystickKeyMapping, value?: number) {
+  function assignNewJoystickBind(
+    key: keyof JoystickKeyMapping,
+    value?: number
+  ) {
     setKeyMapping({
       ...keyMapping,
       leftJoystick: { ...keyMapping.leftJoystick, [key]: value },
@@ -29,13 +43,14 @@ export function KeyBindControl(props: KeyBindControlProps) {
         <Text variant="heading">Key bindings</Text>
         <Flex>
           <HStack justifyContent="space-between">
-            <ArrowUpIcon color={iconColor}/>
+            <ArrowUpIcon color={iconColor} />
             <Text width="100px" variant="body">
               Forward
             </Text>
           </HStack>
           <KeyBindEditor
-            mr={1} flex={1}
+            mr={1}
+            flex={1}
             value={keyMapping.leftJoystick.up}
             valueChanged={(value) => assignNewJoystickBind("up", value)}
           />
@@ -47,13 +62,14 @@ export function KeyBindControl(props: KeyBindControlProps) {
         </Flex>
         <Flex>
           <HStack justifyContent="space-between">
-            <ArrowDownIcon color={iconColor}/>
+            <ArrowDownIcon color={iconColor} />
             <Text width="100px" variant="body">
               Back
             </Text>
           </HStack>
           <KeyBindEditor
-            mr={1} flex={1}
+            mr={1}
+            flex={1}
             value={keyMapping.leftJoystick.down}
             valueChanged={(value) => assignNewJoystickBind("down", value)}
           />
@@ -65,13 +81,14 @@ export function KeyBindControl(props: KeyBindControlProps) {
         </Flex>
         <Flex>
           <HStack justifyContent="space-between">
-            <ArrowBackIcon color={iconColor}/>
+            <ArrowBackIcon color={iconColor} />
             <Text width="100px" variant="body">
               Left
             </Text>
           </HStack>
           <KeyBindEditor
-            mr={1} flex={1}
+            mr={1}
+            flex={1}
             value={keyMapping.leftJoystick.left}
             valueChanged={(value) => assignNewJoystickBind("left", value)}
           />
@@ -83,13 +100,14 @@ export function KeyBindControl(props: KeyBindControlProps) {
         </Flex>
         <Flex>
           <HStack justifyContent="space-between">
-            <ArrowForwardIcon color={iconColor}/>
+            <ArrowForwardIcon color={iconColor} />
             <Text width="100px" variant="body">
               Right
             </Text>
           </HStack>
           <KeyBindEditor
-            mr={1} flex={1}
+            mr={1}
+            flex={1}
             value={keyMapping.leftJoystick.right}
             valueChanged={(value) => assignNewJoystickBind("right", value)}
           />

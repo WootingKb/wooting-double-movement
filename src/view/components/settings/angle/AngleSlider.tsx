@@ -9,7 +9,7 @@ import {
   SliderFilledTrack,
   SliderProps,
   SliderThumb,
-  SliderTrack
+  SliderTrack,
 } from "@chakra-ui/react";
 import React from "react";
 
@@ -37,9 +37,9 @@ export function AngleSlider(
         {...rest}
       >
         <SliderTrack>
-          <SliderFilledTrack backgroundColor="yellow.500"/>
+          <SliderFilledTrack backgroundColor="yellow.500" />
         </SliderTrack>
-        <SliderThumb _focus={{ boxShadow: "base" }}/>
+        <SliderThumb _focus={{ boxShadow: "base" }} />
       </Slider>
       <NumberInput
         onChange={(_, value) => {
@@ -56,10 +56,10 @@ export function AngleSlider(
         // allowMouseWheel
         focusInputOnChange={false}
       >
-        <NumberInputField/>
+        <NumberInputField />
         <NumberInputStepper>
-          <NumberIncrementStepper/>
-          <NumberDecrementStepper/>
+          <NumberIncrementStepper />
+          <NumberDecrementStepper />
         </NumberInputStepper>
       </NumberInput>
     </HStack>

@@ -71,9 +71,9 @@ const theme = extendTheme({
 function AppRoot() {
   return (
     <ChakraProvider theme={theme}>
-      <MainWindow/>
+      <MainWindow />
     </ChakraProvider>
   );
 }
 
-ReactDOM.render(<AppRoot/>, document.getElementById("root"));
+ReactDOM.render(<AppRoot />, document.getElementById("root"));

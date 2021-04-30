@@ -1,5 +1,13 @@
 import React, { useEffect } from "react";
-import { Alert, AlertDescription, AlertIcon, AlertTitle, Box, Button, useToast, } from "@chakra-ui/react";
+import {
+  Alert,
+  AlertDescription,
+  AlertIcon,
+  AlertTitle,
+  Box,
+  Button,
+  useToast,
+} from "@chakra-ui/react";
 import { ipcRenderer } from "electron/renderer";
 
 export function UpdateToast() {
@@ -28,7 +36,7 @@ export function UpdateToast() {
             textAlign="start"
             width="auto"
           >
-            <AlertIcon/>
+            <AlertIcon />
             <Box flex="1">
               <AlertTitle>Update complete</AlertTitle>
               <AlertDescription display="block">

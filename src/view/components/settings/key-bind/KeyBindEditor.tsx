@@ -7,7 +7,6 @@ interface EditKeyBindProps {
   valueChanged: (value?: number) => void;
 }
 
-
 export function KeyBindEditor(props: EditKeyBindProps & InputProps) {
   const { value, valueChanged, ...rest } = props;
   const [isEditing, setIsEditing] = useState(false);

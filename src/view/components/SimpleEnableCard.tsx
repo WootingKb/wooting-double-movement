@@ -20,19 +20,19 @@ export function SimpleEnableCard() {
       <Flex direction="column" onClick={toggleDmEnabled} cursor="pointer">
         <Flex>
           <Text variant="heading">Enable Double Movement</Text>
-          <Spacer/>
+          <Spacer />
           {/* Render switch as Div so onClick doesn't get triggered twice: https://github.com/chakra-ui/chakra-ui/issues/2854 */}
           <Switch colorScheme="yellow" isChecked={dmEnabled} as="div"></Switch>
         </Flex>
         <Text pt="6" fontSize="md" variant="body">
           Or use the hotkey <Kbd>Alt</Kbd>+<Kbd>P</Kbd> to toggle double
           movement.
-          <br/>
-          <br/>
+          <br />
+          <br />
           You need to configure two things in Fortnite:
-          <br/>
+          <br />
           1. Disable WASD keyboard movement bindings
-          <br/>
+          <br />
           2. Lock input method as mouse
         </Text>
       </Flex>
