@@ -1,4 +1,9 @@
-import { ArrowBackIcon, ArrowDownIcon, ArrowForwardIcon, ArrowUpIcon, } from "@chakra-ui/icons";
+import {
+  ArrowBackIcon,
+  ArrowDownIcon,
+  ArrowForwardIcon,
+  ArrowUpIcon,
+} from "@chakra-ui/icons";
 import {
   Accordion,
   AccordionButton,
@@ -26,7 +31,11 @@ import {
 } from "@chakra-ui/react";
 import React, { useState } from "react";
 import { bigWindowSize, smallWindowSize } from "../common";
-import { defaultJoystickAngles, defaultKeyMapping, JoystickKeyMapping, } from "../native/types";
+import {
+  defaultJoystickAngles,
+  defaultKeyMapping,
+  JoystickKeyMapping,
+} from "../native/types";
 import { Key } from "ts-keycode-enum";
 import { Card } from "./Components";
 import { RemoteStore, setWindowSize, useRemoteValue } from "./ipc";
@@ -57,9 +66,9 @@ function AngleSlider(
         {...rest}
       >
         <SliderTrack>
-          <SliderFilledTrack backgroundColor="yellow.500"/>
+          <SliderFilledTrack backgroundColor="yellow.500" />
         </SliderTrack>
-        <SliderThumb _focus={{ boxShadow: "base" }}/>
+        <SliderThumb _focus={{ boxShadow: "base" }} />
       </Slider>
       <NumberInput
         onChange={(_, value) => {
@@ -76,10 +85,10 @@ function AngleSlider(
         // allowMouseWheel
         focusInputOnChange={false}
       >
-        <NumberInputField/>
+        <NumberInputField />
         <NumberInputStepper>
-          <NumberIncrementStepper/>
-          <NumberDecrementStepper/>
+          <NumberIncrementStepper />
+          <NumberDecrementStepper />
         </NumberInputStepper>
       </NumberInput>
     </HStack>
@@ -108,22 +117,17 @@ function AngleControl() {
 }
 
 interface EditKeybindProps {
-  optional: boolean;
   value?: number;
   valueChanged: (value?: number) => void;
 }
 
 export function EditKeyBind(props: EditKeybindProps & InputProps) {
-  const { optional, value, valueChanged, ...rest } = props;
+  const { value, valueChanged, ...rest } = props;
   const [isEditing, setIsEditing] = useState(false);
 
   function removeCurrentBind() {
-    if (!optional) {
-      return;
-    }
-
     props.valueChanged(undefined);
-    setIsEditing(false)
+    setIsEditing(false);
   }
 
   function assignNewBind() {
@@ -131,7 +135,7 @@ export function EditKeyBind(props: EditKeybindProps & InputProps) {
     window.addEventListener(
       "keydown",
       (event) => {
-        props.valueChanged(event.keyCode === Key.Escape && optional ? undefined : event.keyCode);
+        props.valueChanged(event.keyCode);
         setIsEditing(false);
       },
       { once: true }
@@ -158,7 +162,10 @@ export function KeyBinding() {
     defaultKeyMapping
   );
 
-  function assignNewJoystickBind(key: keyof JoystickKeyMapping, value?: number) {
+  function assignNewJoystickBind(
+    key: keyof JoystickKeyMapping,
+    value?: number
+  ) {
     setKeyMapping({
       ...keyMapping,
       leftJoystick: { ...keyMapping.leftJoystick, [key]: value },
@@ -173,19 +180,18 @@ export function KeyBinding() {
         <Text variant="heading">Key bindings</Text>
         <Flex>
           <HStack justifyContent="space-between">
-            <ArrowUpIcon color={iconColor}/>
+            <ArrowUpIcon color={iconColor} />
             <Text width="100px" variant="body">
               Forward
             </Text>
           </HStack>
           <EditKeyBind
-            optional={false}
-            mr={1} flex={1}
+            mr={1}
+            flex={1}
             value={keyMapping.leftJoystick.up}
             valueChanged={(value) => assignNewJoystickBind("up", value)}
           />
           <EditKeyBind
-            optional={true}
             flex={1}
             value={keyMapping.leftJoystick.up_two}
             valueChanged={(value) => assignNewJoystickBind("up_two", value)}
@@ -193,19 +199,18 @@ export function KeyBinding() {
         </Flex>
         <Flex>
           <HStack justifyContent="space-between">
-            <ArrowDownIcon color={iconColor}/>
+            <ArrowDownIcon color={iconColor} />
             <Text width="100px" variant="body">
               Back
             </Text>
           </HStack>
           <EditKeyBind
-            optional={false}
-            mr={1} flex={1}
+            mr={1}
+            flex={1}
             value={keyMapping.leftJoystick.down}
             valueChanged={(value) => assignNewJoystickBind("down", value)}
           />
           <EditKeyBind
-            optional={true}
             flex={1}
             value={keyMapping.leftJoystick.down_two}
             valueChanged={(value) => assignNewJoystickBind("down_two", value)}
@@ -213,19 +218,18 @@ export function KeyBinding() {
         </Flex>
         <Flex>
           <HStack justifyContent="space-between">
-            <ArrowBackIcon color={iconColor}/>
+            <ArrowBackIcon color={iconColor} />
             <Text width="100px" variant="body">
               Left
             </Text>
           </HStack>
           <EditKeyBind
-            optional={false}
-            mr={1} flex={1}
+            mr={1}
+            flex={1}
             value={keyMapping.leftJoystick.left}
             valueChanged={(value) => assignNewJoystickBind("left", value)}
           />
           <EditKeyBind
-            optional={true}
             flex={1}
             value={keyMapping.leftJoystick.left_two}
             valueChanged={(value) => assignNewJoystickBind("left_two", value)}
@@ -233,20 +237,19 @@ export function KeyBinding() {
         </Flex>
         <Flex>
           <HStack justifyContent="space-between">
-            <ArrowForwardIcon color={iconColor}/>
+            <ArrowForwardIcon color={iconColor} />
             <Text width="100px" variant="body">
               Right
             </Text>
           </HStack>
           <EditKeyBind
-            optional={false}
-            mr={1} flex={1}
+            mr={1}
+            flex={1}
             value={keyMapping.leftJoystick.right}
             valueChanged={(value) => assignNewJoystickBind("right", value)}
           />
           <EditKeyBind
             flex={1}
-            optional={true}
             value={keyMapping.leftJoystick.right_two}
             valueChanged={(value) => assignNewJoystickBind("right_two", value)}
           />
@@ -279,12 +282,12 @@ export function AdvancedSettingsCard() {
             <Text variant="heading" flex="1" textAlign="left">
               Advanced mode
             </Text>
-            <AccordionIcon/>
+            <AccordionIcon />
           </AccordionButton>
           <AccordionPanel pb={4}>
             <VStack align="baseline" spacing="2">
-              <KeyBinding/>
-              <AngleControl/>
+              <KeyBinding />
+              <AngleControl />
               <Link
                 as={Text}
                 variant="body"
