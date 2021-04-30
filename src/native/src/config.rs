@@ -45,13 +45,13 @@ impl Default for KeyMapping {
             #[cfg(not(windows))]
             left_joystick: JoystickKeyMapping {
                 up: 0,
-                up_two: 0,
+                up_two: None,
                 down: 0,
-                down_two: 0,
+                down_two: None,
                 left: 0,
-                left_two: 0,
+                left_two: None,
                 right: 0,
-                right_two: 0,
+                right_two: None,
             },
         }
     }

@@ -13,6 +13,15 @@ export function KeyBindEditor(props: EditKeyBindProps & InputProps) {
   const { optional, value, valueChanged, ...rest } = props;
   const [isEditing, setIsEditing] = useState(false);
 
+  function removeCurrentBind() {
+    if (!optional) {
+      return;
+    }
+
+    props.valueChanged(undefined);
+    setIsEditing(false)
+  }
+
   function assignNewBind() {
     setIsEditing(true);
     window.addEventListener(
@@ -29,6 +38,7 @@ export function KeyBindEditor(props: EditKeyBindProps & InputProps) {
     <Input
       value={!isEditing ? (props.value ? Key[props.value] : "") : ""}
       onClick={assignNewBind}
+      onContextMenu={removeCurrentBind}
       isReadOnly={true}
       placeholder={isEditing ? "Press any key" : "Click to set"}
       size="sm"
