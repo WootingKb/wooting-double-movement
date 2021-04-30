@@ -117,12 +117,20 @@ export function EditKeyBind(props: EditKeybindProps & InputProps) {
   const { optional, value, valueChanged, ...rest } = props;
   const [isEditing, setIsEditing] = useState(false);
 
+  function removeCurrentBind() {
+    if (!optional) {
+      return;
+    }
+
+    props.valueChanged(undefined);
+    setIsEditing(false)
+  }
+
   function assignNewBind() {
     setIsEditing(true);
     window.addEventListener(
       "keydown",
       (event) => {
-        console.log(event, optional, event.keyCode === Key.Escape && optional ? null : event.keyCode);
         props.valueChanged(event.keyCode === Key.Escape && optional ? undefined : event.keyCode);
         setIsEditing(false);
       },
@@ -134,6 +142,7 @@ export function EditKeyBind(props: EditKeybindProps & InputProps) {
     <Input
       value={!isEditing ? (props.value ? Key[props.value] : "") : ""}
       onClick={assignNewBind}
+      onContextMenu={removeCurrentBind}
       isReadOnly={true}
       placeholder={isEditing ? "Press any key" : "Click to set"}
       size="sm"

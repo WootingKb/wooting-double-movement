@@ -190,35 +190,35 @@ impl Service {
                 RawEvent::KeyboardEvent(_, key, state) => match KeyId::to_u8(&key).unwrap() {
                     x if x == self.config.key_mapping.left_joystick.up => {
                         self.key_bind_state.up = state == State::Pressed;
-                        self.controller_state.left_joystick.set_direction_state(JoystickDirection::Up, self.key_bind_state.up, self.key_bind_state.up_two)
+                        self.controller_state.left_joystick.set_direction_state(JoystickDirection::Up, self.key_bind_state.up || self.key_bind_state.up_two)
                     }
                     x if Some(x) == self.config.key_mapping.left_joystick.up_two => {
                         self.key_bind_state.up_two = state == State::Pressed;
-                        self.controller_state.left_joystick.set_direction_state(JoystickDirection::Up, self.key_bind_state.up, self.key_bind_state.up_two)
+                        self.controller_state.left_joystick.set_direction_state(JoystickDirection::Up, self.key_bind_state.up || self.key_bind_state.up_two)
                     }
                     x if x == self.config.key_mapping.left_joystick.down => {
                         self.key_bind_state.down = state == State::Pressed;
-                        self.controller_state.left_joystick.set_direction_state(JoystickDirection::Down, self.key_bind_state.down, self.key_bind_state.down_two)
+                        self.controller_state.left_joystick.set_direction_state(JoystickDirection::Down, self.key_bind_state.down || self.key_bind_state.down_two)
                     }
                     x if Some(x) == self.config.key_mapping.left_joystick.down_two => {
                         self.key_bind_state.down_two = state == State::Pressed;
-                        self.controller_state.left_joystick.set_direction_state(JoystickDirection::Down, self.key_bind_state.down, self.key_bind_state.down_two)
+                        self.controller_state.left_joystick.set_direction_state(JoystickDirection::Down, self.key_bind_state.down || self.key_bind_state.down_two)
                     }
                     x if x == self.config.key_mapping.left_joystick.right => {
                         self.key_bind_state.right = state == State::Pressed;
-                        self.controller_state.left_joystick.set_direction_state(JoystickDirection::Right, self.key_bind_state.right, self.key_bind_state.right_two)
+                        self.controller_state.left_joystick.set_direction_state(JoystickDirection::Right, self.key_bind_state.right || self.key_bind_state.right_two)
                     }
                     x if Some(x) == self.config.key_mapping.left_joystick.right_two => {
                         self.key_bind_state.right_two = state == State::Pressed;
-                        self.controller_state.left_joystick.set_direction_state(JoystickDirection::Right, self.key_bind_state.right, self.key_bind_state.right_two)
+                        self.controller_state.left_joystick.set_direction_state(JoystickDirection::Right, self.key_bind_state.right || self.key_bind_state.right_two)
                     }
                     x if x == self.config.key_mapping.left_joystick.left => {
                         self.key_bind_state.left = state == State::Pressed;
-                        self.controller_state.left_joystick.set_direction_state(JoystickDirection::Left, self.key_bind_state.left, self.key_bind_state.left_two)
+                        self.controller_state.left_joystick.set_direction_state(JoystickDirection::Left, self.key_bind_state.left || self.key_bind_state.left_two)
                     }
                     x if Some(x) == self.config.key_mapping.left_joystick.left_two => {
                         self.key_bind_state.left_two = state == State::Pressed;
-                        self.controller_state.left_joystick.set_direction_state(JoystickDirection::Left, self.key_bind_state.left, self.key_bind_state.left_two)
+                        self.controller_state.left_joystick.set_direction_state(JoystickDirection::Left, self.key_bind_state.left || self.key_bind_state.left_two)
                     }
                     _ => false,
                 },

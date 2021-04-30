@@ -97,22 +97,29 @@ impl JoystickState {
         }
     }
 
-    pub fn set_direction_state(&mut self, direction: JoystickDirection, state: bool, state_two: bool) -> bool {
+    pub fn get_key_state(&mut self, bind: u8) -> bool {
+        let state = unsafe { GetAsyncKeyState(bind as i32) as u32 };
+        state & 0x8000 != 0
+    }
+
+    pub fn set_direction_state(&mut self, direction: JoystickDirection, state: bool) -> bool {
         match direction {
-            JoystickDirection::Up => self.up.update(state || state_two),
-            JoystickDirection::Down => self.down.update(state || state_two),
-            JoystickDirection::Left => self.left.update(state || state_two),
-            JoystickDirection::Right => self.right.update(state || state_two),
+            JoystickDirection::Up => self.up.update(state),
+            JoystickDirection::Down => self.down.update(state),
+            JoystickDirection::Left => self.left.update(state),
+            JoystickDirection::Right => self.right.update(state),
         }
     }
 
     #[allow(dead_code)]
-    pub fn update_key_state(&mut self, direction: JoystickDirection, bind_one: u8, bind_two: u8) -> bool {
+    pub fn update_key_state(&mut self, direction: JoystickDirection, bind_one: u8, bind_two: Option<&u8>) -> bool {
         #[cfg(windows)]
             {
-                let bind_one_state = unsafe { GetAsyncKeyState(bind_one as i32) as u32 };
-                let bind_two_state = unsafe { GetAsyncKeyState(bind_two as i32) as u32 };
-                self.set_direction_state(direction, bind_one_state & 0x8000 != 0, bind_two_state & 0x8000 != 0)
+                let mut key_state = self.get_key_state(bind_one);
+                if let Some(bind_two) = bind_two {
+                    key_state |= self.get_key_state(*bind_two);
+                }
+                self.set_direction_state(direction, key_state)
             }
         #[cfg(not(windows))]
             false
@@ -120,10 +127,10 @@ impl JoystickState {
 
     #[allow(dead_code)]
     pub fn update_key_states(&mut self, mappings: &JoystickKeyMapping) -> bool {
-        self.update_key_state(JoystickDirection::Up, mappings.up, mappings.up_two.unwrap_or(mappings.up))
-            | self.update_key_state(JoystickDirection::Down, mappings.down, mappings.down_two.unwrap_or(mappings.down))
-            | self.update_key_state(JoystickDirection::Left, mappings.left, mappings.left_two.unwrap_or(mappings.left))
-            | self.update_key_state(JoystickDirection::Right, mappings.right, mappings.right_two.unwrap_or(mappings.right))
+        self.update_key_state(JoystickDirection::Up, mappings.up, mappings.up_two.as_ref())
+            | self.update_key_state(JoystickDirection::Down, mappings.down, mappings.down_two.as_ref())
+            | self.update_key_state(JoystickDirection::Left, mappings.left, mappings.left_two.as_ref())
+            | self.update_key_state(JoystickDirection::Right, mappings.right, mappings.right_two.as_ref())
     }
 
     pub fn _get_xusb_direction_basic(&self) -> (i16, i16) {
