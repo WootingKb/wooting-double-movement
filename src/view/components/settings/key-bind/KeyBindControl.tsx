@@ -35,13 +35,11 @@ export function KeyBindControl(props: KeyBindControlProps) {
             </Text>
           </HStack>
           <KeyBindEditor
-            optional={false}
             mr={1} flex={1}
             value={keyMapping.leftJoystick.up}
             valueChanged={(value) => assignNewJoystickBind("up", value)}
           />
           <KeyBindEditor
-            optional={true}
             flex={1}
             value={keyMapping.leftJoystick.up_two}
             valueChanged={(value) => assignNewJoystickBind("up_two", value)}
@@ -55,13 +53,11 @@ export function KeyBindControl(props: KeyBindControlProps) {
             </Text>
           </HStack>
           <KeyBindEditor
-            optional={false}
             mr={1} flex={1}
             value={keyMapping.leftJoystick.down}
             valueChanged={(value) => assignNewJoystickBind("down", value)}
           />
           <KeyBindEditor
-            optional={true}
             flex={1}
             value={keyMapping.leftJoystick.down_two}
             valueChanged={(value) => assignNewJoystickBind("down_two", value)}
@@ -75,13 +71,11 @@ export function KeyBindControl(props: KeyBindControlProps) {
             </Text>
           </HStack>
           <KeyBindEditor
-            optional={false}
             mr={1} flex={1}
             value={keyMapping.leftJoystick.left}
             valueChanged={(value) => assignNewJoystickBind("left", value)}
           />
           <KeyBindEditor
-            optional={true}
             flex={1}
             value={keyMapping.leftJoystick.left_two}
             valueChanged={(value) => assignNewJoystickBind("left_two", value)}
@@ -95,14 +89,12 @@ export function KeyBindControl(props: KeyBindControlProps) {
             </Text>
           </HStack>
           <KeyBindEditor
-            optional={false}
             mr={1} flex={1}
             value={keyMapping.leftJoystick.right}
             valueChanged={(value) => assignNewJoystickBind("right", value)}
           />
           <KeyBindEditor
             flex={1}
-            optional={true}
             value={keyMapping.leftJoystick.right_two}
             valueChanged={(value) => assignNewJoystickBind("right_two", value)}
           />
