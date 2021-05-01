@@ -3,6 +3,7 @@ import {
   ArrowDownIcon,
   ArrowForwardIcon,
   ArrowUpIcon,
+  CloseIcon,
 } from "@chakra-ui/icons";
 import {
   Accordion,
@@ -29,7 +30,7 @@ import {
   Text,
   VStack,
 } from "@chakra-ui/react";
-import React, { useState } from "react";
+import React, { Dispatch, SetStateAction, useState } from "react";
 import { bigWindowSize, smallWindowSize } from "../common";
 import {
   defaultJoystickAngles,
@@ -117,38 +118,26 @@ function AngleControl() {
 }
 
 interface EditKeybindProps {
+  keybind: keyof JoystickKeyMapping;
   value?: number;
-  valueChanged: (value?: number) => void;
+  editingState: [
+    keyof JoystickKeyMapping | undefined,
+    Dispatch<SetStateAction<keyof JoystickKeyMapping | undefined>>
+  ];
 }
 
 export function EditKeyBind(props: EditKeybindProps & InputProps) {
-  const { value, valueChanged, ...rest } = props;
-  const [isEditing, setIsEditing] = useState(false);
-
-  function removeCurrentBind() {
-    props.valueChanged(undefined);
-    setIsEditing(false);
-  }
-
-  function assignNewBind() {
-    setIsEditing(true);
-    window.addEventListener(
-      "keydown",
-      (event) => {
-        props.valueChanged(event.keyCode);
-        setIsEditing(false);
-      },
-      { once: true }
-    );
-  }
+  const { keybind, value, editingState, ...rest } = props;
+  const [editState, setEditState] = editingState;
 
   return (
     <Input
-      value={!isEditing ? (props.value ? Key[props.value] : "") : ""}
-      onClick={assignNewBind}
-      onContextMenu={removeCurrentBind}
+      value={editState !== keybind ? (props.value ? Key[props.value] : "") : ""}
+      onClick={() => {
+        setEditState(keybind);
+      }}
       isReadOnly={true}
-      placeholder={isEditing ? "Press any key" : "Click to set"}
+      placeholder={editState === keybind ? "Press any key" : "Click to set"}
       size="sm"
       cursor="pointer"
       {...rest}
@@ -162,13 +151,58 @@ export function KeyBinding() {
     defaultKeyMapping
   );
 
+  const editingStateState = useState<keyof JoystickKeyMapping>();
+  const [editingState, setEditingState] = editingStateState;
+
+  const listener = (event: any) => {
+    if (editingState !== undefined) {
+      assignNewJoystickBind(
+        editingState as keyof JoystickKeyMapping,
+        event.keyCode
+      );
+      setEditingState(undefined);
+    }
+  };
+
   function assignNewJoystickBind(
-    key: keyof JoystickKeyMapping,
+    newKey: keyof JoystickKeyMapping,
     value?: number
   ) {
+    setEditingState(undefined);
+
+    const isNewMainBind = !newKey.endsWith("two");
+
+    Object.keys(keyMapping.leftJoystick).forEach((existingKey) => {
+      const isMainBind = !existingKey.endsWith("two");
+      if (
+        isMainBind === isNewMainBind &&
+        keyMapping.leftJoystick[existingKey as keyof JoystickKeyMapping] ===
+          value
+      ) {
+        keyMapping.leftJoystick[
+          existingKey as keyof JoystickKeyMapping
+        ] = undefined;
+      }
+    });
+
     setKeyMapping({
       ...keyMapping,
-      leftJoystick: { ...keyMapping.leftJoystick, [key]: value },
+      leftJoystick: { ...keyMapping.leftJoystick, [newKey]: value },
+    });
+  }
+
+  function unbindRow(
+    bind: keyof JoystickKeyMapping,
+    bind_two: keyof JoystickKeyMapping
+  ) {
+    setEditingState(undefined);
+    setKeyMapping({
+      ...keyMapping,
+      leftJoystick: {
+        ...keyMapping.leftJoystick,
+        [bind]: undefined,
+        [bind_two]: undefined,
+      },
     });
   }
 
@@ -176,7 +210,11 @@ export function KeyBinding() {
 
   return (
     <>
-      <VStack align="left">
+      <VStack
+        align="left"
+        onKeyDown={listener}
+        onBlur={() => setEditingState(undefined)}
+      >
         <Text variant="heading">Key bindings</Text>
         <Flex>
           <HStack justifyContent="space-between">
@@ -186,34 +224,23 @@ export function KeyBinding() {
             </Text>
           </HStack>
           <EditKeyBind
+            keybind={"up"}
+            editingState={editingStateState}
             mr={1}
             flex={1}
             value={keyMapping.leftJoystick.up}
-            valueChanged={(value) => assignNewJoystickBind("up", value)}
           />
           <EditKeyBind
+            keybind={"up_two"}
+            editingState={editingStateState}
             flex={1}
             value={keyMapping.leftJoystick.up_two}
-            valueChanged={(value) => assignNewJoystickBind("up_two", value)}
           />
-        </Flex>
-        <Flex>
-          <HStack justifyContent="space-between">
-            <ArrowDownIcon color={iconColor} />
-            <Text width="100px" variant="body">
-              Back
-            </Text>
-          </HStack>
-          <EditKeyBind
-            mr={1}
-            flex={1}
-            value={keyMapping.leftJoystick.down}
-            valueChanged={(value) => assignNewJoystickBind("down", value)}
-          />
-          <EditKeyBind
-            flex={1}
-            value={keyMapping.leftJoystick.down_two}
-            valueChanged={(value) => assignNewJoystickBind("down_two", value)}
+          <CloseIcon
+            margin="8px 0 8px 16px"
+            cursor="pointer"
+            color={iconColor}
+            onClick={() => unbindRow("up", "up_two")}
           />
         </Flex>
         <Flex>
@@ -224,15 +251,50 @@ export function KeyBinding() {
             </Text>
           </HStack>
           <EditKeyBind
+            keybind={"left"}
+            editingState={editingStateState}
             mr={1}
             flex={1}
             value={keyMapping.leftJoystick.left}
-            valueChanged={(value) => assignNewJoystickBind("left", value)}
           />
           <EditKeyBind
+            keybind={"left_two"}
+            editingState={editingStateState}
             flex={1}
             value={keyMapping.leftJoystick.left_two}
-            valueChanged={(value) => assignNewJoystickBind("left_two", value)}
+          />
+          <CloseIcon
+            margin="8px 0 8px 16px"
+            cursor="pointer"
+            color={iconColor}
+            onClick={() => unbindRow("left", "left_two")}
+          />
+        </Flex>
+        <Flex>
+          <HStack justifyContent="space-between">
+            <ArrowDownIcon color={iconColor} />
+            <Text width="100px" variant="body">
+              Back
+            </Text>
+          </HStack>
+          <EditKeyBind
+            keybind={"down"}
+            editingState={editingStateState}
+            mr={1}
+            flex={1}
+            value={keyMapping.leftJoystick.down}
+          />
+          <EditKeyBind
+            keybind={"down_two"}
+            editingState={editingStateState}
+            flex={1}
+            value={keyMapping.leftJoystick.down_two}
+          />
+          <CloseIcon
+            margin="8px 0 8px 16px"
+            cursor="pointer"
+            color={iconColor}
+            onClick={() => unbindRow("down", "down_two")}
           />
         </Flex>
         <Flex>
@@ -243,15 +305,23 @@ export function KeyBinding() {
             </Text>
           </HStack>
           <EditKeyBind
+            keybind={"right"}
+            editingState={editingStateState}
             mr={1}
             flex={1}
             value={keyMapping.leftJoystick.right}
-            valueChanged={(value) => assignNewJoystickBind("right", value)}
           />
           <EditKeyBind
+            keybind={"right_two"}
+            editingState={editingStateState}
             flex={1}
             value={keyMapping.leftJoystick.right_two}
-            valueChanged={(value) => assignNewJoystickBind("right_two", value)}
+          />
+          <CloseIcon
+            margin="8px 0 8px 16px"
+            cursor="pointer"
+            color={iconColor}
+            onClick={() => unbindRow("right", "right_two")}
           />
         </Flex>
       </VStack>
