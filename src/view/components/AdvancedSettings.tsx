@@ -37,16 +37,8 @@ import {
 import { Key } from "ts-keycode-enum";
 import { InfoOutlineIcon } from "@chakra-ui/icons";
 
-function calcDisplay(keyOne: number, keyTwo: number | null = null) {
-  if (keyOne === keyTwo || keyTwo == null) {
-    return <Kbd>{Key[keyOne]}</Kbd>;
-  } else {
-    return (
-      <>
-        <Kbd>{Key[keyOne]}</Kbd>, <Kbd>{Key[keyTwo]}</Kbd>
-      </>
-    );
-  }
+function calcDisplay(keyOne: any, def: any) {
+  return <Kbd>{keyOne === undefined ? def : Key[keyOne]}</Kbd>;
 }
 
 export function AdvancedSettingsCard() {
@@ -144,8 +136,12 @@ export function AdvancedSettingsCard() {
                                 will strafe by pressing <Kbd>Left</Kbd>/
                                 <Kbd>Right</Kbd> at the same time as{" "}
                                 <Kbd>Forward</Kbd>/<Kbd>Back</Kbd> (e.g.{" "}
-                                {calcDisplay(keyMapping.leftJoystick.up)}+
-                                {calcDisplay(keyMapping.leftJoystick.right)})
+                                {calcDisplay(keyMapping.leftJoystick.up, "W")}+
+                                {calcDisplay(
+                                  keyMapping.leftJoystick.right,
+                                  "D"
+                                )}
+                                )
                               </Text>
                             </PopoverBody>
                           </PopoverContent>
@@ -153,11 +149,11 @@ export function AdvancedSettingsCard() {
                       </Flex>
                     </AngleControl>
                     <Flex
+                      width="100%"
                       direction="column"
                       onClick={toggleEnabled}
                       cursor="pointer"
                       pt="6"
-                      width="100%"
                     >
                       <Flex>
                         <Flex>
@@ -180,7 +176,11 @@ export function AdvancedSettingsCard() {
                                   This option allows you to adjust the angle you
                                   will strafe by pressing just one of the{" "}
                                   <Kbd>Left</Kbd>/<Kbd>Right</Kbd> keys (e.g.{" "}
-                                  {calcDisplay(keyMapping.leftJoystick.right)})
+                                  {calcDisplay(
+                                    keyMapping.leftJoystick.right,
+                                    "D"
+                                  )}
+                                  )
                                 </Text>
                               </PopoverBody>
                             </PopoverContent>
@@ -200,7 +200,8 @@ export function AdvancedSettingsCard() {
                         remoteValue={leftJoystickSingleKeyStrafingValues}
                         min={15}
                         max={90}
-                      ></AngleControl>
+                        children={null}
+                      />
                     )}
                   </VStack>
                 </TabPanel>

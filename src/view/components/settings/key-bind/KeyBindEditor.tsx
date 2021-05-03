@@ -1,40 +1,29 @@
 import { Input, InputProps } from "@chakra-ui/react";
-import React, { useState } from "react";
+import React, { Dispatch, SetStateAction } from "react";
 import { Key } from "ts-keycode-enum";
+import { JoystickKeyMapping } from "../../../../native/types";
 
-interface EditKeyBindProps {
+interface KeyBindEditorProps {
+  keybind: keyof JoystickKeyMapping;
   value?: number;
-  valueChanged: (value?: number) => void;
+  editingState: [
+    keyof JoystickKeyMapping | undefined,
+    Dispatch<SetStateAction<keyof JoystickKeyMapping | undefined>>
+  ];
 }
 
-export function KeyBindEditor(props: EditKeyBindProps & InputProps) {
-  const { value, valueChanged, ...rest } = props;
-  const [isEditing, setIsEditing] = useState(false);
-
-  function removeCurrentBind() {
-    props.valueChanged(undefined);
-    setIsEditing(false);
-  }
-
-  function assignNewBind() {
-    setIsEditing(true);
-    window.addEventListener(
-      "keydown",
-      (event) => {
-        props.valueChanged(event.keyCode);
-        setIsEditing(false);
-      },
-      { once: true }
-    );
-  }
+export function KeyBindEditor(props: KeyBindEditorProps & InputProps) {
+  const { keybind, value, editingState, ...rest } = props;
+  const [editState, setEditState] = editingState;
 
   return (
     <Input
-      value={!isEditing ? (props.value ? Key[props.value] : "") : ""}
-      onClick={assignNewBind}
-      onContextMenu={removeCurrentBind}
+      value={editState !== keybind ? (props.value ? Key[props.value] : "") : ""}
+      onClick={() => {
+        setEditState(keybind);
+      }}
       isReadOnly={true}
-      placeholder={isEditing ? "Press any key" : "Click to set"}
+      placeholder={editState === keybind ? "Press any key" : "Click to set"}
       size="sm"
       cursor="pointer"
       {...rest}
