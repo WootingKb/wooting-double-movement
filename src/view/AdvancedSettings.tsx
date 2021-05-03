@@ -155,6 +155,11 @@ export function KeyBinding() {
   const [editingState, setEditingState] = editingStateState;
 
   const listener = (event: any) => {
+    if (event.keyCode === 27) {
+      setEditingState(undefined);
+      return;
+    }
+
     if (editingState !== undefined) {
       assignNewJoystickBind(
         editingState as keyof JoystickKeyMapping,
