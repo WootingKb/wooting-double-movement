@@ -1,4 +1,6 @@
 use crate::config::{JoystickAngleConfiguration, JoystickKeyMapping};
+#[allow(unused_imports)]
+use log::*;
 #[cfg(windows)]
 use vigem::{DSReport, XUSBReport};
 #[cfg(windows)]
@@ -11,6 +13,7 @@ pub enum JoystickDirection {
     Right,
 }
 
+#[derive(Debug)]
 pub struct JoystickState {
     up: bool,
     down: bool,
