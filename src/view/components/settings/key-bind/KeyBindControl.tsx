@@ -1,5 +1,5 @@
 import { Flex, HStack, Text, VStack } from "@chakra-ui/react";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { JoystickKeyMapping, KeyMapping } from "../../../../native/types";
 import {
   ArrowBackIcon,
@@ -24,6 +24,10 @@ export function KeyBindControl(props: KeyBindControlProps) {
   const editingStateState = useState<keyof JoystickKeyMapping>();
   const [editingState, setEditingState] = editingStateState;
 
+  const requestEdit = (key: keyof JoystickKeyMapping) => {
+    setEditingState(key);
+  };
+
   const listener = (event: any) => {
     if (event.keyCode === 27) {
       setEditingState(undefined);
@@ -39,6 +43,25 @@ export function KeyBindControl(props: KeyBindControlProps) {
     }
   };
 
+  useEffect(() => {
+    if (editingState) {
+      window.addEventListener("keydown", listener, { once: true });
+
+      // register blur event so we cancel the bind process when the tool gets out of focus
+      window.addEventListener(
+        "blur",
+        () => {
+          // unsubscribe to keydown event since bind process is already canceled by the blur event
+          window.removeEventListener("keydown", listener);
+          setEditingState(undefined);
+        },
+        {
+          once: true,
+        }
+      );
+    }
+  }, [editingState]);
+
   function assignNewJoystickBind(
     newKey: keyof JoystickKeyMapping,
     value?: number
@@ -47,8 +70,11 @@ export function KeyBindControl(props: KeyBindControlProps) {
 
     const isNewMainBind = !newKey.endsWith("two");
 
+    // prevent duplicated bind per column
     Object.keys(keyMapping.leftJoystick).forEach((existingKey) => {
       const isMainBind = !existingKey.endsWith("two");
+
+      // remove bindings which would conflict with the new one
       if (
         isMainBind === isNewMainBind &&
         keyMapping.leftJoystick[existingKey as keyof JoystickKeyMapping] ===
@@ -60,6 +86,7 @@ export function KeyBindControl(props: KeyBindControlProps) {
       }
     });
 
+    // set the new bind
     setKeyMapping({
       ...keyMapping,
       leftJoystick: { ...keyMapping.leftJoystick, [newKey]: value },
@@ -85,11 +112,7 @@ export function KeyBindControl(props: KeyBindControlProps) {
 
   return (
     <>
-      <VStack
-        align="left"
-        onKeyDown={listener}
-        onBlur={() => setEditingState(undefined)}
-      >
+      <VStack align="left">
         <Text variant="heading">Key bindings</Text>
         <Flex>
           <HStack justifyContent="space-between">
@@ -100,14 +123,16 @@ export function KeyBindControl(props: KeyBindControlProps) {
           </HStack>
           <KeyBindEditor
             keybind={"up"}
-            editingState={editingStateState}
+            isEditing={editingState === "up"}
+            requestEdit={requestEdit}
             mr={1}
             flex={1}
             value={keyMapping.leftJoystick.up}
           />
           <KeyBindEditor
             keybind={"up_two"}
-            editingState={editingStateState}
+            isEditing={editingState === "up_two"}
+            requestEdit={requestEdit}
             flex={1}
             value={keyMapping.leftJoystick.up_two}
           />
@@ -127,14 +152,16 @@ export function KeyBindControl(props: KeyBindControlProps) {
           </HStack>
           <KeyBindEditor
             keybind={"left"}
-            editingState={editingStateState}
+            isEditing={editingState === "left"}
+            requestEdit={requestEdit}
             mr={1}
             flex={1}
             value={keyMapping.leftJoystick.left}
           />
           <KeyBindEditor
             keybind={"left_two"}
-            editingState={editingStateState}
+            isEditing={editingState === "left_two"}
+            requestEdit={requestEdit}
             flex={1}
             value={keyMapping.leftJoystick.left_two}
           />
@@ -154,14 +181,16 @@ export function KeyBindControl(props: KeyBindControlProps) {
           </HStack>
           <KeyBindEditor
             keybind={"down"}
-            editingState={editingStateState}
+            isEditing={editingState === "down"}
+            requestEdit={requestEdit}
             mr={1}
             flex={1}
             value={keyMapping.leftJoystick.down}
           />
           <KeyBindEditor
             keybind={"down_two"}
-            editingState={editingStateState}
+            isEditing={editingState === "down_two"}
+            requestEdit={requestEdit}
             flex={1}
             value={keyMapping.leftJoystick.down_two}
           />
@@ -181,14 +210,16 @@ export function KeyBindControl(props: KeyBindControlProps) {
           </HStack>
           <KeyBindEditor
             keybind={"right"}
-            editingState={editingStateState}
+            isEditing={editingState === "right"}
+            requestEdit={requestEdit}
             mr={1}
             flex={1}
             value={keyMapping.leftJoystick.right}
           />
           <KeyBindEditor
             keybind={"right_two"}
-            editingState={editingStateState}
+            isEditing={editingState === "right_two"}
+            requestEdit={requestEdit}
             flex={1}
             value={keyMapping.leftJoystick.right_two}
           />
