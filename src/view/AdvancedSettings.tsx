@@ -30,7 +30,7 @@ import {
   Text,
   VStack,
 } from "@chakra-ui/react";
-import React, { Dispatch, SetStateAction, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { bigWindowSize, smallWindowSize } from "../common";
 import {
   defaultJoystickAngles,
@@ -120,24 +120,21 @@ function AngleControl() {
 interface EditKeybindProps {
   keybind: keyof JoystickKeyMapping;
   value?: number;
-  editingState: [
-    keyof JoystickKeyMapping | undefined,
-    Dispatch<SetStateAction<keyof JoystickKeyMapping | undefined>>
-  ];
+  requestEdit: (keybind: keyof JoystickKeyMapping) => void;
+  isEditing: boolean;
 }
 
 export function EditKeyBind(props: EditKeybindProps & InputProps) {
-  const { keybind, value, editingState, ...rest } = props;
-  const [editState, setEditState] = editingState;
+  const { keybind, value, requestEdit, isEditing, ...rest } = props;
 
   return (
     <Input
-      value={editState !== keybind ? (props.value ? Key[props.value] : "") : ""}
+      value={!isEditing ? (props.value ? Key[props.value] : "") : ""}
       onClick={() => {
-        setEditState(keybind);
+        requestEdit(keybind);
       }}
       isReadOnly={true}
-      placeholder={editState === keybind ? "Press any key" : "Click to set"}
+      placeholder={isEditing ? "Press any key" : "Click to set"}
       size="sm"
       cursor="pointer"
       {...rest}
@@ -154,6 +151,10 @@ export function KeyBinding() {
   const editingStateState = useState<keyof JoystickKeyMapping>();
   const [editingState, setEditingState] = editingStateState;
 
+  const requestEdit = (key: keyof JoystickKeyMapping) => {
+    setEditingState(key);
+  };
+
   const listener = (event: any) => {
     if (event.keyCode === 27) {
       setEditingState(undefined);
@@ -169,6 +170,25 @@ export function KeyBinding() {
     }
   };
 
+  useEffect(() => {
+    if (editingState) {
+      window.addEventListener("keydown", listener, { once: true });
+
+      // register blur event so we cancel the bind process when the tool gets out of focus
+      window.addEventListener(
+        "blur",
+        () => {
+          // unsubscribe to keydown event since bind process is already canceled by the blur event
+          window.removeEventListener("keydown", listener);
+          setEditingState(undefined);
+        },
+        {
+          once: true,
+        }
+      );
+    }
+  }, [editingState]);
+
   function assignNewJoystickBind(
     newKey: keyof JoystickKeyMapping,
     value?: number
@@ -177,8 +197,11 @@ export function KeyBinding() {
 
     const isNewMainBind = !newKey.endsWith("two");
 
+    // prevent duplicated bind per column
     Object.keys(keyMapping.leftJoystick).forEach((existingKey) => {
       const isMainBind = !existingKey.endsWith("two");
+
+      // remove bindings which would conflict with the new one
       if (
         isMainBind === isNewMainBind &&
         keyMapping.leftJoystick[existingKey as keyof JoystickKeyMapping] ===
@@ -190,6 +213,7 @@ export function KeyBinding() {
       }
     });
 
+    // set the new bind
     setKeyMapping({
       ...keyMapping,
       leftJoystick: { ...keyMapping.leftJoystick, [newKey]: value },
@@ -215,11 +239,7 @@ export function KeyBinding() {
 
   return (
     <>
-      <VStack
-        align="left"
-        onKeyDown={listener}
-        onBlur={() => setEditingState(undefined)}
-      >
+      <VStack align="left">
         <Text variant="heading">Key bindings</Text>
         <Flex>
           <HStack justifyContent="space-between">
@@ -230,14 +250,16 @@ export function KeyBinding() {
           </HStack>
           <EditKeyBind
             keybind={"up"}
-            editingState={editingStateState}
+            isEditing={editingState === "up"}
+            requestEdit={requestEdit}
             mr={1}
             flex={1}
             value={keyMapping.leftJoystick.up}
           />
           <EditKeyBind
             keybind={"up_two"}
-            editingState={editingStateState}
+            isEditing={editingState === "up_two"}
+            requestEdit={requestEdit}
             flex={1}
             value={keyMapping.leftJoystick.up_two}
           />
@@ -257,14 +279,16 @@ export function KeyBinding() {
           </HStack>
           <EditKeyBind
             keybind={"left"}
-            editingState={editingStateState}
+            isEditing={editingState === "left"}
+            requestEdit={requestEdit}
             mr={1}
             flex={1}
             value={keyMapping.leftJoystick.left}
           />
           <EditKeyBind
             keybind={"left_two"}
-            editingState={editingStateState}
+            isEditing={editingState === "left_two"}
+            requestEdit={requestEdit}
             flex={1}
             value={keyMapping.leftJoystick.left_two}
           />
@@ -284,14 +308,16 @@ export function KeyBinding() {
           </HStack>
           <EditKeyBind
             keybind={"down"}
-            editingState={editingStateState}
+            isEditing={editingState === "down"}
+            requestEdit={requestEdit}
             mr={1}
             flex={1}
             value={keyMapping.leftJoystick.down}
           />
           <EditKeyBind
             keybind={"down_two"}
-            editingState={editingStateState}
+            isEditing={editingState === "down_two"}
+            requestEdit={requestEdit}
             flex={1}
             value={keyMapping.leftJoystick.down_two}
           />
@@ -311,14 +337,16 @@ export function KeyBinding() {
           </HStack>
           <EditKeyBind
             keybind={"right"}
-            editingState={editingStateState}
+            isEditing={editingState === "right"}
+            requestEdit={requestEdit}
             mr={1}
             flex={1}
             value={keyMapping.leftJoystick.right}
           />
           <EditKeyBind
             keybind={"right_two"}
-            editingState={editingStateState}
+            isEditing={editingState === "right_two"}
+            requestEdit={requestEdit}
             flex={1}
             value={keyMapping.leftJoystick.right_two}
           />
