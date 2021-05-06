@@ -60,6 +60,10 @@ export function KeyBindControl(props: KeyBindControlProps) {
         }
       );
     }
+
+    return () => {
+      window.removeEventListener("keydown", listener);
+    };
   }, [editingState]);
 
   function assignNewJoystickBind(
