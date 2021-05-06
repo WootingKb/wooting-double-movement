@@ -187,6 +187,10 @@ export function KeyBinding() {
         }
       );
     }
+
+    return () => {
+      window.removeEventListener("keydown", listener);
+    };
   }, [editingState]);
 
   function assignNewJoystickBind(
