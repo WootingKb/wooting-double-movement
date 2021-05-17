@@ -137,7 +137,10 @@ if (isSingleInstance) {
   app.quit();
 }
 
-app.setAppUserModelId(process.execPath);
+if (isDev()) {
+  app.setAppUserModelId(process.execPath);
+}
+
 app.on("ready", () => {
   serviceManager.init();
   registerHandlers();
