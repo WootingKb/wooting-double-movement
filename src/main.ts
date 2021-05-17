@@ -139,6 +139,8 @@ if (isSingleInstance) {
 
 if (isDev()) {
   app.setAppUserModelId(process.execPath);
+} else {
+  app.setAppUserModelId("Wooting.DoubleMovement");
 }
 
 app.on("ready", () => {
@@ -224,7 +226,7 @@ function showNotification(state: boolean) {
   const notification = {
     title: "Wooting Double Movement " + (state ? "Enabled" : "Disabled"),
     body: "Double movement enabled has been changed",
-    icon: `${__dirname}/../build/icon.ico`,
+    // icon: `${__dirname}/../build/icon.ico`,
   };
   new Notification(notification).show();
 }
