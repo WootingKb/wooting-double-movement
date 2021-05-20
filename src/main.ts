@@ -222,13 +222,20 @@ function create_tray() {
   tray.setContextMenu(contextMenu);
 }
 
+let notification: Notification | null = null;
 function showNotification(state: boolean) {
-  const notification = {
+  if (notification !== null) {
+    notification.close();
+    notification = null;
+  }
+
+  const config = {
     title: "Wooting Double Movement " + (state ? "Enabled" : "Disabled"),
     body: "Double movement enabled has been changed",
     // icon: `${__dirname}/../build/icon.ico`,
   };
-  new Notification(notification).show();
+  notification = new Notification(config);
+  notification.show();
 }
 
 class ServiceManager {
