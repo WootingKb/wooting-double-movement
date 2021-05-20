@@ -41,7 +41,7 @@ import { Key } from "ts-keycode-enum";
 import { Card } from "./Components";
 import { RemoteStore, setWindowSize, useRemoteValue } from "./ipc";
 
-const strafeAngleRange: [number, number] = [15 / 90, 72 / 90];
+const strafeAngleRange: [number, number] = [15 / 90, 71 / 90];
 
 function AngleSlider(
   props: {
@@ -53,6 +53,12 @@ function AngleSlider(
 ) {
   const { value, valueChanged, min, max, ...rest } = props;
   const degreeValue = (value * 90).toFixed(0);
+  useEffect(() => {
+    const inRangeValue = Math.max(Math.min(value, max), min);
+    if (inRangeValue !== props.value) {
+      valueChanged(inRangeValue);
+    }
+  }, [value, min, max, valueChanged]);
 
   return (
     <HStack align="stretch" width="100%">
@@ -211,9 +217,8 @@ export function KeyBinding() {
         keyMapping.leftJoystick[existingKey as keyof JoystickKeyMapping] ===
           value
       ) {
-        keyMapping.leftJoystick[
-          existingKey as keyof JoystickKeyMapping
-        ] = undefined;
+        keyMapping.leftJoystick[existingKey as keyof JoystickKeyMapping] =
+          undefined;
       }
     });
 
