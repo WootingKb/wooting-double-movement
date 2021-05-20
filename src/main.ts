@@ -6,6 +6,7 @@ import {
   ipcMain,
   Menu,
   shell,
+  Notification,
   Tray,
 } from "electron";
 import { get_xinput_slot, start_service, stop_service } from "./native/native";
@@ -136,6 +137,12 @@ if (isSingleInstance) {
   app.quit();
 }
 
+if (isDev()) {
+  app.setAppUserModelId(process.execPath);
+} else {
+  app.setAppUserModelId("Wooting.DoubleMovement");
+}
+
 app.on("ready", () => {
   serviceManager.init();
   registerHandlers();
@@ -215,6 +222,21 @@ function create_tray() {
   tray.setContextMenu(contextMenu);
 }
 
+let notification: Notification | null = null;
+function showNotification(state: boolean) {
+  if (notification !== null) {
+    notification.close();
+    notification = null;
+  }
+
+  const config = {
+    title: "Wooting Double Movement " + (state ? "Enabled" : "Disabled"),
+    icon: `${__dirname}/../build/icon.ico`,
+  };
+  notification = new Notification(config);
+  notification.show();
+}
+
 class ServiceManager {
   running: boolean = false;
   store = new ElectronStore<AppSettings>({
@@ -267,6 +289,7 @@ class ServiceManager {
   }
 
   set_double_movement_enabled(value: boolean) {
+    showNotification(value);
     this.store_set("doubleMovementEnabled", value);
     this.update_state();
   }
