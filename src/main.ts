@@ -231,8 +231,8 @@ function showNotification(state: boolean) {
 
   const config = {
     title: "Wooting Double Movement " + (state ? "Enabled" : "Disabled"),
-    body: "Double movement enabled has been changed",
-    // icon: `${__dirname}/../build/icon.ico`,
+    // body: "Double movement enabled has been changed",
+    icon: `${__dirname}/../build/icon.ico`,
   };
   notification = new Notification(config);
   notification.show();
