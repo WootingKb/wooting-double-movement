@@ -1,6 +1,6 @@
 {
   "name": "wooting-double-movement",
-  "version": "1.3.0",
+  "version": "1.3.1",
   "description": "Wooting Double Movement",
   "author": "Wooting Technologies B.V.",
   "main": "./js/main-bundle.js",
