@@ -11,9 +11,9 @@
   "scripts": {
     "dev": "webpack -w --mode=development ",
     "build": "webpack --mode=production",
-    "build-native": "electron-build-env -- cargo build --manifest-path ./src/native/Cargo.toml --release ",
+    "build:native": "electron-build-env -- cargo build --manifest-path ./src/native/Cargo.toml --release ",
     "start": "electron .",
-    "postinstall": "electron-builder install-app-deps && yarn run build-native",
+    "postinstall": "electron-builder install-app-deps && yarn run build:native",
     "dist": "electron-builder",
     "dist:dir": "electron-builder --dir",
     "publish": "electron-builder --publish always"
