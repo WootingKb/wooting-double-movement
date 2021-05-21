@@ -269,8 +269,8 @@ class ServiceManager {
       this.resetAdvancedConfig();
     });
 
-    const ret = globalShortcut.register("Alt+P", () => {
-      console.debug("Alt+P is pressed");
+    const ret = globalShortcut.register("Ctrl+P", () => {
+      console.debug("Ctrl+P is pressed");
       this.set_double_movement_enabled(!this.doubleMovementEnabled());
     });
 

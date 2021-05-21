@@ -41,7 +41,7 @@ import { Key } from "ts-keycode-enum";
 import { Card } from "./Components";
 import { RemoteStore, setWindowSize, useRemoteValue } from "./ipc";
 
-const strafeAngleRange: [number, number] = [15 / 90, 71 / 90];
+const strafeAngleRange: [number, number] = [15 / 90, 70 / 90];
 
 function AngleSlider(
   props: {
