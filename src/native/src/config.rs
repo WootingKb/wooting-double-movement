@@ -12,10 +12,14 @@ pub struct JoystickAngleConfiguration {
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct JoystickKeyMapping {
-    pub up: u8,
-    pub left: u8,
-    pub down: u8,
-    pub right: u8,
+    pub up: Option<u8>,
+    pub up_two: Option<u8>,
+    pub left: Option<u8>,
+    pub left_two: Option<u8>,
+    pub down: Option<u8>,
+    pub down_two: Option<u8>,
+    pub right: Option<u8>,
+    pub right_two: Option<u8>,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -29,17 +33,25 @@ impl Default for KeyMapping {
         KeyMapping {
             #[cfg(windows)]
             left_joystick: JoystickKeyMapping {
-                up: KeyId::to_u8(&KeyId::W).unwrap(),
-                down: KeyId::to_u8(&KeyId::S).unwrap(),
-                left: KeyId::to_u8(&KeyId::A).unwrap(),
-                right: KeyId::to_u8(&KeyId::D).unwrap(),
+                up: KeyId::to_u8(&KeyId::W),
+                up_two: None,
+                down: KeyId::to_u8(&KeyId::S),
+                down_two: None,
+                left: KeyId::to_u8(&KeyId::A),
+                left_two: None,
+                right: KeyId::to_u8(&KeyId::D),
+                right_two: None,
             },
             #[cfg(not(windows))]
             left_joystick: JoystickKeyMapping {
-                up: 0,
-                down: 0,
-                left: 0,
-                right: 0,
+                up: Some(0),
+                up_two: None,
+                down: Some(0),
+                down_two: None,
+                left: Some(0),
+                left_two: None,
+                right: Some(0),
+                right_two: None,
             },
         }
     }

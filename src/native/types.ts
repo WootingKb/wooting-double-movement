@@ -11,10 +11,14 @@ export const defaultJoystickAngles: JoystickAngleConfiguration = {
 };
 
 export interface JoystickKeyMapping {
-  up: number;
-  down: number;
-  left: number;
-  right: number;
+  up?: number;
+  up_two?: number;
+  down?: number;
+  down_two?: number;
+  left?: number;
+  left_two?: number;
+  right?: number;
+  right_two?: number;
 }
 
 export interface KeyMapping {
@@ -29,6 +33,7 @@ export const defaultKeyMapping: KeyMapping = {
     right: Key.D,
   },
 };
+
 export interface ServiceConfiguration {
   leftJoystickAngles: JoystickAngleConfiguration;
   keyMapping: KeyMapping;

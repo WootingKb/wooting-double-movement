@@ -6,3 +6,5 @@ files:
   - public/**/*
   - build/**/*
 detectUpdateChannel: true
+appId: "Wooting.DoubleMovement"
+productName: "Wooting Double Movement"
