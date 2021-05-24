@@ -11,7 +11,7 @@ import {
   SliderThumb,
   SliderTrack,
 } from "@chakra-ui/react";
-import React from "react";
+import React, { useEffect } from "react";
 
 export function AngleSlider(
   props: {
@@ -22,7 +22,13 @@ export function AngleSlider(
   } & SliderProps
 ) {
   const { value, valueChanged, min, max, ...rest } = props;
-  const degreeValue = (value * 90).toFixed(0);
+  const percentageValue = (((value - min) / (max - min)) * 100).toFixed(0);
+  useEffect(() => {
+    const inRangeValue = Math.max(Math.min(value, max), min);
+    if (inRangeValue !== props.value) {
+      valueChanged(inRangeValue);
+    }
+  }, [value, min, max, valueChanged]);
 
   return (
     <HStack align="stretch" width="100%">
@@ -45,12 +51,12 @@ export function AngleSlider(
         onChange={(_, value) => {
           if (!Number.isNaN(value)) {
             console.log(value);
-            valueChanged(value / 90);
+            valueChanged((value / 100) * (max - min) + min);
           }
         }}
-        value={degreeValue + "°"}
-        max={max * 90}
-        min={min * 90}
+        value={percentageValue + "%"}
+        min={0}
+        max={100}
         maxW="100px"
         size="sm"
         // allowMouseWheel

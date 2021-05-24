@@ -79,10 +79,15 @@ mod utils {
 
     #[allow(dead_code)]
     pub fn float_to_ds4_js_axis(value: f32) -> u8 {
-        let value = (value.max(-1.0).min(1.0) * 127.0) + 127.0;
-        if value > (u8::MAX - 2) as f32 {
+        let value = (value.max(-1.0).min(1.0) * 127.0) + 128.0;
+        if value >= (u8::MAX - 1) as f32 {
             return u8::MAX;
         }
+
+        if value <= (u8::MIN + 1) as f32 {
+            return u8::MIN;
+        }
+
         value as u8
     }
 }
@@ -112,28 +117,46 @@ impl JoystickState {
     }
 
     #[allow(dead_code)]
-    pub fn update_key_state(&mut self, direction: JoystickDirection, bind_one:  Option<&u8>, bind_two: Option<&u8>) -> bool {
+    pub fn update_key_state(
+        &mut self,
+        direction: JoystickDirection,
+        bind_one: Option<&u8>,
+        bind_two: Option<&u8>,
+    ) -> bool {
         #[cfg(windows)]
-            {
-                let mut key_state= false;
-                if let Some(bind_one) = bind_one {
-                    key_state |= self.get_key_state(*bind_one);
-                }
-                if let Some(bind_two) = bind_two {
-                    key_state |= self.get_key_state(*bind_two);
-                }
-                self.set_direction_state(direction, key_state)
+        {
+            let mut key_state = false;
+            if let Some(bind_one) = bind_one {
+                key_state |= self.get_key_state(*bind_one);
             }
+            if let Some(bind_two) = bind_two {
+                key_state |= self.get_key_state(*bind_two);
+            }
+            self.set_direction_state(direction, key_state)
+        }
         #[cfg(not(windows))]
-            false
+        false
     }
 
     #[allow(dead_code)]
     pub fn update_key_states(&mut self, mappings: &JoystickKeyMapping) -> bool {
-        self.update_key_state(JoystickDirection::Up, mappings.up.as_ref(), mappings.up_two.as_ref())
-            | self.update_key_state(JoystickDirection::Down, mappings.down.as_ref(), mappings.down_two.as_ref())
-            | self.update_key_state(JoystickDirection::Left, mappings.left.as_ref(), mappings.left_two.as_ref())
-            | self.update_key_state(JoystickDirection::Right, mappings.right.as_ref(), mappings.right_two.as_ref())
+        self.update_key_state(
+            JoystickDirection::Up,
+            mappings.up.as_ref(),
+            mappings.up_two.as_ref(),
+        ) | self.update_key_state(
+            JoystickDirection::Down,
+            mappings.down.as_ref(),
+            mappings.down_two.as_ref(),
+        ) | self.update_key_state(
+            JoystickDirection::Left,
+            mappings.left.as_ref(),
+            mappings.left_two.as_ref(),
+        ) | self.update_key_state(
+            JoystickDirection::Right,
+            mappings.right.as_ref(),
+            mappings.right_two.as_ref(),
+        )
     }
 
     pub fn _get_xusb_direction_basic(&self) -> (i16, i16) {
@@ -206,10 +229,9 @@ impl JoystickState {
     #[allow(dead_code)]
     pub fn get_ds4_direction(&self, config: Option<&ServiceConfiguration>) -> (u8, u8) {
         let (x, y) = self.get_basic_direction(config);
-
         (
             utils::float_to_ds4_js_axis(x),
-            255 - utils::float_to_ds4_js_axis(y),
+            utils::float_to_ds4_js_axis(-y),
         )
     }
 }

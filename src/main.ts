@@ -1,4 +1,14 @@
-import { app, BrowserWindow, dialog, globalShortcut, ipcMain, Menu, shell, Tray, } from "electron";
+import {
+  app,
+  BrowserWindow,
+  dialog,
+  globalShortcut,
+  ipcMain,
+  Menu,
+  Notification,
+  shell,
+  Tray,
+} from "electron";
 import { get_xinput_slot } from "./native/native";
 import ElectronStore from "electron-store";
 import { AppSettings, smallWindowSize } from "./common";
@@ -123,6 +133,12 @@ if (isSingleInstance) {
   app.quit();
 }
 
+if (isDev()) {
+  app.setAppUserModelId(process.execPath);
+} else {
+  app.setAppUserModelId("Wooting.DoubleMovement");
+}
+
 app.on("ready", () => {
   serviceManager.init();
   registerHandlers();
@@ -202,6 +218,21 @@ function create_tray() {
   tray.setContextMenu(contextMenu);
 }
 
+let notification: Notification | null = null;
+function showNotification(state: boolean) {
+  if (notification !== null) {
+    notification.close();
+    notification = null;
+  }
+
+  const config = {
+    title: "Wooting Double Movement " + (state ? "Enabled" : "Disabled"),
+    icon: `${__dirname}/../build/icon.ico`,
+  };
+  notification = new Notification(config);
+  notification.show();
+}
+
 class ServiceManager {
   running: boolean = false;
   store = new ElectronStore<AppSettings>({
@@ -227,7 +258,12 @@ class ServiceManager {
       this.store.set(name, value);
       this.update_state();
 
-      if (name == "leftJoystickStrafingAngles" || name == "leftJoystickSingleKeyStrafingAngles" || name === "keyMapping" || name === "isAdvancedStrafeOn") {
+      if (
+        name == "leftJoystickStrafingAngles" ||
+        name == "leftJoystickSingleKeyStrafingAngles" ||
+        name === "keyMapping" ||
+        name === "isAdvancedStrafeOn"
+      ) {
         this.update_config();
       }
     });
@@ -236,8 +272,8 @@ class ServiceManager {
       this.resetAdvancedConfig();
     });
 
-    const ret = globalShortcut.register("Alt+P", () => {
-      console.debug("Alt+P is pressed");
+    const ret = globalShortcut.register("Ctrl+P", () => {
+      console.debug("Ctrl+P is pressed");
       this.set_double_movement_enabled(!this.doubleMovementEnabled());
     });
 
@@ -256,6 +292,7 @@ class ServiceManager {
   }
 
   set_double_movement_enabled(value: boolean) {
+    showNotification(value);
     this.store_set("doubleMovementEnabled", value);
     this.update_state();
   }
@@ -274,14 +311,20 @@ class ServiceManager {
         ...defaultKeyMapping,
         ...this.store.get("keyMapping"),
       },
-      isAdvancedStrafeOn: this.store.get("isAdvancedStrafeOn") ?? false
+      isAdvancedStrafeOn: this.store.get("isAdvancedStrafeOn") ?? false,
     };
   }
 
   resetAdvancedConfig() {
     this.store_set("keyMapping", defaultKeyMapping);
-    this.store_set("leftJoystickSingleKeyStrafingAngles", defaultLeftJoystickSingleKeyStrafingAngles);
-    this.store_set("leftJoystickStrafingAngles", defaultLeftJoystickStrafingAngles);
+    this.store_set(
+      "leftJoystickSingleKeyStrafingAngles",
+      defaultLeftJoystickSingleKeyStrafingAngles
+    );
+    this.store_set(
+      "leftJoystickStrafingAngles",
+      defaultLeftJoystickStrafingAngles
+    );
     this.store_set("isAdvancedStrafeOn", false);
     this.update_config();
   }

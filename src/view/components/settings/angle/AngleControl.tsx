@@ -1,6 +1,7 @@
 import { JoystickAngleConfiguration } from "../../../../native/types";
 import React from "react";
 import { AngleSlider } from "./AngleSlider";
+import { Text } from "@chakra-ui/react";
 
 interface AngleControlProps {
   min: number;

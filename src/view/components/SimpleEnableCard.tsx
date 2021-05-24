@@ -25,7 +25,7 @@ export function SimpleEnableCard() {
           <Switch colorScheme="yellow" isChecked={dmEnabled} as="div"></Switch>
         </Flex>
         <Text pt="6" fontSize="md" variant="body">
-          Or use the hotkey <Kbd>Alt</Kbd>+<Kbd>P</Kbd> to toggle double
+          Or use the hotkey <Kbd>Ctrl</Kbd>+<Kbd>P</Kbd> to toggle double
           movement.
           <br />
           <br />
