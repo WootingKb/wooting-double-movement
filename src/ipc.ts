@@ -54,8 +54,17 @@ export class RemoteStore {
     };
   }
 
+  static resetStrafingSettings() {
+    ipcRenderer.send("reset-advanced-strafing");
+  }
+
+  static resetBindSettings() {
+    ipcRenderer.send("reset-advanced-bind");
+  }
+
   static resetSettings() {
-    ipcRenderer.send("reset-advanced");
+    RemoteStore.resetBindSettings()
+    RemoteStore.resetStrafingSettings()
   }
 }
 

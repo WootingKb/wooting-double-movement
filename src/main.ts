@@ -268,8 +268,11 @@ class ServiceManager {
       }
     });
 
-    ipcMain.on("reset-advanced", (_) => {
-      this.resetAdvancedConfig();
+    ipcMain.on("reset-advanced-strafing", (_) => {
+      this.resetAdvancedStrafingConfig();
+    });
+    ipcMain.on("reset-advanced-bind", (_) => {
+      this.resetAdvancedKeyBindConfig();
     });
 
     const ret = globalShortcut.register("Ctrl+P", () => {
@@ -315,8 +318,12 @@ class ServiceManager {
     };
   }
 
-  resetAdvancedConfig() {
+  resetAdvancedKeyBindConfig() {
     this.store_set("keyMapping", defaultKeyMapping);
+    this.update_config();
+  }
+
+  resetAdvancedStrafingConfig() {
     this.store_set(
       "leftJoystickSingleKeyStrafingAngles",
       defaultLeftJoystickSingleKeyStrafingAngles

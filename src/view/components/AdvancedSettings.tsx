@@ -43,7 +43,6 @@ function calcDisplay(keyOne: any, def: any) {
 
 export function AdvancedSettingsCard() {
   function updateWindowSize(index: ExpandedIndex) {
-    console.log("Accordian index: ", index);
     // If it's 0 the boi is expanded
     if (index == 0) {
       setWindowSize(...bigWindowSize);
@@ -52,8 +51,12 @@ export function AdvancedSettingsCard() {
     }
   }
 
-  function setDefaultSettings() {
-    RemoteStore.resetSettings();
+  function setDefaultBindSettings() {
+    RemoteStore.resetBindSettings();
+  }
+
+  function setDefaultStrafingSettings() {
+    RemoteStore.resetStrafingSettings();
   }
 
   const bg = useColorModeValue("white", "#1C2226");
@@ -81,7 +84,7 @@ export function AdvancedSettingsCard() {
     defaultLeftJoystickSingleKeyStrafingAngles
   );
 
-  const minTabHeight = "180px";
+  const minTabHeight = "210px";
 
   return (
     <Card p="2">
@@ -95,7 +98,7 @@ export function AdvancedSettingsCard() {
           </AccordionButton>
 
           <AccordionPanel pb={4}>
-            <Tabs variant="soft-rounded" colorScheme="yellow">
+            <Tabs variant="enclosed" colorScheme="yellow">
               <TabList>
                 <Tab mr={3}>Keybinds</Tab>
                 <Tab>Strafing</Tab>
@@ -103,15 +106,24 @@ export function AdvancedSettingsCard() {
 
               <TabPanels>
                 <TabPanel>
-                  <VStack align="baseline" spacing="2" minHeight={minTabHeight}>
+                  <VStack align="baseline" spacing="2" minHeight={minTabHeight}  position="relative">
                     <KeyBindControl
                       KeyMappingRemoteValue={keyMappingRemoteValue}
                     />
+
+                    <Link position="absolute" bottom="-10px"
+                        as={Text}
+                        variant="body"
+                        fontSize="sm"
+                        onClick={setDefaultBindSettings}
+                    >
+                      Reset keybinds to Wooting recommended
+                    </Link>
                   </VStack>
                 </TabPanel>
 
                 <TabPanel>
-                  <VStack align="baseline" spacing="2" minHeight={minTabHeight}>
+                  <VStack align="baseline" spacing="2" minHeight={minTabHeight}  position="relative">
                     <AngleControl
                       remoteValue={leftJoystickValues}
                       min={15}
@@ -135,7 +147,7 @@ export function AdvancedSettingsCard() {
                                 This option allows you to adjust the angle you
                                 will strafe by pressing <Kbd>Left</Kbd>/
                                 <Kbd>Right</Kbd> at the same time as{" "}
-                                <Kbd>Forward</Kbd>/<Kbd>Back</Kbd> (e.g.{" "}
+                                <Kbd>Forward</Kbd> (e.g.{" "}
                                 {calcDisplay(keyMapping.leftJoystick.up, "W")}+
                                 {calcDisplay(
                                   keyMapping.leftJoystick.right,
@@ -203,21 +215,19 @@ export function AdvancedSettingsCard() {
                         children={null}
                       />
                     )}
+                    <Link position="absolute" bottom="-10px"
+                        as={Text}
+                        variant="body"
+                        fontSize="sm"
+                        onClick={setDefaultStrafingSettings}
+                    >
+                      Reset settings to Wooting recommended
+                    </Link>
                   </VStack>
                 </TabPanel>
               </TabPanels>
             </Tabs>
 
-            <VStack align="baseline" spacing="2">
-              <Link
-                as={Text}
-                variant="body"
-                fontSize="sm"
-                onClick={setDefaultSettings}
-              >
-                Reset settings to Wooting recommended
-              </Link>
-            </VStack>
           </AccordionPanel>
         </AccordionItem>
       </Accordion>
