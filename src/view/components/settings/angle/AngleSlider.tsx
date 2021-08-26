@@ -11,7 +11,7 @@ import {
   SliderThumb,
   SliderTrack,
 } from "@chakra-ui/react";
-import React, { useEffect } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 
 export function AngleSlider(
   props: {
@@ -22,13 +22,41 @@ export function AngleSlider(
   } & SliderProps
 ) {
   const { value, valueChanged, min, max, ...rest } = props;
-  const percentageValue = (((value - min) / (max - min)) * 100).toFixed(0);
   useEffect(() => {
     const inRangeValue = Math.max(Math.min(value, max), min);
     if (inRangeValue !== props.value) {
       valueChanged(inRangeValue);
     }
   }, [value, min, max, valueChanged]);
+
+  const [localValue, setLocalValue] = useState<number | null>();
+  const useValue = localValue ?? value;
+
+  const percentageValue = (((useValue - min) / (max - min)) * 100).toFixed(0);
+
+  const onChangeStart = useCallback((value: number) => {
+    // we need to update the localValue when the change starts
+    setLocalValue(value);
+  }, []);
+
+  const onChange = useCallback(
+    (value: number) => {
+      // If a change is occuring we need to update the local value
+      setLocalValue(value);
+    },
+    [valueChanged]
+  );
+
+  const onChangeEnd = useCallback(
+    (value: number) => {
+      // Change has ended so we can stop using the local value and can propagate the change up to the callback if it's different
+      setLocalValue(null);
+      if (value !== props.value) {
+        valueChanged(value);
+      }
+    },
+    [valueChanged, props.value]
+  );
 
   return (
     <HStack align="stretch" width="100%">
@@ -38,8 +66,10 @@ export function AngleSlider(
         min={min}
         max={max}
         step={0.01}
-        value={value}
-        onChange={valueChanged}
+        value={useValue}
+        onChangeStart={onChangeStart}
+        onChangeEnd={onChangeEnd}
+        onChange={onChange}
         {...rest}
       >
         <SliderTrack>

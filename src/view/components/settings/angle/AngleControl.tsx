@@ -6,28 +6,19 @@ import { Text } from "@chakra-ui/react";
 interface AngleControlProps {
   min: number;
   max: number;
-  remoteValue: [
-    angle: JoystickAngleConfiguration,
-    setAngle: (value: JoystickAngleConfiguration) => void
-  ];
-  children: any;
+  angle: number;
+  setAngle: (value: number) => void;
 }
 
 export function AngleControl(props: AngleControlProps) {
-  const { min, max, remoteValue } = props;
-  const [leftJoystickAngles, setLeftJoystickAngles] = remoteValue;
+  const { min, max, angle, setAngle } = props;
 
   return (
-    <>
-      {props.children}
-      <AngleSlider
-        value={leftJoystickAngles.rightUpAngle}
-        valueChanged={(value) =>
-          setLeftJoystickAngles({ ...leftJoystickAngles, rightUpAngle: value })
-        }
-        min={min / 90}
-        max={max / 90}
-      />
-    </>
+    <AngleSlider
+      value={angle}
+      valueChanged={setAngle}
+      min={min / 90}
+      max={max / 90}
+    />
   );
 }

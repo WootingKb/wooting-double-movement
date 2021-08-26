@@ -18,7 +18,7 @@ import {
   Text,
   VStack,
 } from "@chakra-ui/react";
-import React from "react";
+import React, { useCallback } from "react";
 import { bigWindowSize, smallWindowSize } from "../../common";
 import { RemoteStore, setWindowSize, useRemoteValue } from "../../ipc";
 import { KeyBindControl } from "./settings/key-bind/KeyBindControl";
@@ -26,7 +26,7 @@ import { AngleControl } from "./settings/angle/AngleControl";
 import { Card } from "./general/Card";
 import {
   defaultKeyMapping,
-  defaultLeftJoystickSingleKeyStrafingAngles,
+  defaultLeftJoystickStrafingAngles,
 } from "../../native/types";
 import { Key } from "ts-keycode-enum";
 import { InfoTooltip } from "./general/InfoTooltip";
@@ -75,45 +75,49 @@ function StrafeAngleControl() {
     RemoteStore.resetStrafingSettings();
   }
 
-  const [isAdvancedStrafeOn, setIsAdvancedStrafeOn] = useRemoteValue(
-    "isAdvancedStrafeOn",
-    false
-  );
-
-  function toggleEnabled() {
-    const value = !isAdvancedStrafeOn;
-    setIsAdvancedStrafeOn(value);
-  }
-
-  const leftJoystickValues = useRemoteValue(
+  const [angleConfig, setAngleConfig] = useRemoteValue(
     "leftJoystickStrafingAngles",
-    defaultLeftJoystickSingleKeyStrafingAngles
+    defaultLeftJoystickStrafingAngles
   );
-  const leftJoystickSingleKeyStrafingValues = useRemoteValue(
-    "leftJoystickSingleKeyStrafingAngles",
-    defaultLeftJoystickSingleKeyStrafingAngles
+
+  const isAdvancedStrafeOn = angleConfig.useLeftRightAngle;
+
+  const toggleEnabled = useCallback(() => {
+    const value = !angleConfig.useLeftRightAngle;
+    setAngleConfig({ ...angleConfig, useLeftRightAngle: value });
+  }, [angleConfig]);
+
+  const setDiagonalAngle = useCallback(
+    (angle) => setAngleConfig({ ...angleConfig, upDiagonalAngle: angle }),
+    [angleConfig]
+  );
+
+  const setLeftRightAngle = useCallback(
+    (angle) => setAngleConfig({ ...angleConfig, leftRightAngle: angle }),
+    [angleConfig]
   );
 
   return (
     <VStack align="baseline" spacing="2" height="100%" position="relative">
+      <Flex>
+        <Text variant="heading">Strafe Angle</Text>
+        <InfoTooltip ml="7px" mt="5px">
+          <Text pt="1" fontSize="sm" variant="body">
+            This option allows you to adjust the angle you will strafe by
+            pressing <Kbd>Left</Kbd>/<Kbd>Right</Kbd> at the same time as{" "}
+            <Kbd>Forward</Kbd> (e.g.{" "}
+            {keybindDisplay(keyMapping.leftJoystick.up, "W")}+
+            {keybindDisplay(keyMapping.leftJoystick.right, "D")})
+          </Text>
+        </InfoTooltip>
+      </Flex>
       <AngleControl
-        remoteValue={leftJoystickValues}
+        angle={angleConfig.upDiagonalAngle}
+        setAngle={setDiagonalAngle}
         min={strafeAngleRange[0]}
         max={strafeAngleRange[1]}
-      >
-        <Flex>
-          <Text variant="heading">Strafe Angle</Text>
-          <InfoTooltip ml="7px" mt="5px">
-            <Text pt="1" fontSize="sm" variant="body">
-              This option allows you to adjust the angle you will strafe by
-              pressing <Kbd>Left</Kbd>/<Kbd>Right</Kbd> at the same time as{" "}
-              <Kbd>Forward</Kbd> (e.g.{" "}
-              {keybindDisplay(keyMapping.leftJoystick.up, "W")}+
-              {keybindDisplay(keyMapping.leftJoystick.right, "D")})
-            </Text>
-          </InfoTooltip>
-        </Flex>
-      </AngleControl>
+      />
+
       <Flex
         width="100%"
         direction="column"
@@ -143,10 +147,10 @@ function StrafeAngleControl() {
       </Flex>
       {isAdvancedStrafeOn && (
         <AngleControl
-          remoteValue={leftJoystickSingleKeyStrafingValues}
+          angle={angleConfig.leftRightAngle}
+          setAngle={setLeftRightAngle}
           min={15}
           max={90}
-          children={null}
         />
       )}
       <Link

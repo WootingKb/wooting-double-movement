@@ -4,10 +4,14 @@ use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct JoystickAngleConfiguration {
-    #[serde(rename = "leftUpAngle")]
-    pub left_up_angle: f32,
-    #[serde(rename = "rightUpAngle")]
-    pub right_up_angle: f32,
+    #[serde(rename = "upDiagonalAngle")]
+    pub up_diagonal_angle: f32,
+
+    #[serde(rename = "useLeftRightAngle")]
+    pub use_left_right_angle: bool,
+
+    #[serde(rename = "leftRightAngle")]
+    pub left_right_angle: f32,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -61,27 +65,19 @@ impl Default for KeyMapping {
 pub struct ServiceConfiguration {
     #[serde(rename = "leftJoystickStrafingAngles")]
     pub left_joystick_strafing_angles: JoystickAngleConfiguration,
-    #[serde(rename = "leftJoystickSingleKeyStrafingAngles")]
-    pub left_joystick_single_key_strafing_angles: JoystickAngleConfiguration,
     #[serde(rename = "keyMapping")]
     pub key_mapping: KeyMapping,
-    #[serde(rename = "isAdvancedStrafeOn")]
-    pub is_advanced_strafe_on: bool,
 }
 
 impl Default for ServiceConfiguration {
     fn default() -> Self {
         ServiceConfiguration {
             left_joystick_strafing_angles: JoystickAngleConfiguration {
-                left_up_angle: 0.67,
-                right_up_angle: 0.67,
-            },
-            left_joystick_single_key_strafing_angles: JoystickAngleConfiguration {
-                left_up_angle: 0.67,
-                right_up_angle: 0.67,
+                up_diagonal_angle: 0.67,
+                use_left_right_angle: false,
+                left_right_angle: 0.78,
             },
             key_mapping: KeyMapping::default(),
-            is_advanced_strafe_on: false,
         }
     }
 }

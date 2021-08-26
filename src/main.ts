@@ -16,7 +16,6 @@ import install, { REACT_DEVELOPER_TOOLS } from "electron-devtools-installer";
 import { setServiceConfig, startService, stopService } from "./native";
 import {
   defaultKeyMapping,
-  defaultLeftJoystickSingleKeyStrafingAngles,
   defaultLeftJoystickStrafingAngles,
   ServiceConfiguration,
 } from "./native/types";
@@ -238,11 +237,23 @@ class ServiceManager {
   store = new ElectronStore<AppSettings>({
     defaults: {
       doubleMovementEnabled: false,
-      isAdvancedStrafeOn: false,
       leftJoystickStrafingAngles: defaultLeftJoystickStrafingAngles,
-      leftJoystickSingleKeyStrafingAngles:
-        defaultLeftJoystickSingleKeyStrafingAngles,
       keyMapping: defaultKeyMapping,
+    },
+    migrations: {
+      ">=1.4.0": (store) => {
+        const angles = store.get("leftJoystickStrafingAngles");
+        // If it has the old setting then lets migrate it to the new one
+        //@ts-ignore
+        if (angles["rightUpAngle"] !== undefined) {
+          const newAngles = {
+            ...defaultLeftJoystickStrafingAngles,
+            //@ts-ignore
+            upDiagonalAngle: angles["rightUpAngle"],
+          };
+          store.set("leftJoystickStrafingAngles", newAngles);
+        }
+      },
     },
   });
 
@@ -259,12 +270,7 @@ class ServiceManager {
       this.store_set(name, value);
       this.update_state();
 
-      if (
-        name == "leftJoystickStrafingAngles" ||
-        name == "leftJoystickSingleKeyStrafingAngles" ||
-        name === "keyMapping" ||
-        name === "isAdvancedStrafeOn"
-      ) {
+      if (name == "leftJoystickStrafingAngles" || name === "keyMapping") {
         this.update_config();
       }
     });
@@ -307,15 +313,10 @@ class ServiceManager {
         ...defaultLeftJoystickStrafingAngles,
         ...this.store.get("leftJoystickStrafingAngles"),
       },
-      leftJoystickSingleKeyStrafingAngles: {
-        ...defaultLeftJoystickSingleKeyStrafingAngles,
-        ...this.store.get("leftJoystickSingleKeyStrafingAngles"),
-      },
       keyMapping: {
         ...defaultKeyMapping,
         ...this.store.get("keyMapping"),
       },
-      isAdvancedStrafeOn: this.store.get("isAdvancedStrafeOn") ?? false,
     };
   }
 
@@ -326,14 +327,9 @@ class ServiceManager {
 
   resetAdvancedStrafingConfig() {
     this.store_set(
-      "leftJoystickSingleKeyStrafingAngles",
-      defaultLeftJoystickSingleKeyStrafingAngles
-    );
-    this.store_set(
       "leftJoystickStrafingAngles",
       defaultLeftJoystickStrafingAngles
     );
-    this.store_set("isAdvancedStrafeOn", false);
     this.update_config();
   }
 

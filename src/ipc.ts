@@ -1,4 +1,5 @@
 import { ipcRenderer, IpcRendererEvent } from "electron";
+import _ from "lodash";
 import { useEffect, useState } from "react";
 import { JoystickAngleConfiguration } from "src/native/types";
 import { AppSettings } from "./common";
@@ -63,8 +64,8 @@ export class RemoteStore {
   }
 
   static resetSettings() {
-    RemoteStore.resetBindSettings()
-    RemoteStore.resetStrafingSettings()
+    RemoteStore.resetBindSettings();
+    RemoteStore.resetStrafingSettings();
   }
 }
 
@@ -80,7 +81,7 @@ export function useRemoteValue<Key extends keyof AppSettings>(
     });
 
     const unsubscribe = RemoteStore.onChange(name, (value) => {
-      _setValue(value);
+      _setValue((v) => (_.isEqual(value, v) ? v : value));
     });
 
     return unsubscribe;
