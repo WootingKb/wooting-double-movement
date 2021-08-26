@@ -34,8 +34,8 @@ import { InfoTooltip } from "./general/InfoTooltip";
 const minTabHeight = "240px";
 const strafeAngleRange: [number, number] = [45, 71];
 
-function calcDisplay(keyOne: any, def: any) {
-  return <Kbd>{keyOne === undefined ? def : Key[keyOne]}</Kbd>;
+function keybindDisplay(keyOne: number | undefined, fallback: string) {
+  return <Kbd>{keyOne === undefined ? fallback : Key[keyOne]}</Kbd>;
 }
 
 function KeyMappingTab() {
@@ -108,8 +108,8 @@ function StrafeAngleControl() {
               This option allows you to adjust the angle you will strafe by
               pressing <Kbd>Left</Kbd>/<Kbd>Right</Kbd> at the same time as{" "}
               <Kbd>Forward</Kbd> (e.g.{" "}
-              {calcDisplay(keyMapping.leftJoystick.up, "W")}+
-              {calcDisplay(keyMapping.leftJoystick.right, "D")})
+              {keybindDisplay(keyMapping.leftJoystick.up, "W")}+
+              {keybindDisplay(keyMapping.leftJoystick.right, "D")})
             </Text>
           </InfoTooltip>
         </Flex>
@@ -128,7 +128,7 @@ function StrafeAngleControl() {
               <Text pt="1" fontSize="sm" variant="body">
                 This option allows you to adjust the angle you will strafe by
                 pressing just one of the <Kbd>Left</Kbd>/<Kbd>Right</Kbd> keys
-                (e.g. {calcDisplay(keyMapping.leftJoystick.right, "D")})
+                (e.g. {keybindDisplay(keyMapping.leftJoystick.right, "D")})
               </Text>
             </InfoTooltip>
           </Flex>
