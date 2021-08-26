@@ -90,6 +90,17 @@ const theme = extendTheme({
         }),
       },
     },
+    Tooltip: {
+      variants: {
+        accent: {
+          bg: "accent.500",
+          "--tooltip-bg": `colors.accent.500`,
+        },
+      },
+      baseStyle: (props) => ({
+        borderRadius: "md",
+      }),
+    },
   },
 });
 
