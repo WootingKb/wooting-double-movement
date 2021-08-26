@@ -50,7 +50,6 @@ export function AngleSlider(
       <NumberInput
         onChange={(_, value) => {
           if (!Number.isNaN(value)) {
-            console.log(value);
             valueChanged((value / 100) * (max - min) + min);
           }
         }}

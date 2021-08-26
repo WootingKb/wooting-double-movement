@@ -5,9 +5,9 @@ use log::*;
 use multiinput::*;
 #[cfg(windows)]
 use vigem::{
-    *,
     notification::*,
     raw::{LPVOID, PVIGEM_CLIENT, PVIGEM_TARGET, UCHAR},
+    *,
 };
 
 use crate::config::ServiceConfiguration;
@@ -115,7 +115,7 @@ impl Service {
         info!("Service init");
 
         #[cfg(feature = "rawinput")]
-            self.input_manager.register_devices(DeviceType::Keyboards);
+        self.input_manager.register_devices(DeviceType::Keyboards);
 
         // connect our client to a VigemBus
         self.vigem.connect().context(
@@ -123,7 +123,7 @@ impl Service {
         )?;
 
         #[cfg(feature = "ds4")]
-            let mut target = {
+        let mut target = {
             // Make a new target which represent DualShock4 controller
             let t = Target::new(TargetType::DualShock4);
             // DS4 vid/pid
@@ -133,7 +133,7 @@ impl Service {
         };
 
         #[cfg(not(feature = "ds4"))]
-            let mut target = {
+        let mut target = {
             // Make a new target which represent XBOX360 controller
             let t = Target::new(TargetType::Xbox360);
             t.set_vid(0x31e3);
@@ -169,14 +169,10 @@ impl Service {
     fn update_controller(&mut self) -> Result<()> {
         if let Some(controller) = self.controller.as_mut() {
             #[cfg(feature = "ds4")]
-                let report = self
-                .controller_state
-                .get_ds4_report(Some(&self.config));
+            let report = self.controller_state.get_ds4_report(Some(&self.config));
 
             #[cfg(not(feature = "ds4"))]
-                let report = self
-                .controller_state
-                .get_xusb_report(Some(&self.config));
+            let report = self.controller_state.get_xusb_report(Some(&self.config));
 
             controller.update(&report)?;
         }
@@ -191,35 +187,59 @@ impl Service {
                 RawEvent::KeyboardEvent(_, key, state) => match KeyId::to_u8(&key).unwrap() {
                     x if x == self.config.key_mapping.left_joystick.up => {
                         self.key_bind_state.up = state == State::Pressed;
-                        self.controller_state.left_joystick.set_direction_state(JoystickDirection::Up, self.key_bind_state.up || self.key_bind_state.up_two)
+                        self.controller_state.left_joystick.set_direction_state(
+                            JoystickDirection::Up,
+                            self.key_bind_state.up || self.key_bind_state.up_two,
+                        )
                     }
                     x if Some(x) == self.config.key_mapping.left_joystick.up_two => {
                         self.key_bind_state.up_two = state == State::Pressed;
-                        self.controller_state.left_joystick.set_direction_state(JoystickDirection::Up, self.key_bind_state.up || self.key_bind_state.up_two)
+                        self.controller_state.left_joystick.set_direction_state(
+                            JoystickDirection::Up,
+                            self.key_bind_state.up || self.key_bind_state.up_two,
+                        )
                     }
                     x if x == self.config.key_mapping.left_joystick.down => {
                         self.key_bind_state.down = state == State::Pressed;
-                        self.controller_state.left_joystick.set_direction_state(JoystickDirection::Down, self.key_bind_state.down || self.key_bind_state.down_two)
+                        self.controller_state.left_joystick.set_direction_state(
+                            JoystickDirection::Down,
+                            self.key_bind_state.down || self.key_bind_state.down_two,
+                        )
                     }
                     x if Some(x) == self.config.key_mapping.left_joystick.down_two => {
                         self.key_bind_state.down_two = state == State::Pressed;
-                        self.controller_state.left_joystick.set_direction_state(JoystickDirection::Down, self.key_bind_state.down || self.key_bind_state.down_two)
+                        self.controller_state.left_joystick.set_direction_state(
+                            JoystickDirection::Down,
+                            self.key_bind_state.down || self.key_bind_state.down_two,
+                        )
                     }
                     x if x == self.config.key_mapping.left_joystick.right => {
                         self.key_bind_state.right = state == State::Pressed;
-                        self.controller_state.left_joystick.set_direction_state(JoystickDirection::Right, self.key_bind_state.right || self.key_bind_state.right_two)
+                        self.controller_state.left_joystick.set_direction_state(
+                            JoystickDirection::Right,
+                            self.key_bind_state.right || self.key_bind_state.right_two,
+                        )
                     }
                     x if Some(x) == self.config.key_mapping.left_joystick.right_two => {
                         self.key_bind_state.right_two = state == State::Pressed;
-                        self.controller_state.left_joystick.set_direction_state(JoystickDirection::Right, self.key_bind_state.right || self.key_bind_state.right_two)
+                        self.controller_state.left_joystick.set_direction_state(
+                            JoystickDirection::Right,
+                            self.key_bind_state.right || self.key_bind_state.right_two,
+                        )
                     }
                     x if x == self.config.key_mapping.left_joystick.left => {
                         self.key_bind_state.left = state == State::Pressed;
-                        self.controller_state.left_joystick.set_direction_state(JoystickDirection::Left, self.key_bind_state.left || self.key_bind_state.left_two)
+                        self.controller_state.left_joystick.set_direction_state(
+                            JoystickDirection::Left,
+                            self.key_bind_state.left || self.key_bind_state.left_two,
+                        )
                     }
                     x if Some(x) == self.config.key_mapping.left_joystick.left_two => {
                         self.key_bind_state.left_two = state == State::Pressed;
-                        self.controller_state.left_joystick.set_direction_state(JoystickDirection::Left, self.key_bind_state.left || self.key_bind_state.left_two)
+                        self.controller_state.left_joystick.set_direction_state(
+                            JoystickDirection::Left,
+                            self.key_bind_state.left || self.key_bind_state.left_two,
+                        )
                     }
                     _ => false,
                 },
