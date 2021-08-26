@@ -1,21 +1,30 @@
 import React, { useState } from "react";
-import { Flex, Link, Text } from "@chakra-ui/react";
+import { Flex, HStack, Icon, IconButton, Link, Text } from "@chakra-ui/react";
 import { ExternalLinkIcon } from "@chakra-ui/icons";
 import { ipcRenderer } from "electron/renderer";
+import { IoHome, IoLogoDiscord, IoLogoTwitter } from "react-icons/io5";
+import { useEffect } from "react";
 
 export function Footer() {
   const [version, setVersion] = useState("");
 
-  ipcRenderer.invoke("getVersion").then(setVersion).catch(console.error);
+  useEffect(() => {
+    ipcRenderer.invoke("getVersion").then(setVersion).catch(console.error);
+  }, []);
 
   return (
     <Flex p="6" pt="0" justifyContent="space-between">
-      <Text variant="body" fontSize="sm">
+      <HStack>
         <Link href="https://wooting.io/double-movement" isExternal>
-          More information
-          <ExternalLinkIcon mx="2px" />
+          <Icon as={IoHome} />
         </Link>
-      </Text>
+        <Link href="https://wooting.io/discord" isExternal>
+          <Icon as={IoLogoDiscord} />
+        </Link>
+        <Link href="https://twitter.com/wootingkb" isExternal>
+          <Icon as={IoLogoTwitter} />
+        </Link>
+      </HStack>
       <Text variant="body" fontSize="sm">
         <Link href="https://github.com/ViGEm" isExternal>
           Powered by ViGEm

@@ -54,6 +54,7 @@ const theme = extendTheme({
       variants: {
         body: (props) => ({
           color: mode(lightTextColour, darkTextColour)(props),
+          textDecoration: "underline",
         }),
       },
     },
@@ -67,6 +68,18 @@ const theme = extendTheme({
           },
         },
       }),
+    },
+    Tabs: {
+      parts: ["tab"],
+      variants: {
+        enclosed: (props) => ({
+          tab: {
+            _selected: {
+              color: `${props.colorScheme}.500`,
+            },
+          },
+        }),
+      },
     },
   },
 });

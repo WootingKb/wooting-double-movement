@@ -46,6 +46,7 @@
     "framer-motion": "4",
     "react": "16",
     "react-dom": "16",
+    "react-icons": "^4.2.0",
     "ts-keycode-enum": "^1.0.6"
   },
   "workspaces": {
