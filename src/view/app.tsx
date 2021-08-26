@@ -10,21 +10,24 @@ Object.assign(console, functions);
 const lightTextColour = "rgba(43, 43, 76, 0.33)";
 const darkTextColour = "#828e9e";
 
+const yellow = {
+  "50": "#FFF8E5",
+  "100": "#FFECB8",
+  "200": "#FFE08A",
+  "300": "#FFD45C",
+  "400": "#FFC82E",
+  "500": "#FFBC00",
+  "600": "#CC9600",
+  "700": "#997100",
+  "800": "#664B00",
+  "900": "#332600",
+};
+
 const theme = extendTheme({
   shadows: { outline: "0 !important" },
   colors: {
-    yellow: {
-      "50": "#FFF8E5",
-      "100": "#FFECB8",
-      "200": "#FFE08A",
-      "300": "#FFD45C",
-      "400": "#FFC82E",
-      "500": "#FFBC00",
-      "600": "#CC9600",
-      "700": "#997100",
-      "800": "#664B00",
-      "900": "#332600",
-    },
+    yellow,
+    accent: yellow,
   },
   styles: {
     global: {

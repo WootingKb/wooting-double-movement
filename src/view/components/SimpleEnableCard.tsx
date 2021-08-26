@@ -2,7 +2,7 @@ import React from "react";
 import { useRemoteValue } from "../../ipc";
 
 import { Flex, Kbd, Spacer, Switch, Text } from "@chakra-ui/react";
-import { Card } from "./card/Card";
+import { Card } from "./general/Card";
 
 export function SimpleEnableCard() {
   const [dmEnabled, setDmEnable] = useRemoteValue(
