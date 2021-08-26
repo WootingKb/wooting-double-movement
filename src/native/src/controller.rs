@@ -198,14 +198,17 @@ impl JoystickState {
             x = 1.0;
         }
 
-        if is_advanced_strafe_on && self.left && !self.up && !self.down && !self.right {
-            y = 1.0;
-            x = -1.0;
-            angle = config.map(|v| v.left_right_angle).unwrap_or(0.78);
-        } else if is_advanced_strafe_on && self.right && !self.up && !self.down && !self.left {
-            y = 1.0;
-            x = 1.0;
-            angle = config.map(|v| v.left_right_angle).unwrap_or(0.78);
+        if is_advanced_strafe_on && !self.up && !self.down {
+            let left_right_angle = config.map(|v| v.left_right_angle).unwrap_or(0.78);
+            if self.left && !self.right {
+                y = 1.0;
+                x = -1.0;
+                angle = left_right_angle;
+            } else if self.right && !self.left {
+                y = 1.0;
+                x = 1.0;
+                angle = left_right_angle;
+            }
         }
 
         let (x, y) = utils::process_circular_direction(x, y, angle);
