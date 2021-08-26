@@ -41,6 +41,8 @@ function calcDisplay(keyOne: any, def: any) {
   return <Kbd>{keyOne === undefined ? def : Key[keyOne]}</Kbd>;
 }
 
+const strafeAngleRange: [number, number] = [45, 71];
+
 export function AdvancedSettingsCard() {
   function updateWindowSize(index: ExpandedIndex) {
     // If it's 0 the boi is expanded
@@ -138,8 +140,8 @@ export function AdvancedSettingsCard() {
                   >
                     <AngleControl
                       remoteValue={leftJoystickValues}
-                      min={15}
-                      max={72}
+                      min={strafeAngleRange[0]}
+                      max={strafeAngleRange[1]}
                     >
                       <Flex>
                         <Text variant="heading">Strafe Angle</Text>
