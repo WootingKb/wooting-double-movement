@@ -4,13 +4,16 @@ import {
   Flex,
   Icon,
   IconButton,
+  Link,
   Spacer,
+  Tooltip,
   useColorMode,
   useColorModeValue,
 } from "@chakra-ui/react";
 import { CloseIcon, MinusIcon, MoonIcon } from "@chakra-ui/icons";
 import { ipcRenderer } from "electron";
 import { WootSunIcon } from "./WootSunIcon";
+import { IoHelp } from "react-icons/io5";
 
 declare module "react" {
   interface CSSProperties {
@@ -45,6 +48,16 @@ export function Header() {
       </Center>
       <Spacer />
       <Flex style={{ WebkitAppRegion: "no-drag" }}>
+        <Tooltip label="Problem? Solution here" hasArrow variant="accent">
+          <Link
+            href="https://github.com/WootingKb/wooting-double-movement/wiki/Troubleshooting"
+            isExternal
+            // variant="link"
+          >
+            {/* <Icon as={IoHelp} /> */}
+            <IconButton variant="ghost" aria-label="help" icon={<IoHelp />} />
+          </Link>
+        </Tooltip>
         <IconButton
           variant="ghost"
           aria-label="Color Mode"

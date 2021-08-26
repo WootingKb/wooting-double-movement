@@ -29,11 +29,11 @@ export function Footer() {
   return (
     <Flex p="6" pt="0" justifyContent="space-between" alignItems="center">
       <HStack>
-        <Tooltip label="Learn more about Wooting" hasArrow variant="accent">
+        {/* <Tooltip label="Learn more about Wooting" hasArrow variant="accent">
           <Link href="https://wooting.io" isExternal variant="link">
             <Icon as={IoHome} />
           </Link>
-        </Tooltip>
+        </Tooltip> */}
         <Tooltip label="Join the community" hasArrow variant="accent">
           <Link href="https://wooting.io/discord" isExternal variant="link">
             <Icon as={IoLogoDiscord} />
@@ -55,15 +55,6 @@ export function Footer() {
             variant="link"
           >
             <Icon as={IoLogoGithub} />
-          </Link>
-        </Tooltip>
-        <Tooltip label="Problem? Solution here" hasArrow variant="accent">
-          <Link
-            href="https://github.com/WootingKb/wooting-double-movement/wiki/Troubleshooting"
-            isExternal
-            variant="link"
-          >
-            <Icon as={IoHelp} />
           </Link>
         </Tooltip>
       </HStack>
