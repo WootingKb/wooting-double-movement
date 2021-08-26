@@ -1853,9 +1853,9 @@ electron-builder@^22.10:
     update-notifier "^5.1.0"
     yargs "^16.2.0"
 
-"electron-devtools-installer@https://github.com/MarshallOfSound/electron-devtools-installer.git":
+"electron-devtools-installer@https://github.com/simon-wh/electron-devtools-installer.git":
   version "0.0.0-development"
-  resolved "https://github.com/MarshallOfSound/electron-devtools-installer.git#19fd4dde8a8e3eb8a50ba4ca242bf3b52e878436"
+  resolved "https://github.com/simon-wh/electron-devtools-installer.git#7a4cfaf225c864282e216f0fa2c8524802ac970d"
   dependencies:
     rimraf "^3.0.2"
     semver "^7.2.1"
