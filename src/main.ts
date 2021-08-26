@@ -240,7 +240,8 @@ class ServiceManager {
       doubleMovementEnabled: false,
       isAdvancedStrafeOn: false,
       leftJoystickStrafingAngles: defaultLeftJoystickStrafingAngles,
-      leftJoystickSingleKeyStrafingAngles: defaultLeftJoystickSingleKeyStrafingAngles,
+      leftJoystickSingleKeyStrafingAngles:
+        defaultLeftJoystickSingleKeyStrafingAngles,
       keyMapping: defaultKeyMapping,
     },
   });
@@ -254,8 +255,8 @@ class ServiceManager {
       return this.store.get(name);
     });
 
-    ipcMain.on("store_set", (_, name: string, value) => {
-      this.store.set(name, value);
+    ipcMain.on("store_set", (_, name: keyof AppSettings, value) => {
+      this.store_set(name, value);
       this.update_state();
 
       if (

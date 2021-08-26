@@ -11,15 +11,12 @@ import {
 import { KeyBindEditor } from "./KeyBindEditor";
 
 interface KeyBindControlProps {
-  KeyMappingRemoteValue: [
-    keyMapping: KeyMapping,
-    setKeyMapping: (value: KeyMapping) => void
-  ];
+  keyMapping: KeyMapping;
+  setKeyMapping: (value: KeyMapping) => void;
 }
 
 export function KeyBindControl(props: KeyBindControlProps) {
-  const { KeyMappingRemoteValue } = props;
-  const [keyMapping, setKeyMapping] = KeyMappingRemoteValue;
+  const { keyMapping, setKeyMapping } = props;
 
   const editingStateState = useState<keyof JoystickKeyMapping>();
   const [editingState, setEditingState] = editingStateState;
@@ -84,9 +81,8 @@ export function KeyBindControl(props: KeyBindControlProps) {
         keyMapping.leftJoystick[existingKey as keyof JoystickKeyMapping] ===
           value
       ) {
-        keyMapping.leftJoystick[
-          existingKey as keyof JoystickKeyMapping
-        ] = undefined;
+        keyMapping.leftJoystick[existingKey as keyof JoystickKeyMapping] =
+          undefined;
       }
     });
 
