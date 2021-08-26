@@ -15,22 +15,30 @@ export function Footer() {
   return (
     <Flex p="6" pt="0" justifyContent="space-between">
       <HStack>
-        <Link href="https://wooting.io/double-movement" isExternal>
+        <Link
+          href="https://wooting.io/double-movement"
+          isExternal
+          variant="link"
+        >
           <Icon as={IoHome} />
         </Link>
-        <Link href="https://wooting.io/discord" isExternal>
+        <Link href="https://wooting.io/discord" isExternal variant="link">
           <Icon as={IoLogoDiscord} />
         </Link>
-        <Link href="https://twitter.com/wootingkb" isExternal>
+        <Link href="https://twitter.com/wootingkb" isExternal variant="link">
           <Icon as={IoLogoTwitter} />
         </Link>
       </HStack>
-      <Text variant="body" fontSize="sm">
-        <Link href="https://github.com/ViGEm" isExternal>
-          Powered by ViGEm
-          <ExternalLinkIcon mx="2px" />
-        </Link>
-      </Text>
+      <Link
+        as={Text}
+        href="https://github.com/ViGEm"
+        isExternal
+        variant="link"
+        fontSize="sm"
+      >
+        Powered by ViGEm
+        <ExternalLinkIcon mx="2px" />
+      </Link>
       <Text variant="body" fontSize="sm">
         Version: {version}
       </Text>

@@ -56,7 +56,7 @@ function KeyMappingTab() {
         position="absolute"
         bottom="0px"
         as={Text}
-        variant="body"
+        variant="plink"
         fontSize="sm"
         onClick={setDefaultBindSettings}
       >
@@ -68,8 +68,6 @@ function KeyMappingTab() {
 
 function StrafeAngleControl() {
   const [keyMapping, _] = useRemoteValue("keyMapping", defaultKeyMapping);
-
-  console.log(keyMapping);
 
   function setDefaultStrafingSettings() {
     RemoteStore.resetStrafingSettings();
@@ -157,7 +155,7 @@ function StrafeAngleControl() {
         position="absolute"
         bottom="0px"
         as={Text}
-        variant="body"
+        variant="plink"
         fontSize="sm"
         onClick={setDefaultStrafingSettings}
       >
