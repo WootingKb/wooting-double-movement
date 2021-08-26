@@ -1,13 +1,15 @@
 import { Key } from "ts-keycode-enum";
 
 export interface JoystickAngleConfiguration {
-  leftUpAngle: number;
-  rightUpAngle: number;
+  upDiagonalAngle: number;
+  useLeftRightAngle: boolean;
+  leftRightAngle: number;
 }
 
-export const defaultJoystickAngles: JoystickAngleConfiguration = {
-  leftUpAngle: 0.67,
-  rightUpAngle: 0.67,
+export const defaultLeftJoystickStrafingAngles: JoystickAngleConfiguration = {
+  upDiagonalAngle: 0.67,
+  useLeftRightAngle: false,
+  leftRightAngle: 0.78,
 };
 
 export interface JoystickKeyMapping {
@@ -35,6 +37,6 @@ export const defaultKeyMapping: KeyMapping = {
 };
 
 export interface ServiceConfiguration {
-  leftJoystickAngles: JoystickAngleConfiguration;
+  leftJoystickStrafingAngles: JoystickAngleConfiguration;
   keyMapping: KeyMapping;
 }

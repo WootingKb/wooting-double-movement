@@ -5,26 +5,21 @@ import {
   globalShortcut,
   ipcMain,
   Menu,
-  shell,
   Notification,
+  shell,
   Tray,
 } from "electron";
-import { get_xinput_slot, start_service, stop_service } from "./native/native";
+import { get_xinput_slot } from "./native/native";
 import ElectronStore from "electron-store";
 import { AppSettings, smallWindowSize } from "./common";
-import path from "path";
 import install, { REACT_DEVELOPER_TOOLS } from "electron-devtools-installer";
-import { create } from "domain";
 import { setServiceConfig, startService, stopService } from "./native";
 import {
-  defaultJoystickAngles,
   defaultKeyMapping,
-  JoystickAngleConfiguration,
-  KeyMapping,
+  defaultLeftJoystickStrafingAngles,
   ServiceConfiguration,
 } from "./native/types";
-import { Key } from "ts-keycode-enum";
-import { log, functions } from "electron-log";
+import { functions } from "electron-log";
 import { autoUpdater } from "electron-updater";
 
 Object.assign(console, functions);
@@ -242,8 +237,23 @@ class ServiceManager {
   store = new ElectronStore<AppSettings>({
     defaults: {
       doubleMovementEnabled: false,
-      leftJoystickAngles: defaultJoystickAngles,
+      leftJoystickStrafingAngles: defaultLeftJoystickStrafingAngles,
       keyMapping: defaultKeyMapping,
+    },
+    migrations: {
+      ">=1.4.0": (store) => {
+        const angles = store.get("leftJoystickStrafingAngles");
+        // If it has the old setting then lets migrate it to the new one
+        //@ts-ignore
+        if (angles["rightUpAngle"] !== undefined) {
+          const newAngles = {
+            ...defaultLeftJoystickStrafingAngles,
+            //@ts-ignore
+            upDiagonalAngle: angles["rightUpAngle"],
+          };
+          store.set("leftJoystickStrafingAngles", newAngles);
+        }
+      },
     },
   });
 
@@ -256,17 +266,20 @@ class ServiceManager {
       return this.store.get(name);
     });
 
-    ipcMain.on("store_set", (_, name: string, value) => {
-      this.store.set(name, value);
+    ipcMain.on("store_set", (_, name: keyof AppSettings, value) => {
+      this.store_set(name, value);
       this.update_state();
 
-      if (name == "leftJoystickAngles" || name === "keyMapping") {
+      if (name == "leftJoystickStrafingAngles" || name === "keyMapping") {
         this.update_config();
       }
     });
 
-    ipcMain.on("reset-advanced", (_) => {
-      this.resetAdvancedConfig();
+    ipcMain.on("reset-advanced-strafing", (_) => {
+      this.resetAdvancedStrafingConfig();
+    });
+    ipcMain.on("reset-advanced-bind", (_) => {
+      this.resetAdvancedKeyBindConfig();
     });
 
     const ret = globalShortcut.register("Ctrl+P", () => {
@@ -296,9 +309,9 @@ class ServiceManager {
 
   serviceConfiguration(): ServiceConfiguration {
     return {
-      leftJoystickAngles: {
-        ...defaultJoystickAngles,
-        ...this.store.get("leftJoystickAngles"),
+      leftJoystickStrafingAngles: {
+        ...defaultLeftJoystickStrafingAngles,
+        ...this.store.get("leftJoystickStrafingAngles"),
       },
       keyMapping: {
         ...defaultKeyMapping,
@@ -307,9 +320,16 @@ class ServiceManager {
     };
   }
 
-  resetAdvancedConfig() {
+  resetAdvancedKeyBindConfig() {
     this.store_set("keyMapping", defaultKeyMapping);
-    this.store_set("leftJoystickAngles", defaultJoystickAngles);
+    this.update_config();
+  }
+
+  resetAdvancedStrafingConfig() {
+    this.store_set(
+      "leftJoystickStrafingAngles",
+      defaultLeftJoystickStrafingAngles
+    );
     this.update_config();
   }
 
@@ -386,4 +406,5 @@ class ServiceManager {
     }
   }
 }
+
 const serviceManager = new ServiceManager();

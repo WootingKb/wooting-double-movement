@@ -1,18 +1,16 @@
 import React from "react";
 import {
+  Center,
   Flex,
-  Spacer,
   Icon,
   IconButton,
-  Center,
-  Button,
+  Spacer,
   useColorMode,
-  color,
   useColorModeValue,
 } from "@chakra-ui/react";
-import { MinusIcon, CloseIcon, MoonIcon, SunIcon } from "@chakra-ui/icons";
+import { CloseIcon, MinusIcon, MoonIcon } from "@chakra-ui/icons";
 import { ipcRenderer } from "electron";
-import { WootSunIcon } from "./Components";
+import { WootSunIcon } from "./WootSunIcon";
 
 declare module "react" {
   interface CSSProperties {

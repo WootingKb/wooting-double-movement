@@ -103,8 +103,13 @@ impl JoystickState {
     }
 
     pub fn get_key_state(&mut self, bind: u8) -> bool {
-        let state = unsafe { GetAsyncKeyState(bind as i32) as u32 };
-        state & 0x8000 != 0
+        #[cfg(windows)]
+        {
+            let state = unsafe { GetAsyncKeyState(bind as i32) as u32 };
+            state & 0x8000 != 0
+        }
+        #[cfg(not(windows))]
+        false
     }
 
     pub fn set_direction_state(&mut self, direction: JoystickDirection, state: bool) -> bool {
@@ -123,19 +128,14 @@ impl JoystickState {
         bind_one: Option<&u8>,
         bind_two: Option<&u8>,
     ) -> bool {
-        #[cfg(windows)]
-        {
-            let mut key_state = false;
-            if let Some(bind_one) = bind_one {
-                key_state |= self.get_key_state(*bind_one);
-            }
-            if let Some(bind_two) = bind_two {
-                key_state |= self.get_key_state(*bind_two);
-            }
-            self.set_direction_state(direction, key_state)
+        let mut key_state = false;
+        if let Some(bind_one) = bind_one {
+            key_state |= self.get_key_state(*bind_one);
         }
-        #[cfg(not(windows))]
-        false
+        if let Some(bind_two) = bind_two {
+            key_state |= self.get_key_state(*bind_two);
+        }
+        self.set_direction_state(direction, key_state)
     }
 
     #[allow(dead_code)]
@@ -182,6 +182,10 @@ impl JoystickState {
         let mut x: f32 = 0.0;
         let mut y: f32 = 0.0;
 
+        let mut angle: f32 = config.map(|v| v.up_diagonal_angle).unwrap_or(0.67);
+
+        let is_advanced_strafe_on: bool = config.map(|v| v.use_left_right_angle).unwrap_or(false);
+
         if self.down && !self.up {
             y = -1.0;
         } else if self.up && !self.down {
@@ -194,12 +198,20 @@ impl JoystickState {
             x = 1.0;
         }
 
-        let (x, y) = utils::process_circular_direction(
-            x,
-            y,
-            config.map(|v| v.right_up_angle).unwrap_or(0.67),
-        );
+        if is_advanced_strafe_on && !self.up && !self.down {
+            let left_right_angle = config.map(|v| v.left_right_angle).unwrap_or(0.78);
+            if self.left && !self.right {
+                y = 1.0;
+                x = -1.0;
+                angle = left_right_angle;
+            } else if self.right && !self.left {
+                y = 1.0;
+                x = 1.0;
+                angle = left_right_angle;
+            }
+        }
 
+        let (x, y) = utils::process_circular_direction(x, y, angle);
         (x, y)
     }
 
@@ -238,11 +250,8 @@ impl ControllerState {
 
     #[cfg(windows)]
     #[allow(dead_code)]
-    pub fn get_xusb_report(
-        &self,
-        left_joystick: Option<&JoystickAngleConfiguration>,
-    ) -> XUSBReport {
-        let (lx, ly) = self.left_joystick.get_xusb_direction(left_joystick);
+    pub fn get_xusb_report(&self, config: Option<&JoystickAngleConfiguration>) -> XUSBReport {
+        let (lx, ly) = self.left_joystick.get_xusb_direction(config);
         let (rx, ry) = self.right_joystick.get_xusb_direction(None);
         XUSBReport {
             s_thumb_lx: lx,
@@ -255,8 +264,8 @@ impl ControllerState {
 
     #[cfg(windows)]
     #[allow(dead_code)]
-    pub fn get_ds4_report(&self, left_joystick: Option<&JoystickAngleConfiguration>) -> DSReport {
-        let (lx, ly) = self.left_joystick.get_ds4_direction(left_joystick);
+    pub fn get_ds4_report(&self, config: Option<&JoystickAngleConfiguration>) -> DSReport {
+        let (lx, ly) = self.left_joystick.get_ds4_direction(config);
         let (rx, ry) = self.right_joystick.get_ds4_direction(None);
         DSReport {
             b_thumb_lx: lx,

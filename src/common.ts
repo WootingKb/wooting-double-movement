@@ -1,9 +1,8 @@
-import { JoystickAngleConfiguration, KeyMapping } from "./native/types";
-export interface AppSettings {
+import { ServiceConfiguration } from "./native/types";
+
+export type AppSettings = {
   doubleMovementEnabled: boolean;
-  leftJoystickAngles: JoystickAngleConfiguration;
-  keyMapping: KeyMapping;
-}
+} & ServiceConfiguration;
 
 type Size = [width: number, height: number];
 

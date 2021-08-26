@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Text, Flex, Spacer, Link } from "@chakra-ui/react";
+import { Flex, Link, Text } from "@chakra-ui/react";
 import { ExternalLinkIcon } from "@chakra-ui/icons";
 import { ipcRenderer } from "electron/renderer";
 

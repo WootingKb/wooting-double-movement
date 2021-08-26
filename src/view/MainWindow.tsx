@@ -1,9 +1,10 @@
 import React from "react";
 import { Box, Flex, useColorModeValue } from "@chakra-ui/react";
 import { Header } from "./Header";
-import { Content } from "./Content";
+import { SimpleEnableCard } from "./components/SimpleEnableCard";
 import { Footer } from "./Footer";
 import { UpdateToast } from "./UpdateToast";
+import { AdvancedSettingsCard } from "./components/AdvancedSettings";
 
 export function MainWindow() {
   const bg = useColorModeValue("white", "#1C2226");
@@ -18,7 +19,8 @@ export function MainWindow() {
     >
       <Header />
       <Box flex="auto">
-        <Content />
+        <SimpleEnableCard />
+        <AdvancedSettingsCard />
       </Box>
       <Footer />
       <UpdateToast />

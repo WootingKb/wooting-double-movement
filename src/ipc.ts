@@ -1,7 +1,8 @@
 import { ipcRenderer, IpcRendererEvent } from "electron";
+import _ from "lodash";
 import { useEffect, useState } from "react";
 import { JoystickAngleConfiguration } from "src/native/types";
-import { AppSettings } from "../common";
+import { AppSettings } from "./common";
 
 const storeChangedChannel = "store_changed";
 
@@ -28,11 +29,11 @@ export class RemoteStore {
   }
 
   static async leftJoystickAngles(): Promise<JoystickAngleConfiguration> {
-    return await this.getValue("leftJoystickAngles");
+    return await this.getValue("leftJoystickStrafingAngles");
   }
 
   static setLeftJoystickAngles(value: JoystickAngleConfiguration) {
-    this.setValue("leftJoystickAngles", value);
+    this.setValue("leftJoystickStrafingAngles", value);
   }
 
   /// Returns function to unsubscribe to changes
@@ -46,6 +47,7 @@ export class RemoteStore {
         callback(value as AppSettings[Key]);
       }
     }
+
     ipcRenderer.on(storeChangedChannel, listener);
 
     return () => {
@@ -53,8 +55,17 @@ export class RemoteStore {
     };
   }
 
+  static resetStrafingSettings() {
+    ipcRenderer.send("reset-advanced-strafing");
+  }
+
+  static resetBindSettings() {
+    ipcRenderer.send("reset-advanced-bind");
+  }
+
   static resetSettings() {
-    ipcRenderer.send("reset-advanced");
+    RemoteStore.resetBindSettings();
+    RemoteStore.resetStrafingSettings();
   }
 }
 
@@ -70,7 +81,7 @@ export function useRemoteValue<Key extends keyof AppSettings>(
     });
 
     const unsubscribe = RemoteStore.onChange(name, (value) => {
-      _setValue(value);
+      _setValue((v) => (_.isEqual(value, v) ? v : value));
     });
 
     return unsubscribe;

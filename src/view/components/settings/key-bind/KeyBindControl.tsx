@@ -1,3 +1,6 @@
+import { Flex, HStack, Text, VStack } from "@chakra-ui/react";
+import React, { useEffect, useState } from "react";
+import { JoystickKeyMapping, KeyMapping } from "../../../../native/types";
 import {
   ArrowBackIcon,
   ArrowDownIcon,
@@ -5,154 +8,15 @@ import {
   ArrowUpIcon,
   CloseIcon,
 } from "@chakra-ui/icons";
-import {
-  Accordion,
-  AccordionButton,
-  AccordionIcon,
-  AccordionItem,
-  AccordionPanel,
-  ExpandedIndex,
-  Flex,
-  HStack,
-  Input,
-  InputProps,
-  Link,
-  NumberDecrementStepper,
-  NumberIncrementStepper,
-  NumberInput,
-  NumberInputField,
-  NumberInputStepper,
-  Slider,
-  SliderFilledTrack,
-  SliderProps,
-  SliderThumb,
-  SliderTrack,
-  Text,
-  VStack,
-} from "@chakra-ui/react";
-import React, { useEffect, useState } from "react";
-import { bigWindowSize, smallWindowSize } from "../common";
-import {
-  defaultJoystickAngles,
-  defaultKeyMapping,
-  JoystickKeyMapping,
-} from "../native/types";
-import { Key } from "ts-keycode-enum";
-import { Card } from "./Components";
-import { RemoteStore, setWindowSize, useRemoteValue } from "./ipc";
+import { KeyBindEditor } from "./KeyBindEditor";
 
-const strafeAngleRange: [number, number] = [0.5, 71 / 90];
-
-function AngleSlider(
-  props: {
-    value: number;
-    valueChanged: (value: number) => void;
-    min: number;
-    max: number;
-  } & SliderProps
-) {
-  const { value, valueChanged, min, max, ...rest } = props;
-  const percentageValue = (((value - min) / (max - min)) * 100).toFixed(0);
-  useEffect(() => {
-    const inRangeValue = Math.max(Math.min(value, max), min);
-    if (inRangeValue !== props.value) {
-      valueChanged(inRangeValue);
-    }
-  }, [value, min, max, valueChanged]);
-
-  return (
-    <HStack align="stretch" width="100%">
-      <Slider
-        mr="20px"
-        aria-label="slider-ex-1"
-        min={min}
-        max={max}
-        step={0.01}
-        value={value}
-        onChange={valueChanged}
-        {...rest}
-      >
-        <SliderTrack>
-          <SliderFilledTrack backgroundColor="yellow.500" />
-        </SliderTrack>
-        <SliderThumb _focus={{ boxShadow: "base" }} />
-      </Slider>
-      <NumberInput
-        onChange={(_, value) => {
-          if (!Number.isNaN(value)) {
-            console.log(value);
-            valueChanged((value / 100) * (max - min) + min);
-          }
-        }}
-        value={percentageValue + "%"}
-        min={0}
-        max={100}
-        maxW="100px"
-        size="sm"
-        // allowMouseWheel
-        focusInputOnChange={false}
-      >
-        <NumberInputField />
-        <NumberInputStepper>
-          <NumberIncrementStepper />
-          <NumberDecrementStepper />
-        </NumberInputStepper>
-      </NumberInput>
-    </HStack>
-  );
+interface KeyBindControlProps {
+  keyMapping: KeyMapping;
+  setKeyMapping: (value: KeyMapping) => void;
 }
 
-function AngleControl() {
-  const [joystickAngles, setJoystickAngles] = useRemoteValue(
-    "leftJoystickAngles",
-    defaultJoystickAngles
-  );
-
-  return (
-    <>
-      <Text variant="heading">Strafe angle</Text>
-      <AngleSlider
-        value={joystickAngles.rightUpAngle}
-        valueChanged={(value) =>
-          setJoystickAngles({ ...joystickAngles, rightUpAngle: value })
-        }
-        min={strafeAngleRange[0]}
-        max={strafeAngleRange[1]}
-      />
-    </>
-  );
-}
-
-interface EditKeybindProps {
-  keybind: keyof JoystickKeyMapping;
-  value?: number;
-  requestEdit: (keybind: keyof JoystickKeyMapping) => void;
-  isEditing: boolean;
-}
-
-export function EditKeyBind(props: EditKeybindProps & InputProps) {
-  const { keybind, value, requestEdit, isEditing, ...rest } = props;
-
-  return (
-    <Input
-      value={!isEditing ? (props.value ? Key[props.value] : "") : ""}
-      onClick={() => {
-        requestEdit(keybind);
-      }}
-      isReadOnly={true}
-      placeholder={isEditing ? "Press any key" : "Click to set"}
-      size="sm"
-      cursor="pointer"
-      {...rest}
-    />
-  );
-}
-
-export function KeyBinding() {
-  const [keyMapping, setKeyMapping] = useRemoteValue(
-    "keyMapping",
-    defaultKeyMapping
-  );
+export function KeyBindControl(props: KeyBindControlProps) {
+  const { keyMapping, setKeyMapping } = props;
 
   const editingStateState = useState<keyof JoystickKeyMapping>();
   const [editingState, setEditingState] = editingStateState;
@@ -257,7 +121,7 @@ export function KeyBinding() {
               Forward
             </Text>
           </HStack>
-          <EditKeyBind
+          <KeyBindEditor
             keybind={"up"}
             isEditing={editingState === "up"}
             requestEdit={requestEdit}
@@ -265,7 +129,7 @@ export function KeyBinding() {
             flex={1}
             value={keyMapping.leftJoystick.up}
           />
-          <EditKeyBind
+          <KeyBindEditor
             keybind={"up_two"}
             isEditing={editingState === "up_two"}
             requestEdit={requestEdit}
@@ -286,7 +150,7 @@ export function KeyBinding() {
               Left
             </Text>
           </HStack>
-          <EditKeyBind
+          <KeyBindEditor
             keybind={"left"}
             isEditing={editingState === "left"}
             requestEdit={requestEdit}
@@ -294,7 +158,7 @@ export function KeyBinding() {
             flex={1}
             value={keyMapping.leftJoystick.left}
           />
-          <EditKeyBind
+          <KeyBindEditor
             keybind={"left_two"}
             isEditing={editingState === "left_two"}
             requestEdit={requestEdit}
@@ -315,7 +179,7 @@ export function KeyBinding() {
               Back
             </Text>
           </HStack>
-          <EditKeyBind
+          <KeyBindEditor
             keybind={"down"}
             isEditing={editingState === "down"}
             requestEdit={requestEdit}
@@ -323,7 +187,7 @@ export function KeyBinding() {
             flex={1}
             value={keyMapping.leftJoystick.down}
           />
-          <EditKeyBind
+          <KeyBindEditor
             keybind={"down_two"}
             isEditing={editingState === "down_two"}
             requestEdit={requestEdit}
@@ -344,7 +208,7 @@ export function KeyBinding() {
               Right
             </Text>
           </HStack>
-          <EditKeyBind
+          <KeyBindEditor
             keybind={"right"}
             isEditing={editingState === "right"}
             requestEdit={requestEdit}
@@ -352,7 +216,7 @@ export function KeyBinding() {
             flex={1}
             value={keyMapping.leftJoystick.right}
           />
-          <EditKeyBind
+          <KeyBindEditor
             keybind={"right_two"}
             isEditing={editingState === "right_two"}
             requestEdit={requestEdit}
@@ -368,50 +232,5 @@ export function KeyBinding() {
         </Flex>
       </VStack>
     </>
-  );
-}
-
-export function AdvancedSettingsCard() {
-  function updateWindowSize(index: ExpandedIndex) {
-    console.log("Accordian index: ", index);
-    // If it's 0 the boi is expanded
-    if (index == 0) {
-      setWindowSize(...bigWindowSize);
-    } else {
-      setWindowSize(...smallWindowSize);
-    }
-  }
-
-  function setDefaultSettings() {
-    RemoteStore.resetSettings();
-  }
-
-  return (
-    <Card p="2">
-      <Accordion allowToggle={true} onChange={updateWindowSize}>
-        <AccordionItem border="none">
-          <AccordionButton _hover={{ bg: "none" }}>
-            <Text variant="heading" flex="1" textAlign="left">
-              Advanced mode
-            </Text>
-            <AccordionIcon />
-          </AccordionButton>
-          <AccordionPanel pb={4}>
-            <VStack align="baseline" spacing="2">
-              <KeyBinding />
-              <AngleControl />
-              <Link
-                as={Text}
-                variant="body"
-                fontSize="sm"
-                onClick={setDefaultSettings}
-              >
-                Reset settings to Wooting recommended
-              </Link>
-            </VStack>
-          </AccordionPanel>
-        </AccordionItem>
-      </Accordion>
-    </Card>
   );
 }

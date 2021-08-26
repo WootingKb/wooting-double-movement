@@ -1,15 +1,15 @@
 import React from "react";
-import { useRemoteValue } from "./ipc";
+import { useRemoteValue } from "../../ipc";
 
-import { Switch, Text, Flex, Spacer, Kbd } from "@chakra-ui/react";
-import { AdvancedSettingsCard } from "./AdvancedSettings";
-import { Card } from "./Components";
+import { Flex, Kbd, Spacer, Switch, Text } from "@chakra-ui/react";
+import { Card } from "./general/Card";
 
-function SimpleEnableCard() {
+export function SimpleEnableCard() {
   const [dmEnabled, setDmEnable] = useRemoteValue(
     "doubleMovementEnabled",
     false
   );
+
   function toggleDmEnabled() {
     const value = !dmEnabled;
     setDmEnable(value);
@@ -22,7 +22,7 @@ function SimpleEnableCard() {
           <Text variant="heading">Enable Double Movement</Text>
           <Spacer />
           {/* Render switch as Div so onClick doesn't get triggered twice: https://github.com/chakra-ui/chakra-ui/issues/2854 */}
-          <Switch colorScheme="yellow" isChecked={dmEnabled} as="div"></Switch>
+          <Switch colorScheme="accent" isChecked={dmEnabled} as="div"></Switch>
         </Flex>
         <Text pt="6" fontSize="md" variant="body">
           Or use the hotkey <Kbd>Ctrl</Kbd>+<Kbd>P</Kbd> to toggle double
@@ -37,14 +37,5 @@ function SimpleEnableCard() {
         </Text>
       </Flex>
     </Card>
-  );
-}
-
-export function Content() {
-  return (
-    <>
-      <SimpleEnableCard />
-      <AdvancedSettingsCard />
-    </>
   );
 }
