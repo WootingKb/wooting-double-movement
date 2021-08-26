@@ -106,16 +106,23 @@ export function AdvancedSettingsCard() {
 
               <TabPanels>
                 <TabPanel>
-                  <VStack align="baseline" spacing="2" minHeight={minTabHeight}  position="relative">
+                  <VStack
+                    align="baseline"
+                    spacing="2"
+                    minHeight={minTabHeight}
+                    position="relative"
+                  >
                     <KeyBindControl
                       KeyMappingRemoteValue={keyMappingRemoteValue}
                     />
 
-                    <Link position="absolute" bottom="-10px"
-                        as={Text}
-                        variant="body"
-                        fontSize="sm"
-                        onClick={setDefaultBindSettings}
+                    <Link
+                      position="absolute"
+                      bottom="-10px"
+                      as={Text}
+                      variant="body"
+                      fontSize="sm"
+                      onClick={setDefaultBindSettings}
                     >
                       Reset keybinds to Wooting recommended
                     </Link>
@@ -123,7 +130,12 @@ export function AdvancedSettingsCard() {
                 </TabPanel>
 
                 <TabPanel>
-                  <VStack align="baseline" spacing="2" minHeight={minTabHeight}  position="relative">
+                  <VStack
+                    align="baseline"
+                    spacing="2"
+                    minHeight={minTabHeight}
+                    position="relative"
+                  >
                     <AngleControl
                       remoteValue={leftJoystickValues}
                       min={15}
@@ -141,7 +153,7 @@ export function AdvancedSettingsCard() {
                             />
                           </PopoverTrigger>
                           <PopoverContent backgroundColor={bg}>
-                            <PopoverArrow />
+                            <PopoverArrow backgroundColor={bg} />
                             <PopoverBody>
                               <Text pt="1" fontSize="sm" variant="body">
                                 This option allows you to adjust the angle you
@@ -182,7 +194,7 @@ export function AdvancedSettingsCard() {
                               />
                             </PopoverTrigger>
                             <PopoverContent backgroundColor={bg}>
-                              <PopoverArrow />
+                              <PopoverArrow backgroundColor={bg} />
                               <PopoverBody>
                                 <Text pt="1" fontSize="sm" variant="body">
                                   This option allows you to adjust the angle you
@@ -215,11 +227,13 @@ export function AdvancedSettingsCard() {
                         children={null}
                       />
                     )}
-                    <Link position="absolute" bottom="-10px"
-                        as={Text}
-                        variant="body"
-                        fontSize="sm"
-                        onClick={setDefaultStrafingSettings}
+                    <Link
+                      position="absolute"
+                      bottom="-10px"
+                      as={Text}
+                      variant="body"
+                      fontSize="sm"
+                      onClick={setDefaultStrafingSettings}
                     >
                       Reset settings to Wooting recommended
                     </Link>
@@ -227,7 +241,6 @@ export function AdvancedSettingsCard() {
                 </TabPanel>
               </TabPanels>
             </Tabs>
-
           </AccordionPanel>
         </AccordionItem>
       </Accordion>
