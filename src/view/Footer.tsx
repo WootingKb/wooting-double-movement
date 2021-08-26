@@ -29,30 +29,26 @@ export function Footer() {
   return (
     <Flex p="6" pt="0" justifyContent="space-between" alignItems="center">
       <HStack>
-        <Tooltip
-          label="Wooting Double Movement homepage"
-          hasArrow
-          variant="accent"
-        >
-          <Link
-            href="https://wooting.io/double-movement"
-            isExternal
-            variant="link"
-          >
+        <Tooltip label="Learn more about Wooting" hasArrow variant="accent">
+          <Link href="https://wooting.io" isExternal variant="link">
             <Icon as={IoHome} />
           </Link>
         </Tooltip>
-        <Tooltip label="Wooting's Community Discord" hasArrow variant="accent">
+        <Tooltip label="Join the community" hasArrow variant="accent">
           <Link href="https://wooting.io/discord" isExternal variant="link">
             <Icon as={IoLogoDiscord} />
           </Link>
         </Tooltip>
-        <Tooltip label="Wooting's Twitter" hasArrow variant="accent">
+        <Tooltip label="Talk with us" hasArrow variant="accent">
           <Link href="https://twitter.com/wootingkb" isExternal variant="link">
             <Icon as={IoLogoTwitter} />
           </Link>
         </Tooltip>
-        <Tooltip label="GitHub" hasArrow variant="accent">
+        <Tooltip
+          label="It’s open source, check the code"
+          hasArrow
+          variant="accent"
+        >
           <Link
             href="https://github.com/WootingKb/wooting-double-movement"
             isExternal
@@ -61,7 +57,7 @@ export function Footer() {
             <Icon as={IoLogoGithub} />
           </Link>
         </Tooltip>
-        <Tooltip label="Troubleshooting" hasArrow variant="accent">
+        <Tooltip label="Problem? Solution here" hasArrow variant="accent">
           <Link
             href="https://github.com/WootingKb/wooting-double-movement/wiki/Troubleshooting"
             isExternal

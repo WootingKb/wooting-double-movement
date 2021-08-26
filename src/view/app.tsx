@@ -55,13 +55,13 @@ const theme = extendTheme({
         link: (props) => ({
           color: mode("gray.400", "gray.500")(props),
           _hover: {
-            color: mode("gray.500", "gray.400")(props),
+            color: mode("gray.600", "gray.300")(props),
           },
         }),
         plink: (props) => ({
           color: mode("gray.400", "gray.500")(props),
           _hover: {
-            color: mode("gray.500", "gray.400")(props),
+            color: mode("gray.600", "gray.300")(props),
           },
           textDecoration: "underline",
         }),
