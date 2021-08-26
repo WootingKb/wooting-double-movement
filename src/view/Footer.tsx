@@ -2,7 +2,12 @@ import React, { useState } from "react";
 import { Flex, HStack, Icon, IconButton, Link, Text } from "@chakra-ui/react";
 import { ExternalLinkIcon } from "@chakra-ui/icons";
 import { ipcRenderer } from "electron/renderer";
-import { IoHome, IoLogoDiscord, IoLogoTwitter } from "react-icons/io5";
+import {
+  IoHome,
+  IoLogoDiscord,
+  IoLogoGithub,
+  IoLogoTwitter,
+} from "react-icons/io5";
 import { useEffect } from "react";
 
 export function Footer() {
@@ -13,7 +18,7 @@ export function Footer() {
   }, []);
 
   return (
-    <Flex p="6" pt="0" justifyContent="space-between">
+    <Flex p="6" pt="0" justifyContent="space-between" alignItems="center">
       <HStack>
         <Link
           href="https://wooting.io/double-movement"
@@ -28,9 +33,15 @@ export function Footer() {
         <Link href="https://twitter.com/wootingkb" isExternal variant="link">
           <Icon as={IoLogoTwitter} />
         </Link>
+        <Link
+          href="https://github.com/WootingKb/wooting-double-movement"
+          isExternal
+          variant="link"
+        >
+          <Icon as={IoLogoGithub} />
+        </Link>
       </HStack>
       <Link
-        as={Text}
         href="https://github.com/ViGEm"
         isExternal
         variant="link"
@@ -39,9 +50,14 @@ export function Footer() {
         Powered by ViGEm
         <ExternalLinkIcon mx="2px" />
       </Link>
-      <Text variant="body" fontSize="sm">
+      <Link
+        href={`https://github.com/WootingKb/wooting-double-movement/releases/tag/v${version}`}
+        isExternal
+        variant="link"
+        fontSize="sm"
+      >
         Version: {version}
-      </Text>
+      </Link>
     </Flex>
   );
 }
