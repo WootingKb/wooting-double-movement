@@ -6,6 +6,7 @@ import {
   AccordionPanel,
   ExpandedIndex,
   Flex,
+  Heading,
   Kbd,
   Link,
   Spacer,
@@ -97,9 +98,9 @@ function StrafeAngleControl() {
   return (
     <VStack align="baseline" spacing="2" height="100%" position="relative">
       <Flex>
-        <Text variant="heading">Strafe Angle</Text>
+        <Heading>Strafe Angle</Heading>
         <InfoTooltip ml="7px" mt="5px">
-          <Text pt="1" fontSize="sm" variant="body">
+          <Text pt="1" fontSize="sm">
             This option allows you to adjust the angle you will strafe by
             pressing <Kbd>Left</Kbd>/<Kbd>Right</Kbd> at the same time as{" "}
             <Kbd>Forward</Kbd> (e.g.{" "}
@@ -124,9 +125,9 @@ function StrafeAngleControl() {
       >
         <Flex>
           <Flex>
-            <Text variant="heading">Enable Single Key Strafing</Text>
+            <Heading>Enable Single Key Strafing</Heading>
             <InfoTooltip ml="7px" mt="5px">
-              <Text pt="1" fontSize="sm" variant="body">
+              <Text pt="1" fontSize="sm">
                 This option allows you to adjust the angle you will strafe by
                 pressing just one of the <Kbd>Left</Kbd>/<Kbd>Right</Kbd> keys
                 (e.g. {keybindDisplay(keyMapping.leftJoystick.right, "D")})
@@ -177,9 +178,9 @@ export function AdvancedSettingsCard(props: {
       <Accordion allowToggle={true} onChange={updateWindowSize}>
         <AccordionItem border="none">
           <AccordionButton _hover={{ bg: "none" }}>
-            <Text variant="heading" flex="1" textAlign="left">
+            <Heading flex="1" textAlign="left">
               Advanced mode
-            </Text>
+            </Heading>
             <AccordionIcon />
           </AccordionButton>
 

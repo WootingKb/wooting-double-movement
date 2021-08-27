@@ -11,17 +11,17 @@ export function Footer(props: {
     <Flex p="6" pt="0" justifyContent="space-between" alignItems="center">
       <HStack>
         {/* <Tooltip label="Learn more about Wooting" hasArrow variant="accent">
-          <Link href="https://wooting.io" isExternal variant="link">
+          <Link href="https://wooting.io" isExternal >
             <Icon as={IoHome} />
           </Link>
         </Tooltip> */}
         <Tooltip label="Join the community" hasArrow variant="accent">
-          <Link href="https://wooting.io/discord" isExternal variant="link">
+          <Link href="https://wooting.io/discord" isExternal>
             <Icon as={IoLogoDiscord} />
           </Link>
         </Tooltip>
         <Tooltip label="Talk with us" hasArrow variant="accent">
-          <Link href="https://twitter.com/wootingkb" isExternal variant="link">
+          <Link href="https://twitter.com/wootingkb" isExternal>
             <Icon as={IoLogoTwitter} />
           </Link>
         </Tooltip>
@@ -33,18 +33,12 @@ export function Footer(props: {
           <Link
             href="https://github.com/WootingKb/wooting-double-movement"
             isExternal
-            variant="link"
           >
             <Icon as={IoLogoGithub} />
           </Link>
         </Tooltip>
       </HStack>
-      <Link
-        href="https://github.com/ViGEm"
-        isExternal
-        variant="link"
-        fontSize="sm"
-      >
+      <Link href="https://github.com/ViGEm" isExternal fontSize="sm">
         Powered by ViGEm
         <ExternalLinkIcon mx="2px" />
       </Link>
@@ -52,7 +46,6 @@ export function Footer(props: {
         // href={`https://github.com/WootingKb/wooting-double-movement/releases/tag/v${props.appVersion}`}
         onClick={props.onVersionClicked}
         // isExternal
-        variant="link"
         fontSize="sm"
       >
         Version: {props.appVersion}

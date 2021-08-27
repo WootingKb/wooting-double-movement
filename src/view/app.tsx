@@ -48,14 +48,12 @@ const theme = extendTheme({
     },
     Text: {
       variants: {
-        heading: (props) => ({
-          color: mode("#2B2B4C", "#828A93")(props),
-          fontSize: "md",
-          fontWeight: "bold",
-        }),
         body: (props) => ({
           color: mode(lightTextColour, darkTextColour)(props),
         }),
+      },
+      defaultProps: {
+        variant: "body",
       },
     },
 
@@ -74,6 +72,9 @@ const theme = extendTheme({
           },
           textDecoration: "underline",
         }),
+      },
+      defaultProps: {
+        variant: "link",
       },
     },
 
@@ -106,9 +107,9 @@ const theme = extendTheme({
           "--tooltip-bg": `colors.accent.500`,
         },
       },
-      baseStyle: (props) => ({
+      baseStyle: {
         borderRadius: "md",
-      }),
+      },
     },
   },
 });

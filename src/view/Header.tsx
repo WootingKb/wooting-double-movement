@@ -52,7 +52,6 @@ export function Header() {
           <Link
             href="https://github.com/WootingKb/wooting-double-movement/wiki/Troubleshooting"
             isExternal
-            // variant="link"
           >
             {/* <Icon as={IoHelp} /> */}
             <IconButton variant="ghost" aria-label="help" icon={<IoHelp />} />

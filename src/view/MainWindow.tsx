@@ -53,7 +53,7 @@ export function MainWindow() {
     >
       <Header />
       {updateNotesOpen ? (
-        <UpdateNotes version={version} onClose={closeUpdateNotes} />
+        <UpdateNotes version={"1.3.1"} onClose={closeUpdateNotes} />
       ) : (
         <Box flex="auto">
           <SimpleEnableCard />

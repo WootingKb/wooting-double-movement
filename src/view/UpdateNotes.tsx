@@ -27,10 +27,10 @@ interface Props {
 const MarkdownOverrides = {
   p: (props: any) => {
     console.log(props);
-    return <Text variant="body" children={props.children} />;
+    return <Text children={props.children} />;
   },
   li: (props: any) => {
-    return <Text as="li" variant="body" children={props.children} />;
+    return <Text as="li" children={props.children} />;
   },
   code: (props: any) => {
     return <Kbd children={props.children} />;
@@ -39,14 +39,7 @@ const MarkdownOverrides = {
     return <Heading children={props.children} size="sm" my="1em" />;
   },
   a: (props: any) => {
-    return (
-      <Link
-        href={props.href}
-        isExternal
-        variant="link"
-        children={props.children}
-      />
-    );
+    return <Link href={props.href} isExternal children={props.children} />;
   },
 };
 
@@ -95,7 +88,7 @@ export function UpdateNotes(props: Props) {
     <Card h="100%" p="6" overflow="hidden">
       <VStack h="100%" overflow="hidden">
         <Flex w="100%">
-          <Text variant="heading">Update Notes</Text>
+          <Heading>Update Notes</Heading>
           <Spacer />
           <CloseButton onClick={props.onClose} h="100%" />
         </Flex>
