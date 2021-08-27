@@ -19,8 +19,7 @@ import {
   VStack,
 } from "@chakra-ui/react";
 import React, { useCallback } from "react";
-import { bigWindowSize, smallWindowSize } from "../../common";
-import { RemoteStore, setWindowSize, useRemoteValue } from "../../ipc";
+import { RemoteStore, useRemoteValue } from "../../ipc";
 import { KeyBindControl } from "./settings/key-bind/KeyBindControl";
 import { AngleControl } from "./settings/angle/AngleControl";
 import { Card } from "./general/Card";
@@ -165,14 +164,12 @@ function StrafeAngleControl() {
   );
 }
 
-export function AdvancedSettingsCard() {
+export function AdvancedSettingsCard(props: {
+  isExpanded: boolean;
+  setIsExpanded: (expanded: boolean) => void;
+}) {
   function updateWindowSize(index: ExpandedIndex) {
-    // If it's 0 the boi is expanded
-    if (index == 0) {
-      setWindowSize(...bigWindowSize);
-    } else {
-      setWindowSize(...smallWindowSize);
-    }
+    props.setIsExpanded(index == 0);
   }
 
   return (

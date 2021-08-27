@@ -1,9 +1,10 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import ReactDOM from "react-dom";
 import { ChakraProvider, extendTheme } from "@chakra-ui/react";
 import { MainWindow } from "./MainWindow";
 import { mode } from "@chakra-ui/theme-tools";
 import { functions } from "electron-log";
+import { ipcRenderer } from "electron";
 
 Object.assign(console, functions);
 
@@ -37,6 +38,14 @@ const theme = extendTheme({
     },
   },
   components: {
+    Heading: {
+      baseStyle: (props) => ({
+        color: mode("#2B2B4C", "#828A93")(props),
+      }),
+      defaultProps: {
+        size: "sm",
+      },
+    },
     Text: {
       variants: {
         heading: (props) => ({

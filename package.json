@@ -39,6 +39,8 @@
     "@chakra-ui/react": "^1.5.0",
     "@emotion/react": "11",
     "@emotion/styled": "11",
+    "@octokit/request": "^5.6.1",
+    "chakra-ui-markdown-renderer": "^3.0.1",
     "electron-devtools-installer": "https://github.com/simon-wh/electron-devtools-installer.git",
     "electron-log": "^4.3.4",
     "electron-store": "^7.0.3",
@@ -47,6 +49,7 @@
     "react": "16",
     "react-dom": "16",
     "react-icons": "^4.2.0",
+    "react-markdown": "^6.0.0",
     "ts-keycode-enum": "^1.0.6"
   },
   "workspaces": {
