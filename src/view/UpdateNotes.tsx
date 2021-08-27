@@ -14,9 +14,11 @@ import {
   Spacer,
   Flex,
   Button,
+  IconButton,
 } from "@chakra-ui/react";
 import ReactMarkdown from "react-markdown";
 import ChakraUIRenderer from "chakra-ui-markdown-renderer";
+import { IoRefresh } from "react-icons/io5";
 
 interface Props {
   // Will fallback to the app version if not specified. So this can be used to display update notes of next version
@@ -48,36 +50,44 @@ export function UpdateNotes(props: Props) {
     string | Error | null
   >(null);
 
-  function getReleaseBody(version: string) {
+  function getReleaseBody(version: string, force: boolean = false) {
     setChangelogBody(null);
 
     const localStorageKey = `changelog-${version}`;
 
-    // Use localStorage to cache the changelog to prevent hitting rate limit
-    const changelog = localStorage.getItem(localStorageKey);
+    if (!force) {
+      // Use localStorage to cache the changelog to prevent hitting rate limit
+      const changelog = localStorage.getItem(localStorageKey);
 
-    if (changelog) {
-      setChangelogBody(changelog);
-    } else {
-      request("GET /repos/{owner}/{repo}/releases/tags/{tag}", {
-        owner: "WootingKb",
-        repo: "wooting-double-movement",
-        tag: `v${props.version}`,
+      if (changelog) {
+        setChangelogBody(changelog);
+        return;
+      }
+    }
+
+    request("GET /repos/{owner}/{repo}/releases/tags/{tag}", {
+      owner: "WootingKb",
+      repo: "wooting-double-movement",
+      tag: `v${props.version}`,
+    })
+      .then((release) => {
+        const body = release.data.body ?? "";
+        setChangelogBody(body);
+        localStorage.setItem(localStorageKey, body);
       })
-        .then((release) => {
-          const body = release.data.body ?? "";
-          setChangelogBody(body);
-          localStorage.setItem(localStorageKey, body);
-        })
-        .catch((e) => {
-          console.error(e);
+      .catch((e) => {
+        console.error(e);
+        if (!force) {
           if (e instanceof Error) {
             setChangelogBody(e);
           } else {
             setChangelogBody(new Error(`${e}`));
           }
-        });
-    }
+        } else {
+          // If it was forced  to fetch the changelog and it failed call it again without force so it can try fallback to cache
+          getReleaseBody(version);
+        }
+      });
   }
 
   useEffect(() => {
@@ -90,6 +100,13 @@ export function UpdateNotes(props: Props) {
         <Flex w="100%">
           <Heading>Update Notes</Heading>
           <Spacer />
+          <IconButton
+            variant="ghost"
+            aria-label="refresh"
+            icon={<IoRefresh />}
+            onClick={() => getReleaseBody(props.version, true)}
+            h="100%"
+          />
           <CloseButton onClick={props.onClose} h="100%" />
         </Flex>
         <Skeleton isLoaded={!!changelogBody} w="100%" h="100%" minH="0px">
