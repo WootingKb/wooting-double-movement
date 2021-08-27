@@ -169,10 +169,14 @@ impl Service {
     fn update_controller(&mut self) -> Result<()> {
         if let Some(controller) = self.controller.as_mut() {
             #[cfg(feature = "ds4")]
-            let report = self.controller_state.get_ds4_report(Some(&self.config));
+            let report = self
+                .controller_state
+                .get_ds4_report(Some(&self.config.left_joystick_strafing_angles));
 
             #[cfg(not(feature = "ds4"))]
-            let report = self.controller_state.get_xusb_report(Some(&self.config));
+            let report = self
+                .controller_state
+                .get_xusb_report(Some(&self.config.left_joystick_strafing_angles));
 
             controller.update(&report)?;
         }
