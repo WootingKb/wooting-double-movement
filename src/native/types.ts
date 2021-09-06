@@ -36,6 +36,8 @@ export const defaultKeyMapping: KeyMapping = {
   },
 };
 
+export const defaultToggleAccelerator = [Key.Ctrl, Key.P];
+
 export interface ServiceConfiguration {
   leftJoystickStrafingAngles: JoystickAngleConfiguration;
   keyMapping: KeyMapping;

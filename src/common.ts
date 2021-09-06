@@ -2,6 +2,7 @@ import { ServiceConfiguration } from "./native/types";
 
 export type AppSettings = {
   doubleMovementEnabled: boolean;
+  enabledToggleAccelerator: number[];
 } & ServiceConfiguration;
 
 type Size = [width: number, height: number];

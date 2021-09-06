@@ -17,10 +17,12 @@ import { setServiceConfig, startService, stopService } from "./native";
 import {
   defaultKeyMapping,
   defaultLeftJoystickStrafingAngles,
+  defaultToggleAccelerator,
   ServiceConfiguration,
 } from "./native/types";
 import { functions } from "electron-log";
 import { autoUpdater } from "electron-updater";
+import { PrettyAcceleratorName } from "./accelerator";
 
 Object.assign(console, functions);
 app.allowRendererProcessReuse = false;
@@ -239,6 +241,7 @@ class ServiceManager {
       doubleMovementEnabled: false,
       leftJoystickStrafingAngles: defaultLeftJoystickStrafingAngles,
       keyMapping: defaultKeyMapping,
+      enabledToggleAccelerator: defaultToggleAccelerator,
     },
     migrations: {
       ">=1.4.0": (store) => {
@@ -282,14 +285,36 @@ class ServiceManager {
       this.resetAdvancedKeyBindConfig();
     });
 
-    const ret = globalShortcut.register("Ctrl+P", () => {
-      console.debug("Ctrl+P is pressed");
-      this.set_double_movement_enabled(!this.doubleMovementEnabled());
-    });
+    const registerToggleShortcut = (acceleratorParts: number[]) => {
+      const accelerator = PrettyAcceleratorName(
+        "accelerator",
+        acceleratorParts
+      );
+      const ret = globalShortcut.register(accelerator, () => {
+        console.debug("Toggle accelerator was pressed");
+        this.set_double_movement_enabled(!this.doubleMovementEnabled());
+      });
 
-    if (!ret) {
-      console.error("Failed to register globalShortcut");
-    }
+      if (!ret) {
+        console.error("Failed to register globalShortcut");
+      }
+    };
+
+    registerToggleShortcut(this.store.get("enabledToggleAccelerator"));
+
+    this.store.onDidChange("enabledToggleAccelerator", (newValue, oldValue) => {
+      if (oldValue)
+        globalShortcut.unregister(
+          PrettyAcceleratorName("accelerator", oldValue)
+        );
+      else console.warn("Old accelerator is undefined, not unregistering...");
+
+      if (newValue) registerToggleShortcut(newValue);
+      else
+        console.warn(
+          "New acceleartor is undefined, not registering shortcut..."
+        );
+    });
   }
 
   store_set<Key extends keyof AppSettings>(name: Key, value: AppSettings[Key]) {

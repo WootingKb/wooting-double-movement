@@ -25,7 +25,7 @@ export function KeyBindControl(props: KeyBindControlProps) {
     setEditingState(key);
   };
 
-  const listener = (event: any) => {
+  const listener = (event: KeyboardEvent) => {
     if (event.keyCode === 27) {
       setEditingState(undefined);
       return;

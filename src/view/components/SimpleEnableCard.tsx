@@ -3,8 +3,19 @@ import { useRemoteValue } from "../../ipc";
 
 import { Flex, Heading, Kbd, Spacer, Switch, Text } from "@chakra-ui/react";
 import { Card } from "./general/Card";
+import { defaultToggleAccelerator } from "../../native/types";
+import { PrettyAcceleratorName } from "../../accelerator";
 
 export function SimpleEnableCard() {
+  const [toggleAccelerator, _] = useRemoteValue(
+    "enabledToggleAccelerator",
+    defaultToggleAccelerator
+  );
+  const toggleAcceleratorPretty = PrettyAcceleratorName(
+    "display",
+    toggleAccelerator
+  ).split("+");
+
   const [dmEnabled, setDmEnable] = useRemoteValue(
     "doubleMovementEnabled",
     false
@@ -25,8 +36,15 @@ export function SimpleEnableCard() {
           <Switch colorScheme="accent" isChecked={dmEnabled} as="div"></Switch>
         </Flex>
         <Text pt="6" fontSize="md">
-          Or use the hotkey <Kbd>Ctrl</Kbd>+<Kbd>P</Kbd> to toggle double
-          movement.
+          Or use the hotkey{" "}
+          {toggleAcceleratorPretty
+            .map((t) => <Kbd>{t}</Kbd>)
+            .reduce((prev, current) => (
+              <>
+                {prev}+{current}
+              </>
+            ))}{" "}
+          to toggle double movement. (Configurable under Advanced mode)
           <br />
           <br />
           You need to configure two things in Fortnite:
