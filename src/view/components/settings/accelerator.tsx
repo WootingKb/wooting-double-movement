@@ -87,9 +87,7 @@ export function AcceleratorEditor(props: AcceleratorEditorProps & InputProps) {
         // unsubscribe to keydown event since bind process is already canceled by the blur event
         clearListeners();
         setAcceleratorEdit(acceleratorValue);
-        setTimeout(() => {
-          setIsEditing(false);
-        }, 0);
+        setIsEditing(false);
         ipcRenderer.send("hotkey-edit-cancel");
       }
     }
@@ -105,13 +103,25 @@ export function AcceleratorEditor(props: AcceleratorEditorProps & InputProps) {
     return cancelBinding;
   }
 
+  useEffect(() => {
+    if (isEditing) {
+      return requestEdit();
+    }
+  }, [isEditing]);
+
   return (
     <>
       <Input
         placeholder={isEditing ? "Start pressing a key" : "Click to set"}
         cursor="pointer"
         value={acceleratorEditPrettyValue}
-        onClick={!isEditing ? requestEdit : undefined}
+        onClick={
+          !isEditing
+            ? () => {
+                setIsEditing(true);
+              }
+            : undefined
+        }
         isReadOnly={true}
         size="sm"
         {...rest}

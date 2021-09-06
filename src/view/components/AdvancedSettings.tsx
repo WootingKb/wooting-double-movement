@@ -237,7 +237,7 @@ export function AdvancedSettingsCard(props: {
           </AccordionButton>
 
           <AccordionPanel pb={4}>
-            <Tabs variant="enclosed" colorScheme="accent">
+            <Tabs variant="enclosed" colorScheme="accent" isLazy>
               <TabList>
                 <Tab mr={3}>Keybinds</Tab>
                 <Tab>Strafing</Tab>
