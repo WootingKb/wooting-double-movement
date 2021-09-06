@@ -38,6 +38,7 @@ import {
   isKeycodeValidForAccelerator,
   PrettyAcceleratorName,
 } from "../../accelerator";
+import { AcceleratorEditor } from "./settings/accelerator";
 
 const minTabHeight = "240px";
 const strafeAngleRange: [number, number] = [45, 71];
@@ -51,85 +52,10 @@ function AppSettingsTab() {
     "enabledToggleAccelerator",
     defaultToggleAccelerator
   );
-  const toggleAcceleratorPretty = PrettyAcceleratorName(
-    "display",
-    toggleAccelerator
-  );
 
   function resetToDefault() {
     setToggleAccelerator(defaultToggleAccelerator);
   }
-
-  const [isEditing, setIsEditing] = useState(false);
-  const [acceleratorEdit, setAcceleratorEdit] = useState<Key[]>([]);
-  let acceleratorEditPrettyValue = PrettyAcceleratorName(
-    "display",
-    acceleratorEdit
-  );
-  if (acceleratorEditPrettyValue.length > 0)
-    acceleratorEditPrettyValue += "+...";
-
-  function completeAcceleratorEdit() {
-    setIsEditing(false);
-
-    // Use the current value callback of the set function to get the latest value
-    setAcceleratorEdit((finalValue) => {
-      console.log(finalValue);
-      setToggleAccelerator(finalValue);
-      return [];
-    });
-  }
-
-  function requestEdit() {
-    setIsEditing(true);
-
-    function keyupListener(event: KeyboardEvent) {
-      setAcceleratorEdit((current) =>
-        current.filter((k) => k !== event.keyCode)
-      );
-    }
-
-    function keydownListener(event: KeyboardEvent) {
-      if (isKeycodeValidForAccelerator(event.keyCode)) {
-        setAcceleratorEdit((current) => [...current, event.keyCode]);
-        // If the keycode isn't present in the accelerator modifiers then this is the final part of the accelerator
-        if (!AcceleratorModifiers.includes(event.keyCode)) {
-          window.removeEventListener("keydown", keydownListener);
-          window.removeEventListener("keyup", keyupListener);
-          completeAcceleratorEdit();
-        }
-      } else {
-        console.debug(
-          `Keycode ${event.code}:${event.keyCode} is not valid for an accelerator`
-        );
-      }
-    }
-
-    window.addEventListener("keydown", keydownListener);
-    window.addEventListener("keyup", keyupListener);
-  }
-  // useEffect(() => {
-  //   if (editingState) {
-  //     window.addEventListener("keydown", listener, { once: true });
-
-  //     // register blur event so we cancel the bind process when the tool gets out of focus
-  //     window.addEventListener(
-  //       "blur",
-  //       () => {
-  //         // unsubscribe to keydown event since bind process is already canceled by the blur event
-  //         window.removeEventListener("keydown", listener);
-  //         setEditingState(undefined);
-  //       },
-  //       {
-  //         once: true,
-  //       }
-  //     );
-  //   }
-
-  //   return () => {
-  //     window.removeEventListener("keydown", listener);
-  //   };
-  // }, [editingState]);
 
   return (
     <VStack align="baseline" spacing="2" height="100%" position="relative">
@@ -144,17 +70,9 @@ function AppSettingsTab() {
             you'd like to use
           </Text>
         </InfoTooltip>
-        <Input
-          placeholder={isEditing ? "Start pressing a key" : "Click to set"}
-          cursor="pointer"
-          value={
-            !isEditing ? toggleAcceleratorPretty : acceleratorEditPrettyValue
-          }
-          onClick={() => {
-            requestEdit();
-          }}
-          isReadOnly={true}
-          size="sm"
+        <AcceleratorEditor
+          acceleratorValue={toggleAccelerator}
+          onAcceleratorChange={setToggleAccelerator}
         />
       </HStack>
 

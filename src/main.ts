@@ -286,9 +286,17 @@ class ServiceManager {
     });
 
     const registerToggleShortcut = (acceleratorParts: number[]) => {
+      if (acceleratorParts.length === 0) {
+        console.error("Attempted to register empty accelerator");
+        return;
+      }
+
       const accelerator = PrettyAcceleratorName(
         "accelerator",
         acceleratorParts
+      );
+      console.debug(
+        `Registering toggle shortcut with accelerator ${accelerator}`
       );
       const ret = globalShortcut.register(accelerator, () => {
         console.debug("Toggle accelerator was pressed");
@@ -300,7 +308,10 @@ class ServiceManager {
       }
     };
 
-    registerToggleShortcut(this.store.get("enabledToggleAccelerator"));
+    const registerShortcuts = () => {
+      registerToggleShortcut(this.store.get("enabledToggleAccelerator"));
+    };
+    registerShortcuts();
 
     this.store.onDidChange("enabledToggleAccelerator", (newValue, oldValue) => {
       if (oldValue)
@@ -314,6 +325,16 @@ class ServiceManager {
         console.warn(
           "New acceleartor is undefined, not registering shortcut..."
         );
+    });
+
+    ipcMain.on("hotkey-edit-start", (_) => {
+      console.debug("Unregister all");
+      globalShortcut.unregisterAll();
+    });
+
+    ipcMain.on("hotkey-edit-cancel", (_) => {
+      console.debug("Hotkey edit cancelled");
+      registerShortcuts();
     });
   }
 
