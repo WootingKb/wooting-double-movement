@@ -9,6 +9,8 @@ import { ipcRenderer } from "electron";
 import { UpdateNotes } from "./UpdateNotes";
 import { bigWindowSize, smallWindowSize } from "../common";
 import { setWindowSize } from "../ipc";
+import { Announcement } from "./Announcement";
+import { useCallback } from "react";
 
 export function MainWindow() {
   const [version, setVersion] = useState("");
@@ -20,6 +22,7 @@ export function MainWindow() {
   const bg = useColorModeValue("white", "#1C2226");
 
   const [updateNotesOpen, setUpdateNotesOpen] = useState(false);
+  const [announcementsOpen, setAnnouncementsOpen] = useState(false);
 
   const [windowIsExpanded, setWindowIsExpanded] = useState(false);
 
@@ -32,15 +35,27 @@ export function MainWindow() {
     }
   }, [windowIsExpanded]);
 
-  function openUpdateNotes() {
-    setUpdateNotesOpen(true);
-    setWindowIsExpanded(true);
-  }
+  const openUpdateNotes = useCallback(() => {
+    if (!announcementsOpen) {
+      setUpdateNotesOpen(true);
+      setWindowIsExpanded(true);
+    }
+  }, [announcementsOpen, setUpdateNotesOpen, setWindowIsExpanded]);
 
-  function closeUpdateNotes() {
+  const closeUpdateNotes = useCallback(() => {
     setUpdateNotesOpen(false);
     setWindowIsExpanded(false);
-  }
+  }, [setUpdateNotesOpen, setWindowIsExpanded]);
+
+  const requestOpenAnnouncements = useCallback(() => {
+    setAnnouncementsOpen(true);
+    setWindowIsExpanded(true);
+  }, [setAnnouncementsOpen, setWindowIsExpanded]);
+
+  const closeAnnouncements = useCallback(() => {
+    setAnnouncementsOpen(false);
+    setWindowIsExpanded(false);
+  }, [setAnnouncementsOpen, setWindowIsExpanded]);
 
   return (
     <Flex
@@ -52,17 +67,23 @@ export function MainWindow() {
       overflow="hidden"
     >
       <Header />
-      {updateNotesOpen ? (
-        <UpdateNotes version={"1.3.1"} onClose={closeUpdateNotes} />
-      ) : (
-        <Box flex="auto">
-          <SimpleEnableCard />
-          <AdvancedSettingsCard
-            isExpanded={windowIsExpanded}
-            setIsExpanded={setWindowIsExpanded}
-          />
-        </Box>
-      )}
+      <Announcement
+        isOpen={announcementsOpen}
+        onClose={closeAnnouncements}
+        requestOpen={requestOpenAnnouncements}
+      />
+      {!announcementsOpen &&
+        (updateNotesOpen ? (
+          <UpdateNotes version={"1.3.1"} onClose={closeUpdateNotes} />
+        ) : (
+          <Box flex="auto">
+            <SimpleEnableCard />
+            <AdvancedSettingsCard
+              isExpanded={windowIsExpanded}
+              setIsExpanded={setWindowIsExpanded}
+            />
+          </Box>
+        ))}
 
       <Footer appVersion={version} onVersionClicked={openUpdateNotes} />
       <UpdateToast />
