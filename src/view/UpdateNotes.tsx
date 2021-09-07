@@ -19,31 +19,13 @@ import {
 import ReactMarkdown from "react-markdown";
 import ChakraUIRenderer from "chakra-ui-markdown-renderer";
 import { IoRefresh } from "react-icons/io5";
+import { Markdown } from "./components/markdown";
 
 interface Props {
   // Will fallback to the app version if not specified. So this can be used to display update notes of next version
   version: string;
   onClose: () => void;
 }
-
-const MarkdownOverrides = {
-  p: (props: any) => {
-    console.log(props);
-    return <Text children={props.children} />;
-  },
-  li: (props: any) => {
-    return <Text as="li" children={props.children} />;
-  },
-  code: (props: any) => {
-    return <Kbd children={props.children} />;
-  },
-  h2: (props: any) => {
-    return <Heading children={props.children} size="sm" my="1em" />;
-  },
-  a: (props: any) => {
-    return <Link href={props.href} isExternal children={props.children} />;
-  },
-};
 
 export function UpdateNotes(props: Props) {
   const [changelogBody, setChangelogBody] = React.useState<
@@ -113,10 +95,7 @@ export function UpdateNotes(props: Props) {
           <Box overflowY="auto" h="100%" w="100%">
             {changelogBody &&
               (typeof changelogBody == "string" ? (
-                //@ts-ignore
-                <ReactMarkdown components={ChakraUIRenderer(MarkdownOverrides)}>
-                  {changelogBody}
-                </ReactMarkdown>
+                <Markdown>{changelogBody}</Markdown>
               ) : (
                 <VStack>
                   <Text variant="body" color="red">
