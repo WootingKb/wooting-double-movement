@@ -1,4 +1,5 @@
 var nodeExternals = require("webpack-node-externals");
+const TsconfigPathsPlugin = require("tsconfig-paths-webpack-plugin");
 
 module.exports = {
   target: "node", // in order to ignore built-in modules like path, fs, etc.
@@ -16,6 +17,7 @@ module.exports = {
   resolve: {
     // Add '.ts' and '.tsx' as resolvable extensions.
     extensions: [".ts", ".tsx", ".js"],
+    plugins: [new TsconfigPathsPlugin()],
   },
   node: {
     __dirname: false,

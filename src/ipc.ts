@@ -1,7 +1,7 @@
 import { ipcRenderer, IpcRendererEvent } from "electron";
 import _ from "lodash";
 import { useEffect, useState } from "react";
-import { JoystickAngleConfiguration } from "src/native/types";
+import { JoystickAngleConfiguration } from "native/types";
 import { AppSettings } from "./common";
 
 const storeChangedChannel = "store_changed";

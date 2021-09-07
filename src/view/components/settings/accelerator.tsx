@@ -1,7 +1,6 @@
-import { Input, InputProps } from "@chakra-ui/react";
+import { HStack, Input, InputProps, StackProps, Text } from "@chakra-ui/react";
 import { ipcRenderer } from "electron/renderer";
-import React, { useState } from "react";
-import { useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { Key } from "ts-keycode-enum";
 import {
   PrettyAcceleratorName,
@@ -9,10 +8,30 @@ import {
   AcceleratorModifiers,
 } from "../../../accelerator";
 import _ from "lodash";
+import { InfoTooltip } from "../general/InfoTooltip";
 
 interface AcceleratorEditorProps {
   acceleratorValue: Key[];
   onAcceleratorChange: (value: Key[]) => void;
+}
+
+export function AcceleratorEditorRow(
+  props: AcceleratorEditorProps & {
+    titleChildren: React.ReactFragment;
+    infoTooltip?: React.ReactFragment;
+    rowProps?: StackProps;
+  }
+) {
+  const { titleChildren, infoTooltip, rowProps, ...rest } = props;
+  return (
+    <HStack w="100%" {...(rowProps ?? {})}>
+      <Text w="fit-content" whiteSpace="nowrap">
+        {titleChildren}
+      </Text>
+      {infoTooltip && <InfoTooltip>{infoTooltip}</InfoTooltip>}
+      <AcceleratorEditor {...rest} />
+    </HStack>
+  );
 }
 
 export function AcceleratorEditor(props: AcceleratorEditorProps & InputProps) {

@@ -11,7 +11,8 @@
     "jsx": "react",
     "module": "CommonJS",
     "noFallthroughCasesInSwitch": true,
-    "baseUrl": "./"
+    "baseUrl": "src/"
   },
-  "include": ["src/"]
+  "exclude": ["node_modules"],
+  "include": ["./src/**/*.tsx", "./src/**/*.ts"]
 }
