@@ -77,7 +77,7 @@ export function UpdateNotes(props: Props) {
   }, [props.version]);
 
   return (
-    <Card h="100%" p="6" overflow="hidden">
+    <Card h="fill-available" p="6" overflow="hidden">
       <VStack h="100%" overflow="hidden">
         <Flex w="100%">
           <Heading>Update Notes</Heading>

@@ -5,6 +5,7 @@ import {
   Spacer,
   CloseButton,
   Box,
+  Tooltip,
 } from "@chakra-ui/react";
 import { remote } from "electron";
 import React, { useState, useEffect } from "react";
@@ -71,12 +72,14 @@ function _Announcement(props: {
   }, [props.onClose, announcement]);
 
   return props.isOpen && announcement ? (
-    <Card h="100%" p="6" overflow="hidden">
+    <Card h="fill-available" p="6" overflow="hidden">
       <VStack h="100%" overflow="hidden">
         <Flex w="100%">
           <Heading>Announcement</Heading>
           <Spacer />
-          <CloseButton onClick={close} h="100%" />
+          <Tooltip label="Click to dismiss" hasArrow>
+            <CloseButton onClick={close} h="100%" />
+          </Tooltip>
         </Flex>
         <Box overflowY="auto" h="100%" w="100%" minH="0px">
           <Markdown>{announcement.markdown}</Markdown>

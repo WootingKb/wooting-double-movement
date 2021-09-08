@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Box, Flex, useColorModeValue } from "@chakra-ui/react";
+import { Box, Flex, useColorModeValue, VStack } from "@chakra-ui/react";
 import { Header } from "./Header";
 import { SimpleEnableCard } from "./components/SimpleEnableCard";
 import { Footer } from "./Footer";
@@ -67,23 +67,26 @@ export function MainWindow() {
       overflow="hidden"
     >
       <Header />
-      <Announcement
-        isOpen={announcementsOpen}
-        onClose={closeAnnouncements}
-        requestOpen={requestOpenAnnouncements}
-      />
-      {!announcementsOpen &&
-        (updateNotesOpen ? (
+      <VStack h="100%" alignItems="stretch" p="6" overflow="hidden" spacing="8">
+        {updateNotesOpen ? (
           <UpdateNotes version={"1.3.1"} onClose={closeUpdateNotes} />
         ) : (
-          <Box flex="auto">
+          <>
             <SimpleEnableCard />
-            <AdvancedSettingsCard
-              isExpanded={windowIsExpanded}
-              setIsExpanded={setWindowIsExpanded}
-            />
-          </Box>
-        ))}
+            {!announcementsOpen && (
+              <AdvancedSettingsCard
+                isExpanded={windowIsExpanded}
+                setIsExpanded={setWindowIsExpanded}
+              />
+            )}
+          </>
+        )}
+        <Announcement
+          isOpen={announcementsOpen}
+          onClose={closeAnnouncements}
+          requestOpen={requestOpenAnnouncements}
+        />
+      </VStack>
 
       <Footer appVersion={version} onVersionClicked={openUpdateNotes} />
       <UpdateToast />
