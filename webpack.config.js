@@ -1,7 +1,8 @@
 var nodeExternals = require("webpack-node-externals");
 const TsconfigPathsPlugin = require("tsconfig-paths-webpack-plugin");
+const webpack = require("webpack");
 
-module.exports = {
+module.exports = (env) => ({
   target: "node", // in order to ignore built-in modules like path, fs, etc.
   externals: [nodeExternals({})], // ignore modules from being bundled. Ignore intel-hex, cause no typedef yet.
   devtool: "source-map",
@@ -19,6 +20,11 @@ module.exports = {
     extensions: [".ts", ".tsx", ".js"],
     plugins: [new TsconfigPathsPlugin()],
   },
+  plugins: [
+    new webpack.DefinePlugin({
+      DISABLE_ANNOUNCEMENTS: env.da !== undefined,
+    }),
+  ],
   node: {
     __dirname: false,
     __filename: false,
@@ -35,4 +41,4 @@ module.exports = {
       },
     ],
   },
-};
+});

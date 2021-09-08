@@ -30,6 +30,12 @@ function _Announcement(props: {
   onClose: () => void;
   requestOpen: () => void;
 }) {
+  //@ts-ignore
+  if (DISABLE_ANNOUNCEMENTS) {
+    console.debug("Announcements disabled");
+    return <></>;
+  }
+
   // You may not like the fact we got some wee announcements in here but ye know, we gotta put food on the keyboard
 
   const [announcement, setAnnouncement] = useState<Announcement | null>(null);

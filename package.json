@@ -9,8 +9,9 @@
     "url": "https://github.com/WootingKb/wooting-double-movement.git"
   },
   "scripts": {
-    "dev": "webpack -w --mode=development ",
+    "dev": "webpack -w --mode=development",
     "build": "webpack --mode=production",
+    "build:no-announce": "webpack --mode=production --env da",
     "build:native": "electron-build-env -- cargo build --manifest-path ./src/native/Cargo.toml --release ",
     "cargo:check": "cargo check --manifest-path ./src/native/Cargo.toml",
     "start": "electron .",
