@@ -5,6 +5,7 @@ import {
   globalShortcut,
   ipcMain,
   Menu,
+  MenuItemConstructorOptions,
   Notification,
   shell,
   Tray,
@@ -26,6 +27,108 @@ import { PrettyAcceleratorName } from "./accelerator";
 
 Object.assign(console, functions);
 app.allowRendererProcessReuse = false;
+app.commandLine.appendSwitch("disable-pinch");
+
+const isMac = process.platform === "darwin";
+
+const template: MenuItemConstructorOptions[] = [
+  // { role: 'appMenu' }
+  ...(isMac
+    ? [
+        {
+          label: app.name,
+          submenu: [
+            { role: "about" },
+            { type: "separator" },
+            { role: "services" },
+            { type: "separator" },
+            { role: "hide" },
+            { role: "hideOthers" },
+            { role: "unhide" },
+            { type: "separator" },
+            { role: "quit" },
+          ] as MenuItemConstructorOptions[],
+        },
+      ]
+    : []),
+  // { role: 'fileMenu' }
+  {
+    label: "File",
+    submenu: [
+      isMac ? { role: "close" } : { role: "quit" },
+    ] as MenuItemConstructorOptions[],
+  },
+  // { role: 'editMenu' }
+  {
+    label: "Edit",
+    submenu: [
+      { role: "undo" },
+      { role: "redo" },
+      { type: "separator" },
+      { role: "cut" },
+      { role: "copy" },
+      { role: "paste" },
+      ...(isMac
+        ? [
+            { role: "pasteAndMatchStyle" },
+            { role: "delete" },
+            { role: "selectAll" },
+            { type: "separator" },
+            {
+              label: "Speech",
+              submenu: [{ role: "startSpeaking" }, { role: "stopSpeaking" }],
+            },
+          ]
+        : [{ role: "delete" }, { type: "separator" }, { role: "selectAll" }]),
+    ] as MenuItemConstructorOptions[],
+  },
+  // { role: 'viewMenu' }
+  {
+    label: "View",
+    submenu: [
+      { role: "reload" },
+      { role: "forceReload" },
+      { role: "toggleDevTools" },
+      { type: "separator" },
+      // { role: "resetZoom" },
+      // { role: "zoomIn" },
+      // { role: "zoomOut" },
+      { type: "separator" },
+      { role: "togglefullscreen" },
+    ] as MenuItemConstructorOptions[],
+  },
+  // { role: 'windowMenu' }
+  {
+    label: "Window",
+    submenu: [
+      { role: "minimize" },
+      { role: "zoom" },
+      ...(isMac
+        ? [
+            { type: "separator" },
+            { role: "front" },
+            { type: "separator" },
+            { role: "window" },
+          ]
+        : [{ role: "close" }]),
+    ] as MenuItemConstructorOptions[],
+  },
+  // {
+  //   role: "help",
+  //   submenu: [
+  //     {
+  //       label: "Learn More",
+  //       click: async () => {
+  //         const { shell } = require("electron");
+  //         await shell.openExternal("https://electronjs.org");
+  //       },
+  //     },
+  //   ],
+  // },
+];
+
+const menu = Menu.buildFromTemplate(template);
+Menu.setApplicationMenu(menu);
 
 declare var __dirname: any, process: any;
 

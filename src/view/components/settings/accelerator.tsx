@@ -81,9 +81,20 @@ export function AcceleratorEditor(props: AcceleratorEditorProps & InputProps) {
 
     function keydownListener(event: KeyboardEvent) {
       if (isKeycodeValidForAccelerator(event.keyCode)) {
-        setAcceleratorEdit((current) => [...current, event.keyCode]);
+        let canComplete = false;
+        setAcceleratorEdit((current) => {
+          const res = current.includes(event.keyCode)
+            ? current
+            : [...current, event.keyCode];
+
+          canComplete =
+            res.length > 1 &&
+            res.findIndex((b) => AcceleratorModifiers.includes(b)) !== -1;
+
+          return res;
+        });
         // If the keycode isn't present in the accelerator modifiers then this is the final part of the accelerator
-        if (!AcceleratorModifiers.includes(event.keyCode)) {
+        if (!AcceleratorModifiers.includes(event.keyCode) && canComplete) {
           clearListeners();
           completeAcceleratorEdit();
         }
