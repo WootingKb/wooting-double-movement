@@ -17,9 +17,10 @@ export interface Announcement {
   markdown: string;
 }
 
-const apiUrl = remote.app.isPackaged
-  ? "https://api.wooting.io"
-  : "http://localhost:8080";
+const apiUrl =
+  process.env.NODE_ENV === "production"
+    ? "https://api.wooting.io"
+    : "http://localhost:8080";
 
 function AnnouncementKey(data: Announcement) {
   return "announcement-" + data.id;
