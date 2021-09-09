@@ -390,7 +390,7 @@ class ServiceManager {
 
     const registerToggleShortcut = (acceleratorParts: number[]) => {
       if (acceleratorParts.length === 0) {
-        console.error("Attempted to register empty accelerator");
+        console.warn("Attempted to register empty accelerator");
         return;
       }
 
@@ -412,18 +412,19 @@ class ServiceManager {
     };
 
     const registerShortcuts = () => {
-      registerToggleShortcut(this.store.get("enabledToggleAccelerator"));
+      const accelerator = this.store.get("enabledToggleAccelerator");
+      if (accelerator.length > 0) registerToggleShortcut(accelerator);
     };
     registerShortcuts();
 
     this.store.onDidChange("enabledToggleAccelerator", (newValue, oldValue) => {
-      if (oldValue)
+      if (oldValue && oldValue.length > 0)
         globalShortcut.unregister(
           PrettyAcceleratorName("accelerator", oldValue)
         );
       else console.warn("Old accelerator is undefined, not unregistering...");
 
-      if (newValue) registerToggleShortcut(newValue);
+      if (newValue && newValue.length > 0) registerToggleShortcut(newValue);
       else
         console.warn(
           "New acceleartor is undefined, not registering shortcut..."

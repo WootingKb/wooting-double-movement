@@ -1,4 +1,14 @@
-import { HStack, Input, InputProps, StackProps, Text } from "@chakra-ui/react";
+import {
+  HStack,
+  IconButton,
+  Input,
+  InputGroup,
+  InputProps,
+  InputRightElement,
+  StackProps,
+  Text,
+  Tooltip,
+} from "@chakra-ui/react";
 import { ipcRenderer } from "electron/renderer";
 import React, { useState, useEffect } from "react";
 import { Key } from "ts-keycode-enum";
@@ -9,6 +19,8 @@ import {
 } from "../../../accelerator";
 import _ from "lodash";
 import { InfoTooltip } from "../general/InfoTooltip";
+import { CloseIcon } from "@chakra-ui/icons";
+import { useCallback } from "react";
 
 interface AcceleratorEditorProps {
   acceleratorValue: Key[];
@@ -60,6 +72,7 @@ export function AcceleratorEditor(props: AcceleratorEditorProps & InputProps) {
     // Use the current value callback of the set function to get the latest value
     setAcceleratorEdit((finalValue) => {
       console.log(finalValue);
+      // The onAcceleratorChange is from the parent so we use the setTimeout to prevent it from erroring from both components rendering simultaneously
       setTimeout(() => {
         onAcceleratorChange(finalValue);
       }, 0);
@@ -83,13 +96,17 @@ export function AcceleratorEditor(props: AcceleratorEditorProps & InputProps) {
       if (isKeycodeValidForAccelerator(event.keyCode)) {
         let canComplete = false;
         setAcceleratorEdit((current) => {
-          const res = current.includes(event.keyCode)
-            ? current
-            : [...current, event.keyCode];
+          const isModifier = AcceleratorModifiers.includes(event.keyCode);
+          let res;
 
-          canComplete =
-            res.length > 1 &&
-            res.findIndex((b) => AcceleratorModifiers.includes(b)) !== -1;
+          // If the key isn't a modifier and nothing is present then we ignore until we get a modifier
+          if (!isModifier && current.length === 0) {
+            res = current;
+            // If the key is already present ignore
+          } else if (current.includes(event.keyCode)) res = current;
+          else res = [...current, event.keyCode];
+
+          canComplete = res.length > 1;
 
           return res;
         });
@@ -139,23 +156,44 @@ export function AcceleratorEditor(props: AcceleratorEditorProps & InputProps) {
     }
   }, [isEditing]);
 
+  const deleteBinding = useCallback(() => {
+    setIsEditing(false);
+    onAcceleratorChange([]);
+  }, []);
+
   return (
     <>
-      <Input
-        placeholder={isEditing ? "Start pressing a key" : "Click to set"}
-        cursor="pointer"
-        value={acceleratorEditPrettyValue}
-        onClick={
-          !isEditing
-            ? () => {
-                setIsEditing(true);
-              }
-            : undefined
-        }
-        isReadOnly={true}
-        size="sm"
-        {...rest}
-      />
+      <InputGroup size="sm">
+        <Input
+          placeholder={
+            isEditing ? "Start by pressing a modifier" : "Click to set"
+          }
+          cursor="pointer"
+          value={acceleratorEditPrettyValue}
+          onClick={
+            !isEditing
+              ? () => {
+                  setIsEditing(true);
+                }
+              : undefined
+          }
+          isReadOnly={true}
+          {...rest}
+        />
+        <InputRightElement
+          children={
+            <Tooltip label="Remove binding">
+              <IconButton
+                variant="ghost"
+                size="xs"
+                aria-label="unbind"
+                icon={<CloseIcon />}
+                onClick={deleteBinding}
+              />
+            </Tooltip>
+          }
+        />
+      </InputGroup>
     </>
   );
 }

@@ -15,6 +15,7 @@ export function SimpleEnableCard() {
     "display",
     toggleAccelerator
   ).split("+");
+  const hasToggleHotkey = toggleAccelerator.length > 0;
 
   const [dmEnabled, setDmEnable] = useRemoteValue(
     "doubleMovementEnabled",
@@ -36,15 +37,24 @@ export function SimpleEnableCard() {
           <Switch colorScheme="accent" isChecked={dmEnabled} as="div"></Switch>
         </Flex>
         <Text pt="6" fontSize="md">
-          Or use the hotkey{" "}
-          {toggleAcceleratorPretty
-            .map((t) => <Kbd>{t}</Kbd>)
-            .reduce((prev, current) => (
-              <>
-                {prev}+{current}
-              </>
-            ))}{" "}
-          to toggle double movement. (Configurable under Advanced mode)
+          {hasToggleHotkey ? (
+            <>
+              Or use the hotkey{" "}
+              {toggleAcceleratorPretty
+                .map((t) => <Kbd>{t}</Kbd>)
+                .reduce((prev, current) => (
+                  <>
+                    {prev}+{current}
+                  </>
+                ))}{" "}
+              to toggle double movement. (Configurable under Advanced mode)
+            </>
+          ) : (
+            <>
+              Or bind the Toggle hotkey under Advanced mode to be able to toggle
+              double movement on the fly.
+            </>
+          )}
           <br />
           <br />
           You need to configure two things in Fortnite:
