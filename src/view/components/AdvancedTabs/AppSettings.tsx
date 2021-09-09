@@ -26,7 +26,7 @@ export function AppSettingsTab() {
             This allows you to configure the hotkey that toggles if Double
             Movement is active. Just click on the box and press the key combo
             you'd like to use, starting with a modifier e.g. <Kbd>Ctrl</Kbd>,
-            ending with a non-modifier key e.g. <Kbd>D</Kbd>
+            ending with a non-modifier key e.g. <Kbd>P</Kbd>
           </Text>
         }
         acceleratorValue={toggleAccelerator}
