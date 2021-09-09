@@ -8,10 +8,7 @@ import {
   Box,
   Tooltip,
   Skeleton,
-  useTooltip,
-  useToast,
 } from "@chakra-ui/react";
-import { remote } from "electron";
 import React, { useState, useEffect } from "react";
 import { useCallback } from "react";
 import { Card } from "./components/general/Card";
@@ -42,7 +39,7 @@ function _Announcement(props: {
     return <></>;
   }
 
-  // You may not like the fact we got some wee announcements in here but ye know, we gotta put food on the keyboard
+  // Sorry, we gotta put food on the keyboard
 
   const [announcement, setAnnouncement] = useState<
     Announcement | undefined | null
@@ -97,8 +94,8 @@ function _Announcement(props: {
           </Tooltip>
         </Flex>
         {announcement !== undefined ? (
-          <Skeleton isLoaded={!!announcement} h="100%" w="100%">
-            <Box overflowY="auto" h="100%" w="100%" minH="0px">
+          <Skeleton isLoaded={!!announcement} h="100%" w="100%" minH="0px">
+            <Box overflowY="auto" h="100%" w="100%">
               {announcement && <Markdown>{announcement.markdown}</Markdown>}
             </Box>
           </Skeleton>
