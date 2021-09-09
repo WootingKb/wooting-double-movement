@@ -18,6 +18,7 @@ import { setServiceConfig, startService, stopService } from "./native";
 import {
   defaultKeyMapping,
   defaultLeftJoystickStrafingAngles,
+  defaultSettings,
   defaultToggleAccelerator,
   JoystickAngleConfiguration,
   ServiceConfiguration,
@@ -341,12 +342,7 @@ function showNotification(state: boolean) {
 class ServiceManager {
   running: boolean = false;
   store = new ElectronStore<AppSettings>({
-    defaults: {
-      doubleMovementEnabled: false,
-      leftJoystickStrafingAngles: defaultLeftJoystickStrafingAngles,
-      keyMapping: defaultKeyMapping,
-      enabledToggleAccelerator: defaultToggleAccelerator,
-    },
+    defaults: defaultSettings,
     migrations: {
       ">=1.4.0": (store) => {
         console.log("Migrating settings to 1.4.0");
@@ -372,6 +368,10 @@ class ServiceManager {
     if (this.store.get("doubleMovementEnabled")) {
       this.start();
     }
+
+    ipcMain.handle("store_getAll", (_, name: string) => {
+      return this.store.store;
+    });
 
     ipcMain.handle("store_get", (_, name: string) => {
       return this.store.get(name);

@@ -5,10 +5,7 @@ import React from "react";
 import { KeyBindControl } from "../settings/key-bind/KeyBindControl";
 
 export function KeyMappingTab() {
-  const [keyMapping, setKeyMapping] = useRemoteValue(
-    "keyMapping",
-    defaultKeyMapping
-  );
+  const [keyMapping, setKeyMapping] = useRemoteValue("keyMapping");
 
   function setDefaultBindSettings() {
     RemoteStore.resetBindSettings();

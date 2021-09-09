@@ -10,8 +10,7 @@ import {
 
 export function AppSettingsTab() {
   const [toggleAccelerator, setToggleAccelerator] = useRemoteValue(
-    "enabledToggleAccelerator",
-    defaultToggleAccelerator
+    "enabledToggleAccelerator"
   );
 
   function resetToDefault() {

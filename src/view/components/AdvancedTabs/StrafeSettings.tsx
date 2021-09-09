@@ -22,15 +22,14 @@ const strafeAngleRange: [number, number] = [45, 71];
 const singleKeyStrafeAngleRange: [number, number] = [45, 71];
 
 export function StrafeAngleControl() {
-  const [keyMapping, _] = useRemoteValue("keyMapping", defaultKeyMapping);
+  const [keyMapping, _] = useRemoteValue("keyMapping");
 
   function setDefaultStrafingSettings() {
     RemoteStore.resetStrafingSettings();
   }
 
   const [angleConfig, setAngleConfig] = useRemoteValue(
-    "leftJoystickStrafingAngles",
-    defaultLeftJoystickStrafingAngles
+    "leftJoystickStrafingAngles"
   );
 
   const isAdvancedStrafeOn = angleConfig.useLeftRightAngle;

@@ -1,26 +1,18 @@
 import React from "react";
 import { useRemoteValue } from "../../ipc";
-
 import { Flex, Heading, Kbd, Spacer, Switch, Text } from "@chakra-ui/react";
 import { Card } from "./general/Card";
-import { defaultToggleAccelerator } from "../../native/types";
 import { PrettyAcceleratorName } from "../../accelerator";
 
 export function SimpleEnableCard() {
-  const [toggleAccelerator, _] = useRemoteValue(
-    "enabledToggleAccelerator",
-    defaultToggleAccelerator
-  );
+  const [toggleAccelerator, _] = useRemoteValue("enabledToggleAccelerator");
   const toggleAcceleratorPretty = PrettyAcceleratorName(
     "display",
     toggleAccelerator
   ).split("+");
   const hasToggleHotkey = toggleAccelerator.length > 0;
 
-  const [dmEnabled, setDmEnable] = useRemoteValue(
-    "doubleMovementEnabled",
-    false
-  );
+  const [dmEnabled, setDmEnable] = useRemoteValue("doubleMovementEnabled");
 
   function toggleDmEnabled() {
     const value = !dmEnabled;

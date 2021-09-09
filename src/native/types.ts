@@ -1,3 +1,4 @@
+import { AppSettings } from "common";
 import { Key } from "ts-keycode-enum";
 
 export interface JoystickAngleConfiguration {
@@ -42,3 +43,10 @@ export interface ServiceConfiguration {
   leftJoystickStrafingAngles: JoystickAngleConfiguration;
   keyMapping: KeyMapping;
 }
+
+export const defaultSettings: AppSettings = {
+  doubleMovementEnabled: false,
+  leftJoystickStrafingAngles: defaultLeftJoystickStrafingAngles,
+  keyMapping: defaultKeyMapping,
+  enabledToggleAccelerator: defaultToggleAccelerator,
+};
