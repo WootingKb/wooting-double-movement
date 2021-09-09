@@ -108,6 +108,15 @@ export function UpdateNotes(props: Props) {
               ))}
           </Box>
         </Skeleton>
+        <Link
+          alignSelf="flex-start"
+          variant="plink"
+          fontSize="sm"
+          isExternal
+          href="https://github.com/WootingKb/wooting-double-movement/releases"
+        >
+          See all releases
+        </Link>
       </VStack>
     </Card>
   );

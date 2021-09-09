@@ -4,8 +4,12 @@ import {
   Heading,
   Spacer,
   CloseButton,
+  Text,
   Box,
   Tooltip,
+  Skeleton,
+  useTooltip,
+  useToast,
 } from "@chakra-ui/react";
 import { remote } from "electron";
 import React, { useState, useEffect } from "react";
@@ -40,7 +44,9 @@ function _Announcement(props: {
 
   // You may not like the fact we got some wee announcements in here but ye know, we gotta put food on the keyboard
 
-  const [announcement, setAnnouncement] = useState<Announcement | null>(null);
+  const [announcement, setAnnouncement] = useState<
+    Announcement | undefined | null
+  >(null);
 
   useEffect(() => {
     if (!announcement)
@@ -50,28 +56,37 @@ function _Announcement(props: {
           console.debug("Announcement data: ", data);
           const announcement = data.announcement;
           // If it's undefined then there is no announcement so return
-          if (!announcement) return;
+          if (!announcement) {
+            setAnnouncement(undefined);
+            return;
+          }
 
           // Check if it has already been seen
           const announcementKey = AnnouncementKey(announcement);
           const hasSeen = localStorage.getItem(announcementKey) === "true";
 
+          setAnnouncement(announcement);
+
           // If it hasn't been seen then we can show
           if (!hasSeen) {
-            setAnnouncement(announcement);
             props.requestOpen();
           }
         })
-        .catch((e) => console.error(e));
+        .catch((e) => {
+          console.error(e);
+        });
   }, []);
 
   const close = useCallback(() => {
     props.onClose();
-    // It shouldn't be possible for the announcement to not be defined here so we can safely assume it's defined
-    localStorage.setItem(AnnouncementKey(announcement!), "true");
+
+    if (announcement) {
+      // It shouldn't be possible for the announcement to not be defined here so we can safely assume it's defined
+      localStorage.setItem(AnnouncementKey(announcement!), "true");
+    }
   }, [props.onClose, announcement]);
 
-  return props.isOpen && announcement ? (
+  return props.isOpen ? (
     <Card h="fill-available" p="6" overflow="hidden">
       <VStack h="100%" overflow="hidden">
         <Flex w="100%">
@@ -81,9 +96,15 @@ function _Announcement(props: {
             <CloseButton onClick={close} h="100%" />
           </Tooltip>
         </Flex>
-        <Box overflowY="auto" h="100%" w="100%" minH="0px">
-          <Markdown>{announcement.markdown}</Markdown>
-        </Box>
+        {announcement !== undefined ? (
+          <Skeleton isLoaded={!!announcement} h="100%" w="100%">
+            <Box overflowY="auto" h="100%" w="100%" minH="0px">
+              {announcement && <Markdown>{announcement.markdown}</Markdown>}
+            </Box>
+          </Skeleton>
+        ) : (
+          <Text>No active announcements</Text>
+        )}
       </VStack>
     </Card>
   ) : (

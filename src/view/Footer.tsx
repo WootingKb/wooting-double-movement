@@ -42,14 +42,16 @@ export function Footer(props: {
         Powered by ViGEm
         <ExternalLinkIcon mx="2px" />
       </Link>
-      <Link
-        // href={`https://github.com/WootingKb/wooting-double-movement/releases/tag/v${props.appVersion}`}
-        onClick={props.onVersionClicked}
-        // isExternal
-        fontSize="sm"
-      >
-        Version: {props.appVersion}
-      </Link>
+      <Tooltip label="View changelog" hasArrow variant="accent">
+        <Link
+          // href={`https://github.com/WootingKb/wooting-double-movement/releases/tag/v${props.appVersion}`}
+          onClick={props.onVersionClicked}
+          // isExternal
+          fontSize="sm"
+        >
+          Version: {props.appVersion}
+        </Link>
+      </Tooltip>
     </Flex>
   );
 }

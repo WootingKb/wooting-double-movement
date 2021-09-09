@@ -182,7 +182,7 @@ export function AcceleratorEditor(props: AcceleratorEditorProps & InputProps) {
         />
         <InputRightElement
           children={
-            <Tooltip label="Remove binding">
+            <Tooltip label="Remove binding" hasArrow variant="accent">
               <IconButton
                 variant="ghost"
                 size="xs"

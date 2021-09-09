@@ -50,7 +50,8 @@ export function MainWindow() {
   const requestOpenAnnouncements = useCallback(() => {
     setAnnouncementsOpen(true);
     setWindowIsExpanded(true);
-  }, [setAnnouncementsOpen, setWindowIsExpanded]);
+    setUpdateNotesOpen(false);
+  }, [setAnnouncementsOpen, setWindowIsExpanded, setUpdateNotesOpen]);
 
   const closeAnnouncements = useCallback(() => {
     setAnnouncementsOpen(false);
@@ -66,21 +67,20 @@ export function MainWindow() {
       backgroundColor={bg}
       overflow="hidden"
     >
-      <Header />
+      <Header openAnnouncements={requestOpenAnnouncements} />
       <VStack h="100%" alignItems="stretch" p="6" overflow="hidden" spacing="8">
-        {updateNotesOpen ? (
-          <UpdateNotes version={"1.3.1"} onClose={closeUpdateNotes} />
-        ) : (
-          <>
-            <SimpleEnableCard />
-            {!announcementsOpen && (
+        {!announcementsOpen &&
+          (updateNotesOpen ? (
+            <UpdateNotes version={"1.3.1"} onClose={closeUpdateNotes} />
+          ) : (
+            <>
+              <SimpleEnableCard />
               <AdvancedSettingsCard
                 isExpanded={windowIsExpanded}
                 setIsExpanded={setWindowIsExpanded}
               />
-            )}
-          </>
-        )}
+            </>
+          ))}
         <Announcement
           isOpen={announcementsOpen}
           onClose={closeAnnouncements}
