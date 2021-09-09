@@ -110,6 +110,9 @@ const theme = extendTheme({
       baseStyle: {
         borderRadius: "md",
       },
+      defaultProps: {
+        variant: "accent",
+      },
     },
   },
 });
