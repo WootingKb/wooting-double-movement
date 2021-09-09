@@ -71,7 +71,7 @@ export function MainWindow() {
       <VStack h="100%" alignItems="stretch" p="6" overflow="hidden" spacing="8">
         {!announcementsOpen &&
           (updateNotesOpen ? (
-            <UpdateNotes version={"1.3.1"} onClose={closeUpdateNotes} />
+            <UpdateNotes version={version} onClose={closeUpdateNotes} />
           ) : (
             <>
               <SimpleEnableCard />
