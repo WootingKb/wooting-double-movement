@@ -349,6 +349,7 @@ class ServiceManager {
     },
     migrations: {
       ">=1.4.0": (store) => {
+        console.log("Migrating settings to 1.4.0");
         const angles = store.get("leftJoystickStrafingAngles");
         // If it has the old setting then lets migrate it to the new one
         //@ts-ignore
