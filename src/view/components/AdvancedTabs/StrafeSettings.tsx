@@ -19,6 +19,7 @@ import { AngleControl } from "../settings/angle/AngleControl";
 import { keybindDisplay } from "./Utils";
 
 const strafeAngleRange: [number, number] = [45, 71];
+const singleKeyStrafeAngleRange: [number, number] = [45, 71];
 
 export function StrafeAngleControl() {
   const [keyMapping, _] = useRemoteValue("keyMapping", defaultKeyMapping);
@@ -101,8 +102,8 @@ export function StrafeAngleControl() {
         <AngleControl
           angle={angleConfig.leftRightAngle}
           setAngle={setLeftRightAngle}
-          min={15}
-          max={90}
+          min={singleKeyStrafeAngleRange[0]}
+          max={singleKeyStrafeAngleRange[1]}
         />
       )}
       <Link

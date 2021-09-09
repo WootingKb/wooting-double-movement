@@ -19,6 +19,7 @@ import {
   defaultKeyMapping,
   defaultLeftJoystickStrafingAngles,
   defaultToggleAccelerator,
+  JoystickAngleConfiguration,
   ServiceConfiguration,
 } from "./native/types";
 import { functions } from "electron-log";
@@ -352,8 +353,10 @@ class ServiceManager {
         // If it has the old setting then lets migrate it to the new one
         //@ts-ignore
         if (angles["rightUpAngle"] !== undefined) {
-          const newAngles = {
+          const newAngles: JoystickAngleConfiguration = {
             ...defaultLeftJoystickStrafingAngles,
+            // Leave it turned off for people coming from previous versions
+            useLeftRightAngle: false,
             //@ts-ignore
             upDiagonalAngle: angles["rightUpAngle"],
           };
