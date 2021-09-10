@@ -5,6 +5,7 @@ import {
   globalShortcut,
   ipcMain,
   Menu,
+  MenuItemConstructorOptions,
   Notification,
   shell,
   Tray,
@@ -17,13 +18,119 @@ import { setServiceConfig, startService, stopService } from "./native";
 import {
   defaultKeyMapping,
   defaultLeftJoystickStrafingAngles,
+  defaultSettings,
+  defaultToggleAccelerator,
+  JoystickAngleConfiguration,
   ServiceConfiguration,
 } from "./native/types";
 import { functions } from "electron-log";
 import { autoUpdater } from "electron-updater";
+import { PrettyAcceleratorName } from "./accelerator";
 
 Object.assign(console, functions);
 app.allowRendererProcessReuse = false;
+app.commandLine.appendSwitch("disable-pinch");
+
+const isMac = process.platform === "darwin";
+
+const template: MenuItemConstructorOptions[] = [
+  // { role: 'appMenu' }
+  ...(isMac
+    ? [
+        {
+          label: app.name,
+          submenu: [
+            { role: "about" },
+            { type: "separator" },
+            { role: "services" },
+            { type: "separator" },
+            { role: "hide" },
+            { role: "hideOthers" },
+            { role: "unhide" },
+            { type: "separator" },
+            { role: "quit" },
+          ] as MenuItemConstructorOptions[],
+        },
+      ]
+    : []),
+  // { role: 'fileMenu' }
+  {
+    label: "File",
+    submenu: [
+      isMac ? { role: "close" } : { role: "quit" },
+    ] as MenuItemConstructorOptions[],
+  },
+  // { role: 'editMenu' }
+  {
+    label: "Edit",
+    submenu: [
+      { role: "undo" },
+      { role: "redo" },
+      { type: "separator" },
+      { role: "cut" },
+      { role: "copy" },
+      { role: "paste" },
+      ...(isMac
+        ? [
+            { role: "pasteAndMatchStyle" },
+            { role: "delete" },
+            { role: "selectAll" },
+            { type: "separator" },
+            {
+              label: "Speech",
+              submenu: [{ role: "startSpeaking" }, { role: "stopSpeaking" }],
+            },
+          ]
+        : [{ role: "delete" }, { type: "separator" }, { role: "selectAll" }]),
+    ] as MenuItemConstructorOptions[],
+  },
+  // { role: 'viewMenu' }
+  {
+    label: "View",
+    submenu: [
+      { role: "reload" },
+      { role: "forceReload" },
+      { role: "toggleDevTools" },
+      { type: "separator" },
+      // { role: "resetZoom" },
+      // { role: "zoomIn" },
+      // { role: "zoomOut" },
+      { type: "separator" },
+      { role: "togglefullscreen" },
+    ] as MenuItemConstructorOptions[],
+  },
+  // { role: 'windowMenu' }
+  {
+    label: "Window",
+    submenu: [
+      { role: "minimize" },
+      { role: "zoom" },
+      ...(isMac
+        ? [
+            { type: "separator" },
+            { role: "front" },
+            { type: "separator" },
+            { role: "window" },
+          ]
+        : [{ role: "close" }]),
+    ] as MenuItemConstructorOptions[],
+  },
+  // {
+  //   role: "help",
+  //   submenu: [
+  //     {
+  //       label: "Learn More",
+  //       click: async () => {
+  //         const { shell } = require("electron");
+  //         await shell.openExternal("https://electronjs.org");
+  //       },
+  //     },
+  //   ],
+  // },
+];
+
+const menu = Menu.buildFromTemplate(template);
+Menu.setApplicationMenu(menu);
 
 declare var __dirname: any, process: any;
 
@@ -235,22 +342,22 @@ function showNotification(state: boolean) {
 class ServiceManager {
   running: boolean = false;
   store = new ElectronStore<AppSettings>({
-    defaults: {
-      doubleMovementEnabled: false,
-      leftJoystickStrafingAngles: defaultLeftJoystickStrafingAngles,
-      keyMapping: defaultKeyMapping,
-    },
+    defaults: defaultSettings,
     migrations: {
       ">=1.4.0": (store) => {
-        const angles = store.get("leftJoystickStrafingAngles");
+        console.log("Migrating settings to 1.4.0");
+        const angles = store.get("leftJoystickAngles");
         // If it has the old setting then lets migrate it to the new one
         //@ts-ignore
         if (angles["rightUpAngle"] !== undefined) {
-          const newAngles = {
+          const newAngles: JoystickAngleConfiguration = {
             ...defaultLeftJoystickStrafingAngles,
+            // Leave it turned off for people coming from previous versions
+            useLeftRightAngle: false,
             //@ts-ignore
             upDiagonalAngle: angles["rightUpAngle"],
           };
+          console.log("Migrated angles: ", newAngles);
           store.set("leftJoystickStrafingAngles", newAngles);
         }
       },
@@ -261,6 +368,10 @@ class ServiceManager {
     if (this.store.get("doubleMovementEnabled")) {
       this.start();
     }
+
+    ipcMain.handle("store_getAll", (_, name: string) => {
+      return this.store.store;
+    });
 
     ipcMain.handle("store_get", (_, name: string) => {
       return this.store.get(name);
@@ -282,14 +393,58 @@ class ServiceManager {
       this.resetAdvancedKeyBindConfig();
     });
 
-    const ret = globalShortcut.register("Ctrl+P", () => {
-      console.debug("Ctrl+P is pressed");
-      this.set_double_movement_enabled(!this.doubleMovementEnabled());
+    const registerToggleShortcut = (acceleratorParts: number[]) => {
+      if (acceleratorParts.length === 0) {
+        console.warn("Attempted to register empty accelerator");
+        return;
+      }
+
+      const accelerator = PrettyAcceleratorName(
+        "accelerator",
+        acceleratorParts
+      );
+      console.debug(
+        `Registering toggle shortcut with accelerator ${accelerator}`
+      );
+      const ret = globalShortcut.register(accelerator, () => {
+        console.debug("Toggle accelerator was pressed");
+        this.set_double_movement_enabled(!this.doubleMovementEnabled());
+      });
+
+      if (!ret) {
+        console.error("Failed to register globalShortcut");
+      }
+    };
+
+    const registerShortcuts = () => {
+      const accelerator = this.store.get("enabledToggleAccelerator");
+      if (accelerator.length > 0) registerToggleShortcut(accelerator);
+    };
+    registerShortcuts();
+
+    this.store.onDidChange("enabledToggleAccelerator", (newValue, oldValue) => {
+      if (oldValue && oldValue.length > 0)
+        globalShortcut.unregister(
+          PrettyAcceleratorName("accelerator", oldValue)
+        );
+      else console.warn("Old accelerator is undefined, not unregistering...");
+
+      if (newValue && newValue.length > 0) registerToggleShortcut(newValue);
+      else
+        console.warn(
+          "New acceleartor is undefined, not registering shortcut..."
+        );
     });
 
-    if (!ret) {
-      console.error("Failed to register globalShortcut");
-    }
+    ipcMain.on("hotkey-edit-start", (_) => {
+      console.debug("Unregister all");
+      globalShortcut.unregisterAll();
+    });
+
+    ipcMain.on("hotkey-edit-cancel", (_) => {
+      console.debug("Hotkey edit cancelled");
+      registerShortcuts();
+    });
   }
 
   store_set<Key extends keyof AppSettings>(name: Key, value: AppSettings[Key]) {

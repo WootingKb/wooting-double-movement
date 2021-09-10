@@ -1,4 +1,4 @@
-import { Flex, HStack, Text, VStack } from "@chakra-ui/react";
+import { Flex, Heading, HStack, Text, VStack } from "@chakra-ui/react";
 import React, { useEffect, useState } from "react";
 import { JoystickKeyMapping, KeyMapping } from "../../../../native/types";
 import {
@@ -25,7 +25,7 @@ export function KeyBindControl(props: KeyBindControlProps) {
     setEditingState(key);
   };
 
-  const listener = (event: any) => {
+  const listener = (event: KeyboardEvent) => {
     if (event.keyCode === 27) {
       setEditingState(undefined);
       return;
@@ -113,13 +113,11 @@ export function KeyBindControl(props: KeyBindControlProps) {
   return (
     <>
       <VStack align="left">
-        <Text variant="heading">Key bindings</Text>
+        <Heading>Key bindings</Heading>
         <Flex>
           <HStack justifyContent="space-between">
             <ArrowUpIcon color={iconColor} />
-            <Text width="100px" variant="body">
-              Forward
-            </Text>
+            <Text width="100px">Forward</Text>
           </HStack>
           <KeyBindEditor
             keybind={"up"}
@@ -146,9 +144,7 @@ export function KeyBindControl(props: KeyBindControlProps) {
         <Flex>
           <HStack justifyContent="space-between">
             <ArrowBackIcon color={iconColor} />
-            <Text width="100px" variant="body">
-              Left
-            </Text>
+            <Text width="100px">Left</Text>
           </HStack>
           <KeyBindEditor
             keybind={"left"}
@@ -175,9 +171,7 @@ export function KeyBindControl(props: KeyBindControlProps) {
         <Flex>
           <HStack justifyContent="space-between">
             <ArrowDownIcon color={iconColor} />
-            <Text width="100px" variant="body">
-              Back
-            </Text>
+            <Text width="100px">Back</Text>
           </HStack>
           <KeyBindEditor
             keybind={"down"}
@@ -204,9 +198,7 @@ export function KeyBindControl(props: KeyBindControlProps) {
         <Flex>
           <HStack justifyContent="space-between">
             <ArrowForwardIcon color={iconColor} />
-            <Text width="100px" variant="body">
-              Right
-            </Text>
+            <Text width="100px">Right</Text>
           </HStack>
           <KeyBindEditor
             keybind={"right"}

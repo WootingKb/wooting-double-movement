@@ -8,8 +8,8 @@ export function Card(props: BoxProps) {
   return (
     <Box
       backgroundColor={bg}
-      m="6"
-      my="8"
+      // m="6"
+      // my="8"
       borderRadius="14"
       boxShadow={`0px 6px 14px ${shadowColour};`}
       {...props}

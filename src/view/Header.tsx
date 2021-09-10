@@ -4,13 +4,16 @@ import {
   Flex,
   Icon,
   IconButton,
+  Link,
   Spacer,
+  Tooltip,
   useColorMode,
   useColorModeValue,
 } from "@chakra-ui/react";
-import { CloseIcon, MinusIcon, MoonIcon } from "@chakra-ui/icons";
+import { BellIcon, CloseIcon, MinusIcon, MoonIcon } from "@chakra-ui/icons";
 import { ipcRenderer } from "electron";
 import { WootSunIcon } from "./WootSunIcon";
+import { IoHelp } from "react-icons/io5";
 
 declare module "react" {
   interface CSSProperties {
@@ -18,7 +21,7 @@ declare module "react" {
   }
 }
 
-export function Header() {
+export function Header(props: { openAnnouncements: () => void }) {
   const { colorMode, toggleColorMode } = useColorMode();
   const logoColour = useColorModeValue("#191919", "white");
 
@@ -45,6 +48,36 @@ export function Header() {
       </Center>
       <Spacer />
       <Flex style={{ WebkitAppRegion: "no-drag" }}>
+        <Tooltip label="Problem? Solution here" hasArrow variant="accent">
+          <Link
+            href="https://github.com/WootingKb/wooting-double-movement/wiki/Troubleshooting"
+            isExternal
+          >
+            <IconButton
+              variant="ghost"
+              aria-label="help"
+              icon={<Icon as={IoHelp} />}
+            />
+          </Link>
+        </Tooltip>
+
+        {
+          //@ts-ignore
+          !DISABLE_ANNOUNCEMENTS && (
+            <Tooltip
+              label="View latest announcement!"
+              hasArrow
+              variant="accent"
+            >
+              <IconButton
+                variant="ghost"
+                aria-label="announcements"
+                icon={<BellIcon />}
+                onClick={props.openAnnouncements}
+              />
+            </Tooltip>
+          )
+        }
         <IconButton
           variant="ghost"
           aria-label="Color Mode"
