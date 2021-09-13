@@ -346,10 +346,9 @@ class ServiceManager {
     migrations: {
       ">=1.4.0": (store) => {
         console.log("Migrating settings to 1.4.0");
-        const angles = store.get("leftJoystickAngles");
+        const angles = store.get("leftJoystickAngles") as any;
         // If it has the old setting then lets migrate it to the new one
-        //@ts-ignore
-        if (angles && angles["rightUpAngle"] !== undefined) {
+        if (angles && "rightUpAngle" in angles && angles["rightUpAngle"] !== undefined) {
           const newAngles: JoystickAngleConfiguration = {
             ...defaultLeftJoystickStrafingAngles,
             // Leave it turned off for people coming from previous versions
