@@ -349,7 +349,7 @@ class ServiceManager {
         const angles = store.get("leftJoystickAngles");
         // If it has the old setting then lets migrate it to the new one
         //@ts-ignore
-        if (angles["rightUpAngle"] !== undefined) {
+        if (angles && angles["rightUpAngle"] !== undefined) {
           const newAngles: JoystickAngleConfiguration = {
             ...defaultLeftJoystickStrafingAngles,
             // Leave it turned off for people coming from previous versions
