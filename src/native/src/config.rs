@@ -12,6 +12,9 @@ pub struct JoystickAngleConfiguration {
 
     #[serde(rename = "leftRightAngle")]
     pub left_right_angle: f32,
+
+    #[serde(rename = "analogRange")]
+    pub analog_range: (f32, f32),
 }
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -67,6 +70,8 @@ pub struct ServiceConfiguration {
     pub left_joystick_strafing_angles: JoystickAngleConfiguration,
     #[serde(rename = "keyMapping")]
     pub key_mapping: KeyMapping,
+    #[serde(rename = "useAnalogInput")]
+    pub use_analog_input: bool,
 }
 
 impl Default for ServiceConfiguration {
@@ -76,8 +81,10 @@ impl Default for ServiceConfiguration {
                 up_diagonal_angle: 0.67,
                 use_left_right_angle: false,
                 left_right_angle: 0.78,
+                analog_range: (0.0, 1.0),
             },
             key_mapping: KeyMapping::default(),
+            use_analog_input: false,
         }
     }
 }

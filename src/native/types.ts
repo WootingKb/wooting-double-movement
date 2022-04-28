@@ -5,12 +5,14 @@ export interface JoystickAngleConfiguration {
   upDiagonalAngle: number;
   useLeftRightAngle: boolean;
   leftRightAngle: number;
+  analogRange: [number, number];
 }
 
 export const defaultLeftJoystickStrafingAngles: JoystickAngleConfiguration = {
   upDiagonalAngle: 0.6473,
   useLeftRightAngle: true,
   leftRightAngle: 0.7888,
+  analogRange: [0, 1],
 };
 
 export interface JoystickKeyMapping {
@@ -42,6 +44,7 @@ export const defaultToggleAccelerator = [Key.Ctrl, Key.P];
 export interface ServiceConfiguration {
   leftJoystickStrafingAngles: JoystickAngleConfiguration;
   keyMapping: KeyMapping;
+  useAnalogInput: boolean;
 }
 
 export const defaultSettings: AppSettings = {
@@ -49,4 +52,11 @@ export const defaultSettings: AppSettings = {
   leftJoystickStrafingAngles: defaultLeftJoystickStrafingAngles,
   keyMapping: defaultKeyMapping,
   enabledToggleAccelerator: defaultToggleAccelerator,
+  useAnalogInput: false,
 };
+
+export type SDKState =
+  | { type: "Uninitialized" }
+  | { type: "Error"; value: string }
+  | { type: "DevicesConnected"; value: string[] }
+  | { type: "NoDevices" };

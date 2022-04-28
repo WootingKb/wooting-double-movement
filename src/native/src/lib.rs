@@ -1,5 +1,6 @@
 #[macro_use]
 extern crate lazy_static;
+extern crate wooting_analog_wrapper;
 
 use dirs::config_dir;
 use log::*;
@@ -75,6 +76,7 @@ fn main(mut cx: ModuleContext) -> NeonResult<()> {
     cx.export_function("start_service", start_service)?;
     cx.export_function("stop_service", stop_service)?;
     cx.export_function("get_xinput_slot", get_xinput_slot)?;
+    cx.export_function("get_sdk_state", get_sdk_state)?;
     cx.export_function("set_config", set_config)?;
 
     Ok(())
@@ -149,6 +151,18 @@ fn get_xinput_slot(mut cx: FunctionContext) -> JsResult<JsValue> {
         return Ok(cx.number(slot).upcast());
     }
 
+    return Ok(cx.null().upcast());
+}
+
+fn get_sdk_state(mut cx: FunctionContext) -> JsResult<JsValue> {
+    #[cfg(windows)]
+    {
+        let state = SERVICE.lock().unwrap().get_sdk_state();
+
+        return Ok(cx.string(serde_json::to_string(&state).expect("Failed to serialize sdk state")).upcast());
+    }
+
+    #[cfg(not(windows))]
     return Ok(cx.null().upcast());
 }
 

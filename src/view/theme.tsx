@@ -32,7 +32,7 @@ export default extendTheme({
   },
   components: {
     Heading: {
-      baseStyle: (props) => ({
+      baseStyle: (props: any) => ({
         color: mode("#2B2B4C", "#828A93")(props),
       }),
       defaultProps: {
@@ -41,7 +41,7 @@ export default extendTheme({
     },
     Text: {
       variants: {
-        body: (props) => ({
+        body: (props: any) => ({
           color: mode(lightTextColour, darkTextColour)(props),
         }),
       },
@@ -52,13 +52,13 @@ export default extendTheme({
 
     Link: {
       variants: {
-        link: (props) => ({
+        link: (props: any) => ({
           color: mode("gray.400", "gray.500")(props),
           _hover: {
             color: mode("gray.600", "gray.300")(props),
           },
         }),
-        plink: (props) => ({
+        plink: (props: any) => ({
           color: mode("gray.400", "gray.500")(props),
           _hover: {
             color: mode("gray.600", "gray.300")(props),
@@ -73,7 +73,7 @@ export default extendTheme({
 
     Switch: {
       parts: ["track"],
-      baseStyle: (props) => ({
+      baseStyle: (props: any) => ({
         track: {
           _checked: {
             bg: `${props.colorScheme}.500`,
@@ -84,7 +84,7 @@ export default extendTheme({
     Tabs: {
       parts: ["tab"],
       variants: {
-        enclosed: (props) => ({
+        enclosed: (props: any) => ({
           tab: {
             _selected: {
               color: `${props.colorScheme}.500`,

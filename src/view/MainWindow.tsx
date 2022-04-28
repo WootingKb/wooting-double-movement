@@ -65,6 +65,8 @@ export function MainWindow() {
       direction="column"
       borderRadius="18px"
       backgroundColor={bg}
+      border="1px solid"
+      borderColor={useColorModeValue("gray.200", 'transparent')}
       overflow="hidden"
     >
       <Header openAnnouncements={requestOpenAnnouncements} />

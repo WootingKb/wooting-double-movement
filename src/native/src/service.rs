@@ -1,17 +1,31 @@
+use std::collections::HashMap;
+
 use anyhow::{Context, Result};
 use log::*;
 #[cfg(windows)]
 #[cfg(feature = "rawinput")]
 use multiinput::*;
+use sdk::DeviceInfo;
+use serde::{Deserialize, Serialize};
 #[cfg(windows)]
 use vigem::{
     notification::*,
     raw::{LPVOID, PVIGEM_CLIENT, PVIGEM_TARGET, UCHAR},
     *,
 };
+use wooting_analog_wrapper as sdk;
 
 use crate::config::ServiceConfiguration;
 use crate::controller::*;
+
+#[derive(Clone, Serialize, Deserialize)]
+#[serde(tag = "type", content = "value")]
+pub enum AnalogSDKState {
+    Uninitialized,
+    Error(sdk::WootingAnalogResult),
+    DevicesConnected(Vec<String>),
+    NoDevices,
+}
 
 #[cfg(windows)]
 unsafe extern "C" fn _handle(
@@ -84,6 +98,8 @@ pub struct Service {
     controller_state: ControllerState,
     initd: bool,
     config: ServiceConfiguration,
+    analog_initialised: bool,
+    sdk_state: AnalogSDKState,
 }
 
 // Service should be wrapped in Mutex if used across threads so minimise unsafety
@@ -103,6 +119,8 @@ impl Service {
             input_manager: RawInputManager::new().unwrap(),
             initd: false,
             config: ServiceConfiguration::default(),
+            analog_initialised: false,
+            sdk_state: AnalogSDKState::Uninitialized,
         }
     }
 
@@ -113,6 +131,10 @@ impl Service {
         self.config = config;
 
         info!("Service init");
+
+        if self.config.use_analog_input {
+            self.init_analog()?;
+        }
 
         #[cfg(feature = "rawinput")]
         self.input_manager.register_devices(DeviceType::Keyboards);
@@ -166,6 +188,69 @@ impl Service {
         Ok(())
     }
 
+    fn init_analog(&mut self) -> Result<()> {
+        if self.analog_initialised {
+            return Ok(());
+        }
+
+        // TODO: Remove this, is only for testing without uninit
+        if sdk::is_initialised() {
+            return Ok(());
+        }
+
+        let init_result = sdk::initialise();
+
+        match init_result.0 {
+            Ok(device_num) => {
+                info!(
+                    "Analog SDK Successfully initialised with {} devices",
+                    device_num
+                );
+                let devices: Vec<DeviceInfo> = sdk::get_connected_devices_info(10).0.unwrap();
+                assert_eq!(device_num, devices.len() as u32);
+                for (i, device) in devices.iter().enumerate() {
+                    println!("Device {} is {:?}", i, device);
+                }
+                if device_num > 0 {
+                    self.sdk_state = AnalogSDKState::DevicesConnected(
+                        devices
+                            .iter()
+                            .map(|device| device.device_name.clone())
+                            .collect(),
+                    );
+                } else {
+                    self.sdk_state = AnalogSDKState::NoDevices;
+                }
+
+                sdk::set_keycode_mode(sdk::KeycodeType::VirtualKeyTranslate)
+                    .0
+                    .context("Failed to set keyboard mode")?;
+
+                self.analog_initialised = true;
+            }
+            Err(e) => {
+                error!("Wooting Analog SDK Failed to initialise: {}", e);
+
+                self.sdk_state = AnalogSDKState::Error(e)
+            }
+        };
+
+        Ok(())
+    }
+
+    fn uninit_analog(&mut self) -> Result<()> {
+        if !self.analog_initialised {
+            return Ok(());
+        }
+
+        // self.sdk_state = AnalogSDKState::Uninitialized;
+        // sdk::uninitialise()
+        //     .0
+        //     .context("Failed to uninitialise analog sdk")?;
+        self.analog_initialised = false;
+        Ok(())
+    }
+
     fn update_controller(&mut self) -> Result<()> {
         if let Some(controller) = self.controller.as_mut() {
             #[cfg(feature = "ds4")]
@@ -191,59 +276,75 @@ impl Service {
                 RawEvent::KeyboardEvent(_, key, state) => match KeyId::to_u8(&key).unwrap() {
                     x if x == self.config.key_mapping.left_joystick.up => {
                         self.key_bind_state.up = state == State::Pressed;
-                        self.controller_state.left_joystick.set_direction_state(
-                            JoystickDirection::Up,
-                            self.key_bind_state.up || self.key_bind_state.up_two,
-                        )
+                        self.controller_state
+                            .left_joystick
+                            .set_direction_state_digital(
+                                JoystickDirection::Up,
+                                self.key_bind_state.up || self.key_bind_state.up_two,
+                            )
                     }
                     x if Some(x) == self.config.key_mapping.left_joystick.up_two => {
                         self.key_bind_state.up_two = state == State::Pressed;
-                        self.controller_state.left_joystick.set_direction_state(
-                            JoystickDirection::Up,
-                            self.key_bind_state.up || self.key_bind_state.up_two,
-                        )
+                        self.controller_state
+                            .left_joystick
+                            .set_direction_state_digital(
+                                JoystickDirection::Up,
+                                self.key_bind_state.up || self.key_bind_state.up_two,
+                            )
                     }
                     x if x == self.config.key_mapping.left_joystick.down => {
                         self.key_bind_state.down = state == State::Pressed;
-                        self.controller_state.left_joystick.set_direction_state(
-                            JoystickDirection::Down,
-                            self.key_bind_state.down || self.key_bind_state.down_two,
-                        )
+                        self.controller_state
+                            .left_joystick
+                            .set_direction_state_digital(
+                                JoystickDirection::Down,
+                                self.key_bind_state.down || self.key_bind_state.down_two,
+                            )
                     }
                     x if Some(x) == self.config.key_mapping.left_joystick.down_two => {
                         self.key_bind_state.down_two = state == State::Pressed;
-                        self.controller_state.left_joystick.set_direction_state(
-                            JoystickDirection::Down,
-                            self.key_bind_state.down || self.key_bind_state.down_two,
-                        )
+                        self.controller_state
+                            .left_joystick
+                            .set_direction_state_digital(
+                                JoystickDirection::Down,
+                                self.key_bind_state.down || self.key_bind_state.down_two,
+                            )
                     }
                     x if x == self.config.key_mapping.left_joystick.right => {
                         self.key_bind_state.right = state == State::Pressed;
-                        self.controller_state.left_joystick.set_direction_state(
-                            JoystickDirection::Right,
-                            self.key_bind_state.right || self.key_bind_state.right_two,
-                        )
+                        self.controller_state
+                            .left_joystick
+                            .set_direction_state_digital(
+                                JoystickDirection::Right,
+                                self.key_bind_state.right || self.key_bind_state.right_two,
+                            )
                     }
                     x if Some(x) == self.config.key_mapping.left_joystick.right_two => {
                         self.key_bind_state.right_two = state == State::Pressed;
-                        self.controller_state.left_joystick.set_direction_state(
-                            JoystickDirection::Right,
-                            self.key_bind_state.right || self.key_bind_state.right_two,
-                        )
+                        self.controller_state
+                            .left_joystick
+                            .set_direction_state_digital(
+                                JoystickDirection::Right,
+                                self.key_bind_state.right || self.key_bind_state.right_two,
+                            )
                     }
                     x if x == self.config.key_mapping.left_joystick.left => {
                         self.key_bind_state.left = state == State::Pressed;
-                        self.controller_state.left_joystick.set_direction_state(
-                            JoystickDirection::Left,
-                            self.key_bind_state.left || self.key_bind_state.left_two,
-                        )
+                        self.controller_state
+                            .left_joystick
+                            .set_direction_state_digital(
+                                JoystickDirection::Left,
+                                self.key_bind_state.left || self.key_bind_state.left_two,
+                            )
                     }
                     x if Some(x) == self.config.key_mapping.left_joystick.left_two => {
                         self.key_bind_state.left_two = state == State::Pressed;
-                        self.controller_state.left_joystick.set_direction_state(
-                            JoystickDirection::Left,
-                            self.key_bind_state.left || self.key_bind_state.left_two,
-                        )
+                        self.controller_state
+                            .left_joystick
+                            .set_direction_state_digital(
+                                JoystickDirection::Left,
+                                self.key_bind_state.left || self.key_bind_state.left_two,
+                            )
                     }
                     _ => false,
                 },
@@ -254,19 +355,96 @@ impl Service {
         }
     }
 
+    fn get_bind_analog(
+        &self,
+        analog_data: &HashMap<u16, f32>,
+        bind_one: Option<u8>,
+        bind_two: Option<u8>,
+    ) -> f32 {
+        let analog_one = {
+            if let Some(bind) = bind_one {
+                *analog_data.get(&(bind as u16)).unwrap_or(&0.0)
+            } else {
+                0.0
+            }
+        };
+
+        let analog_two = {
+            if let Some(bind) = bind_two {
+                *analog_data.get(&(bind as u16)).unwrap_or(&0.0)
+            } else {
+                0.0
+            }
+        };
+
+        f32::max(analog_one, analog_two)
+    }
+
+    fn update_direction_analog(
+        &mut self,
+        direction: JoystickDirection,
+        analog_data: &HashMap<u16, f32>,
+        bind_one: Option<u8>,
+        bind_two: Option<u8>,
+    ) -> bool {
+        let analog = self.get_bind_analog(analog_data, bind_one, bind_two);
+        self.controller_state
+            .left_joystick
+            .set_direction_state_analog(direction, analog)
+    }
+
+    fn update_analog_inputs(&mut self) -> bool {
+        // TODO: Handle case where there are no devices connected
+        // TODO: Potentially update connected devices state in here
+        if let Ok(analog) = sdk::read_full_buffer(20).0 {
+            self.update_direction_analog(
+                JoystickDirection::Left,
+                &analog,
+                self.config.key_mapping.left_joystick.left,
+                self.config.key_mapping.left_joystick.left_two,
+            ) | self.update_direction_analog(
+                JoystickDirection::Up,
+                &analog,
+                self.config.key_mapping.left_joystick.up,
+                self.config.key_mapping.left_joystick.up_two,
+            ) | self.update_direction_analog(
+                JoystickDirection::Down,
+                &analog,
+                self.config.key_mapping.left_joystick.down,
+                self.config.key_mapping.left_joystick.down_two,
+            ) | self.update_direction_analog(
+                JoystickDirection::Right,
+                &analog,
+                self.config.key_mapping.left_joystick.right,
+                self.config.key_mapping.left_joystick.right_two,
+            )
+        } else {
+            false
+        }
+    }
+
     pub fn poll(&mut self) -> Result<()> {
         if self.initd {
-            #[cfg(feature = "rawinput")]
-            if self.process_rawinput_event() {
-                self.update_controller()?;
-            }
+            let should_update = {
+                // Analog being initialised implies that the setting for using analog is on
+                if self.analog_initialised {
+                    self.update_analog_inputs()
+                } else {
+                    #[cfg(feature = "rawinput")]
+                    {
+                        self.process_rawinput_event()
+                    }
 
-            #[cfg(not(feature = "rawinput"))]
-            if self
-                .controller_state
-                .left_joystick
-                .update_key_states(&self.config.key_mapping.left_joystick)
-            {
+                    #[cfg(not(feature = "rawinput"))]
+                    {
+                        self.controller_state
+                            .left_joystick
+                            .update_key_states(&self.config.key_mapping.left_joystick)
+                    }
+                }
+            };
+
+            if should_update {
                 self.update_controller()?;
             }
         }
@@ -284,18 +462,33 @@ impl Service {
         None
     }
 
+    pub fn get_sdk_state(&self) -> AnalogSDKState {
+        self.sdk_state.clone()
+    }
+
     pub fn stop(&mut self) {
         info!("Service stop");
+
         if let Some(controller) = self.controller.take() {
             drop(controller);
         }
 
         self.vigem.disconnect();
+
+        if let Err(e) = self.uninit_analog() {
+            error!("Error uninitialising analog {}", e)
+        }
         self.initd = false;
     }
 
     pub fn set_config(&mut self, config: ServiceConfiguration) -> Result<()> {
         self.config = config;
+        if self.config.use_analog_input {
+            self.init_analog()?;
+        } else {
+            self.uninit_analog()?;
+        }
+
         self.update_controller()?;
         Ok(())
     }
