@@ -1,4 +1,4 @@
-import { Box, Spacer, Switch } from "@chakra-ui/react";
+import { Box, RangeSliderMark, Spacer, Switch } from "@chakra-ui/react";
 import {
   VStack,
   HStack,
@@ -14,13 +14,8 @@ import {
 } from "@chakra-ui/react";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useRemoteValue, useSDKState } from "../../../ipc";
-import { defaultToggleAccelerator, SDKState } from "../../../native/types";
+import { SDKState } from "../../../native/types";
 import { InfoTooltip } from "../general/InfoTooltip";
-import {
-  AcceleratorEditor,
-  AcceleratorEditorRow,
-} from "../settings/accelerator";
-import { keybindDisplay } from "./Utils";
 
 interface AnalogRangeSliderProps {
   value: [number, number];
@@ -69,10 +64,20 @@ function AnalogRangeSlider(props: AnalogRangeSliderProps) {
         colorScheme="accent"
       >
         <RangeSliderTrack>
-          <RangeSliderFilledTrack />
+          <RangeSliderFilledTrack backgroundColor="yellow.500" />
         </RangeSliderTrack>
         <RangeSliderThumb index={0} />
         <RangeSliderThumb index={1} />
+        <RangeSliderMark value={0}>
+          <Text transform="translateX(-50%)" mt="5px" whiteSpace="nowrap">
+            Start
+          </Text>
+        </RangeSliderMark>
+        <RangeSliderMark value={1}>
+          <Text transform="translateX(-50%)" mt="5px" whiteSpace="nowrap">
+            End
+          </Text>
+        </RangeSliderMark>
       </RangeSlider>
     </>
   );
@@ -94,7 +99,7 @@ function SDKStateDisplay(props: { state: SDKState }) {
   }, [props.state]);
 
   if (props.state.type === "Uninitialized") {
-      return <></>
+    return <></>;
   }
 
   return (
