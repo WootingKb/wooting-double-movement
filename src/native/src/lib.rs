@@ -159,7 +159,9 @@ fn get_sdk_state(mut cx: FunctionContext) -> JsResult<JsValue> {
     {
         let state = SERVICE.lock().unwrap().get_sdk_state();
 
-        return Ok(cx.string(serde_json::to_string(&state).expect("Failed to serialize sdk state")).upcast());
+        return Ok(cx
+            .string(serde_json::to_string(&state).expect("Failed to serialize sdk state"))
+            .upcast());
     }
 
     #[cfg(not(windows))]

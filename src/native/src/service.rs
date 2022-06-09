@@ -194,9 +194,9 @@ impl Service {
         }
 
         // TODO: Remove this, is only for testing without uninit
-        if sdk::is_initialised() {
-            return Ok(());
-        }
+        // if sdk::is_initialised() {
+        //     return Ok(());
+        // }
 
         let init_result = sdk::initialise();
 
@@ -243,10 +243,10 @@ impl Service {
             return Ok(());
         }
 
-        // self.sdk_state = AnalogSDKState::Uninitialized;
-        // sdk::uninitialise()
-        //     .0
-        //     .context("Failed to uninitialise analog sdk")?;
+        self.sdk_state = AnalogSDKState::Uninitialized;
+        sdk::uninitialise()
+            .0
+            .context("Failed to uninitialise analog sdk")?;
         self.analog_initialised = false;
         Ok(())
     }

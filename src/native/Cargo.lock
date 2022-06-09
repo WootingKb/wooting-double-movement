@@ -530,7 +530,7 @@ checksum = "712e227841d057c1ee1cd2fb22fa7e5a5461ae8e48fa2ca79ec42cfc1931183f"
 [[package]]
 name = "wooting-analog-common"
 version = "0.7.0"
-source = "git+https://github.com/WootingKb/wooting-analog-sdk?branch=fix/rust-wrapper#a7403ccc15a5ee2507a858db7f03e451120d9171"
+source = "git+https://github.com/WootingKb/wooting-analog-sdk?branch=fix/rust-wrapper#1274537df0cf8ff724d6f95e008ec4b037334f2c"
 dependencies = [
  "enum-primitive-derive 0.2.2",
  "ffi-support",
@@ -543,7 +543,7 @@ dependencies = [
 [[package]]
 name = "wooting-analog-wrapper"
 version = "0.7.0"
-source = "git+https://github.com/WootingKb/wooting-analog-sdk?branch=fix/rust-wrapper#a7403ccc15a5ee2507a858db7f03e451120d9171"
+source = "git+https://github.com/WootingKb/wooting-analog-sdk?branch=fix/rust-wrapper#1274537df0cf8ff724d6f95e008ec4b037334f2c"
 dependencies = [
  "ctrlc",
  "lazy_static",
