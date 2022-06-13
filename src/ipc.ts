@@ -13,7 +13,7 @@ const sdkStateChangedChannel = "sdk_state_changed";
 
 export class RemoteStore {
   public static settingCache: AppSettings = defaultSettings;
-  public static sdkStateCache: SDKState;
+  public static sdkStateCache: SDKState = { type: "Uninitialized" };
 
   static async init() {
     await this.syncCache();

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useCallback, useMemo } from "react";
 import {
   Center,
   Flex,
@@ -7,18 +7,69 @@ import {
   Link,
   Spacer,
   Tooltip,
+  useClipboard,
   useColorMode,
   useColorModeValue,
 } from "@chakra-ui/react";
 import { BellIcon, CloseIcon, MinusIcon, MoonIcon } from "@chakra-ui/icons";
 import { ipcRenderer } from "electron";
 import { WootSunIcon } from "./WootSunIcon";
-import { IoHelp } from "react-icons/io5";
+import { IoCheckmarkCircle, IoHelp, IoShareSocial } from "react-icons/io5";
+import { useRemoteValue, useSDKState } from "ipc";
+import { strafeAngleRange } from "./components/AdvancedTabs/StrafeSettings";
 
 declare module "react" {
   interface CSSProperties {
     WebkitAppRegion?: "drag" | "no-drag";
   }
+}
+const checkText = "✅";
+const crossText = "❌";
+
+// Accepts an argument between 0 -> 1
+function PercentageText(value: number, length: number = 10) {
+  let finalString = "";
+  for (let i = 1; i <= length; i++) {
+    const boundary = i / length;
+    // If the value is the same or above the boundary then we count it as 'filled'
+    if (boundary <= value) {
+      finalString += "▓";
+    } else {
+      finalString += "░";
+    }
+  }
+
+  return finalString;
+}
+
+export function CopySettingsButton() {
+  // const onClick = useCallback(() => {}, []);
+  const [useAnalogInput, __] = useRemoteValue("useAnalogInput");
+  const [angleConfig, _] = useRemoteValue("leftJoystickStrafingAngles");
+  const sdkState = useSDKState();
+  const shareText = useMemo(() => {
+    const min = strafeAngleRange[0] / 90;
+    const max = strafeAngleRange[1] / 90;
+    const strafePercentage = (angleConfig.upDiagonalAngle - min) / (max - min);
+    return `My Wooting Double Movement settings:
+${PercentageText(strafePercentage)} ${(strafePercentage * 100).toFixed(0)} Angle
+${useAnalogInput ? checkText : crossText} Keyboard 360 movement
+${angleConfig.useLeftRightAngle ? checkText : crossText} Single key strafe
+⌨️: ${sdkState.type === "DevicesConnected" ? sdkState.value[0] : "Unknown"}`;
+  }, [angleConfig, sdkState, useAnalogInput]);
+
+  const { hasCopied, onCopy } = useClipboard(shareText);
+
+  return (
+    <Tooltip label="Share your settings!" hasArrow variant="accent">
+      <IconButton
+        variant="ghost"
+        aria-label="share settings"
+        icon={<Icon as={hasCopied ? IoCheckmarkCircle : IoShareSocial} />}
+        onClick={onCopy}
+      />
+    </Tooltip>
+  );
 }
 
 export function Header(props: { openAnnouncements: () => void }) {
@@ -60,6 +111,7 @@ export function Header(props: { openAnnouncements: () => void }) {
             />
           </Link>
         </Tooltip>
+        <CopySettingsButton />
 
         {
           //@ts-ignore
