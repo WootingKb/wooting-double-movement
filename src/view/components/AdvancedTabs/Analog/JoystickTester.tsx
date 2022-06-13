@@ -10,6 +10,7 @@ import {
   useColorModeValue,
 } from "@chakra-ui/react";
 import { useRemoteValue } from "ipc";
+import { SDKState } from "native/types";
 import React, { useState, useEffect, useCallback } from "react";
 import { InfoTooltip } from "view/components/general/InfoTooltip";
 
@@ -115,7 +116,7 @@ const CircleIcon = (props: IconProps) => (
   </Icon>
 );
 
-export function JoystickTester() {
+export function JoystickTester({ sdkState }: { sdkState: SDKState }) {
   // index of the interface in the JoystickAPI
   const [joystickIndex, setJoystickIndex] = useState<number | null>(null);
   const hasJoystick = joystickIndex !== null;
@@ -190,6 +191,9 @@ export function JoystickTester() {
   useEffect(() => {
     if (joystickIndex === null && isEnabled) {
       startGamepadDetection();
+    } else if (!isEnabled) {
+      setJoystickIndex(null);
+      setGamepadState(null);
     }
   }, [joystickIndex, isEnabled, startGamepadDetection]);
 
@@ -227,7 +231,8 @@ export function JoystickTester() {
             />
           ) : (
             <Center w="100%" h="100%">
-              <Spinner />
+              {/* Only show that it's loading if DM is enabled and there are devices connected. If not then you're not gonna get input here anyway */}
+              {isEnabled && sdkState.type === "DevicesConnected" && <Spinner />}
             </Center>
           )}
         </Box>

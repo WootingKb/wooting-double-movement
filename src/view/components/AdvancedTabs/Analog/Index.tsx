@@ -180,7 +180,7 @@ export function AnalogSettingsTab() {
             value={analogRange}
             onChange={onAnalogRangeChanged}
           />
-          <JoystickTester />
+          <JoystickTester sdkState={sdkState} />
 
           <SDKStateDisplay state={sdkState} />
         </>

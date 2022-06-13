@@ -5,7 +5,7 @@ use log::*;
 #[cfg(windows)]
 #[cfg(feature = "rawinput")]
 use multiinput::*;
-use sdk::DeviceInfo;
+use sdk::{DeviceInfo, WootingAnalogResult};
 use serde::{Deserialize, Serialize};
 #[cfg(windows)]
 use vigem::{
@@ -18,7 +18,7 @@ use wooting_analog_wrapper as sdk;
 use crate::config::ServiceConfiguration;
 use crate::controller::*;
 
-#[derive(Clone, Serialize, Deserialize)]
+#[derive(Clone, Serialize, Deserialize, PartialEq)]
 #[serde(tag = "type", content = "value")]
 pub enum AnalogSDKState {
     Uninitialized,
@@ -206,6 +206,7 @@ impl Service {
                     "Analog SDK Successfully initialised with {} devices",
                     device_num
                 );
+
                 let devices: Vec<DeviceInfo> = sdk::get_connected_devices_info(10).0.unwrap();
                 assert_eq!(device_num, devices.len() as u32);
                 for (i, device) in devices.iter().enumerate() {
@@ -380,6 +381,24 @@ impl Service {
         f32::max(analog_one, analog_two)
     }
 
+    fn update_direction_analog_empty(&mut self) -> bool {
+        self.controller_state
+            .left_joystick
+            .set_direction_state_analog(JoystickDirection::Left, 0.0)
+            | self
+                .controller_state
+                .left_joystick
+                .set_direction_state_analog(JoystickDirection::Right, 0.0)
+            | self
+                .controller_state
+                .left_joystick
+                .set_direction_state_analog(JoystickDirection::Up, 0.0)
+            | self
+                .controller_state
+                .left_joystick
+                .set_direction_state_analog(JoystickDirection::Down, 0.0)
+    }
+
     fn update_direction_analog(
         &mut self,
         direction: JoystickDirection,
@@ -396,30 +415,50 @@ impl Service {
     fn update_analog_inputs(&mut self) -> bool {
         // TODO: Handle case where there are no devices connected
         // TODO: Potentially update connected devices state in here
-        if let Ok(analog) = sdk::read_full_buffer(20).0 {
-            self.update_direction_analog(
-                JoystickDirection::Left,
-                &analog,
-                self.config.key_mapping.left_joystick.left,
-                self.config.key_mapping.left_joystick.left_two,
-            ) | self.update_direction_analog(
-                JoystickDirection::Up,
-                &analog,
-                self.config.key_mapping.left_joystick.up,
-                self.config.key_mapping.left_joystick.up_two,
-            ) | self.update_direction_analog(
-                JoystickDirection::Down,
-                &analog,
-                self.config.key_mapping.left_joystick.down,
-                self.config.key_mapping.left_joystick.down_two,
-            ) | self.update_direction_analog(
-                JoystickDirection::Right,
-                &analog,
-                self.config.key_mapping.left_joystick.right,
-                self.config.key_mapping.left_joystick.right_two,
-            )
-        } else {
-            false
+        match sdk::read_full_buffer(20).0 {
+            Ok(analog) => {
+                if self.sdk_state == AnalogSDKState::NoDevices {
+                    let devices: Vec<DeviceInfo> = sdk::get_connected_devices_info(10).0.unwrap();
+
+                    if devices.len() > 0 {
+                        self.sdk_state = AnalogSDKState::DevicesConnected(
+                            devices
+                                .iter()
+                                .map(|device| device.device_name.clone())
+                                .collect(),
+                        );
+                    }
+                }
+
+                self.update_direction_analog(
+                    JoystickDirection::Left,
+                    &analog,
+                    self.config.key_mapping.left_joystick.left,
+                    self.config.key_mapping.left_joystick.left_two,
+                ) | self.update_direction_analog(
+                    JoystickDirection::Up,
+                    &analog,
+                    self.config.key_mapping.left_joystick.up,
+                    self.config.key_mapping.left_joystick.up_two,
+                ) | self.update_direction_analog(
+                    JoystickDirection::Down,
+                    &analog,
+                    self.config.key_mapping.left_joystick.down,
+                    self.config.key_mapping.left_joystick.down_two,
+                ) | self.update_direction_analog(
+                    JoystickDirection::Right,
+                    &analog,
+                    self.config.key_mapping.left_joystick.right,
+                    self.config.key_mapping.left_joystick.right_two,
+                )
+            }
+            Err(e) => {
+                if e == WootingAnalogResult::NoDevices {
+                    self.sdk_state = AnalogSDKState::NoDevices;
+                }
+
+                self.update_direction_analog_empty()
+            }
         }
     }
 
