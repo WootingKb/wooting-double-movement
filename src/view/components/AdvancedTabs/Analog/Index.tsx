@@ -33,6 +33,8 @@ interface AnalogRangeSliderProps {
   onChange: (value: [number, number]) => void;
 }
 
+export const AnalogRange: number = 4.0;
+
 function AnalogRangeSlider(props: AnalogRangeSliderProps) {
   const [localValue, setLocalValue] = useState<[number, number] | null>(null);
   const useValue = localValue ?? props.value;
@@ -61,8 +63,8 @@ function AnalogRangeSlider(props: AnalogRangeSliderProps) {
     [setLocalValue, props.onChange, props.value]
   );
 
-  const startMM = useValue[0] * 4.0;
-  const endMM = useValue[1] * 4.0;
+  const startMM = useValue[0] * AnalogRange;
+  const endMM = useValue[1] * AnalogRange;
 
   return (
     <>

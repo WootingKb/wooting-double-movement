@@ -8,11 +8,7 @@ import {
   Button,
   Popover,
   Box,
-  PopoverArrow,
-  PopoverBody,
-  PopoverCloseButton,
   PopoverContent,
-  PopoverHeader,
   PopoverTrigger,
   Spacer,
   Tooltip,
@@ -20,22 +16,16 @@ import {
   useColorMode,
   useColorModeValue,
   VStack,
-  ModalOverlay,
   Portal,
-  LinkOverlay,
 } from "@chakra-ui/react";
 import { BellIcon, CloseIcon, MinusIcon, MoonIcon } from "@chakra-ui/icons";
 import { ipcRenderer } from "electron";
 import { WootSunIcon } from "./WootSunIcon";
-import {
-  IoCheckmarkCircle,
-  IoHelp,
-  IoShareSocial,
-  IoLogoTwitter,
-} from "react-icons/io5";
+import { IoHelp, IoShareSocial, IoLogoTwitter } from "react-icons/io5";
 import { IoIosLink } from "react-icons/io";
 import { useRemoteValue, useSDKState } from "ipc";
 import { strafeAngleRange } from "./components/AdvancedTabs/StrafeSettings";
+import { AnalogRange } from "./components/AdvancedTabs/Analog";
 
 declare module "react" {
   interface CSSProperties {
@@ -62,21 +52,38 @@ function PercentageText(value: number, length: number = 10) {
 }
 
 export function CopySettingsButton() {
-  // const onClick = useCallback(() => {}, []);
   const [dmEnabled] = useRemoteValue("doubleMovementEnabled");
   const [useAnalogInput, __] = useRemoteValue("useAnalogInput");
   const [angleConfig, _] = useRemoteValue("leftJoystickStrafingAngles");
+
   const sdkState = useSDKState();
+
   const shareText = useMemo(() => {
-    const min = strafeAngleRange[0] / 90;
-    const max = strafeAngleRange[1] / 90;
-    const strafePercentage = (angleConfig.upDiagonalAngle - min) / (max - min);
+    const mainMin = strafeAngleRange[0] / 90;
+    const mainMax = strafeAngleRange[1] / 90;
+    const strafePercentage =
+      (angleConfig.upDiagonalAngle - mainMin) / (mainMax - mainMin);
+
+    const singleMin = strafeAngleRange[0] / 90;
+    const singleMax = strafeAngleRange[1] / 90;
+
+    const startRange = angleConfig.analogRange[0] * AnalogRange;
+    const endRange = angleConfig.analogRange[1] * AnalogRange;
+
+    const singleKeyPercentage =
+      (angleConfig.leftRightAngle - singleMin) / (singleMax - singleMin);
     return `My Wooting Double Movement settings:
 ${PercentageText(strafePercentage)} ${(strafePercentage * 100).toFixed(
       0
     )}% Angle
-${angleConfig.useLeftRightAngle ? checkText : crossText} Single key strafe
-${useAnalogInput ? checkText : crossText} Keyboard 360 movement
+${angleConfig.useLeftRightAngle ? checkText : crossText} Single key strafe ${
+      angleConfig.useLeftRightAngle
+        ? `[${(singleKeyPercentage * 100).toFixed(0)}%]`
+        : ""
+    }
+${useAnalogInput ? checkText : crossText} 360 movement ${
+      useAnalogInput ? `[${startRange}mm - ${endRange}mm]` : ""
+    }
 ⌨️ ${
       sdkState.type === "DevicesConnected"
         ? sdkState.value[0]
