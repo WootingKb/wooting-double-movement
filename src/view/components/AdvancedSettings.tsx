@@ -46,7 +46,7 @@ export function AdvancedSettingsCard(props: {
                 <Tab mr={3}>Keybinds</Tab>
                 <Tab>Strafing</Tab>
                 <Tab>App</Tab>
-                <Tab>Analog</Tab>
+                <Tab>360 Movement</Tab>
               </TabList>
 
               <TabPanels height={minTabHeight}>

@@ -43,7 +43,7 @@ export function SimpleEnableCard() {
           <Spacer />
           {shouldWarnAnalog && (
             <Tooltip
-              label="Something's wrong, analog input is enabled but there's no device connected. Check the 'Analog' tab"
+              label="360 Movement is enabled but there is no Wooting keyboard connected. Please disable the option in the “Analog” tab or connect a Wooting keyboard."
               placement="left"
             >
               <Icon as={WarningTwoIcon} color="orange" />

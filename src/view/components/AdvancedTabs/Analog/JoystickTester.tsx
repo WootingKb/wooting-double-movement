@@ -220,10 +220,11 @@ export function JoystickTester({ sdkState }: { sdkState: SDKState }) {
   return (
     <>
       <Flex w="100%" pt="1em">
-        <Heading>Stafe angle tester</Heading>
+        <Heading>360 Movement tester</Heading>
         <InfoTooltip ml="7px" mt="2px">
           <Text pt="1" fontSize="sm">
-            Test the joystick output
+            See a live preview of your 360 movement angle and
+            sensitivity/detection range.
           </Text>
         </InfoTooltip>
 

@@ -77,14 +77,14 @@ ${PercentageText(strafePercentage)} ${(strafePercentage * 100).toFixed(
     )}% Angle
 ${angleConfig.useLeftRightAngle ? checkText : crossText} Single key strafe
 ${useAnalogInput ? checkText : crossText} Keyboard 360 movement
-⌨️: ${
+⌨️ ${
       sdkState.type === "DevicesConnected"
         ? sdkState.value[0]
-        : "No analog keyboard"
+        : "No analog keyboard detected"
     }`;
   }, [angleConfig, sdkState, useAnalogInput]);
 
-  const { hasCopied, onCopy } = useClipboard(shareText);
+  const { onCopy } = useClipboard(shareText);
 
   const shareTwitter = useCallback(() => {
     const urlParams = new URLSearchParams({ text: shareText });

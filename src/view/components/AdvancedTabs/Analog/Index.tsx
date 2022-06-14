@@ -68,8 +68,7 @@ function AnalogRangeSlider(props: AnalogRangeSliderProps) {
     <>
       <RangeSlider
         aria-label={["min", "max"]}
-        // min={0.025}
-        min={0}
+        min={0.025}
         max={1}
         step={0.025}
         value={useValue}
@@ -113,10 +112,10 @@ function SDKStateDisplay(props: { state: SDKState }) {
     }
   }, [props.state]);
 
+  const boldText = useColorModeValue("black", "white");
   if (props.state.type === "Uninitialized") {
     return <></>;
   }
-  const boldText = useColorModeValue("black", "white");
 
   return (
     <HStack>
@@ -155,10 +154,11 @@ export function AnalogSettingsTab() {
     <VStack align="baseline" spacing="4" height="100%" position="relative">
       <Flex w="100%">
         <Flex>
-          <Heading>Enable analog keyboard as input</Heading>
+          <Heading>Enable 360 movement from Wooting kb</Heading>
           <InfoTooltip ml="7px" mt="2px">
             <Text pt="1" fontSize="sm">
-              Enable analog input to get that sweet sweet 360 movement gang
+              360 movement enables granular control over your strafing angle.
+              This option requires a Wooting keyboard.
             </Text>
           </InfoTooltip>
         </Flex>
@@ -178,7 +178,10 @@ export function AnalogSettingsTab() {
             <Heading>Analog Range</Heading>
             <InfoTooltip ml="7px" mt="2px">
               <Text pt="1" fontSize="sm">
-                Lets you choose your analog actuation and range
+                Adjust the total analog detection range to increase/decrease the
+                amount of granular control. You can modify the actuation point
+                (sensitivity) by adjusting the left side slider. Default is 0.2
+                to 3.6mm.
               </Text>
             </InfoTooltip>
           </Flex>
