@@ -16,6 +16,15 @@ const yellow = {
   "800": "#664B00",
   "900": "#332600",
 };
+export const setBg = (color: string, colorDark?: string) =>
+  setItem("bg", color, colorDark);
+
+export function setItem(key: string, color: string, colorDark?: string) {
+  return {
+    [key]: color,
+    ".chakra-ui-dark &": { [key]: colorDark ?? color },
+  };
+}
 
 export default extendTheme({
   shadows: { outline: "0 !important" },
@@ -28,6 +37,11 @@ export default extendTheme({
       body: {
         bg: "unset",
       },
+    },
+  },
+  layerStyles: {
+    view: {
+      ...setBg("white", "#1C2226"),
     },
   },
   components: {

@@ -5,16 +5,35 @@ import {
   Icon,
   IconButton,
   Link,
+  Button,
+  Popover,
+  Box,
+  PopoverArrow,
+  PopoverBody,
+  PopoverCloseButton,
+  PopoverContent,
+  PopoverHeader,
+  PopoverTrigger,
   Spacer,
   Tooltip,
   useClipboard,
   useColorMode,
   useColorModeValue,
+  VStack,
+  ModalOverlay,
+  Portal,
+  LinkOverlay,
 } from "@chakra-ui/react";
 import { BellIcon, CloseIcon, MinusIcon, MoonIcon } from "@chakra-ui/icons";
 import { ipcRenderer } from "electron";
 import { WootSunIcon } from "./WootSunIcon";
-import { IoCheckmarkCircle, IoHelp, IoShareSocial } from "react-icons/io5";
+import {
+  IoCheckmarkCircle,
+  IoHelp,
+  IoShareSocial,
+  IoLogoTwitter,
+} from "react-icons/io5";
+import { IoIosLink } from "react-icons/io";
 import { useRemoteValue, useSDKState } from "ipc";
 import { strafeAngleRange } from "./components/AdvancedTabs/StrafeSettings";
 
@@ -44,6 +63,7 @@ function PercentageText(value: number, length: number = 10) {
 
 export function CopySettingsButton() {
   // const onClick = useCallback(() => {}, []);
+  const [dmEnabled] = useRemoteValue("doubleMovementEnabled");
   const [useAnalogInput, __] = useRemoteValue("useAnalogInput");
   const [angleConfig, _] = useRemoteValue("leftJoystickStrafingAngles");
   const sdkState = useSDKState();
@@ -52,23 +72,98 @@ export function CopySettingsButton() {
     const max = strafeAngleRange[1] / 90;
     const strafePercentage = (angleConfig.upDiagonalAngle - min) / (max - min);
     return `My Wooting Double Movement settings:
-${PercentageText(strafePercentage)} ${(strafePercentage * 100).toFixed(0)} Angle
-${useAnalogInput ? checkText : crossText} Keyboard 360 movement
+${PercentageText(strafePercentage)} ${(strafePercentage * 100).toFixed(
+      0
+    )}% Angle
 ${angleConfig.useLeftRightAngle ? checkText : crossText} Single key strafe
-⌨️: ${sdkState.type === "DevicesConnected" ? sdkState.value[0] : "Unknown"}`;
+${useAnalogInput ? checkText : crossText} Keyboard 360 movement
+⌨️: ${
+      sdkState.type === "DevicesConnected"
+        ? sdkState.value[0]
+        : "No analog keyboard"
+    }`;
   }, [angleConfig, sdkState, useAnalogInput]);
 
   const { hasCopied, onCopy } = useClipboard(shareText);
 
+  const shareTwitter = useCallback(() => {
+    const urlParams = new URLSearchParams({ text: shareText });
+    ipcRenderer.send(
+      "open-url",
+      `https://twitter.com/intent/tweet?${urlParams.toString()}`
+    );
+  }, [shareText]);
+
+  const isDisabled = !dmEnabled;
   return (
-    <Tooltip label="Share your settings!" hasArrow variant="accent">
-      <IconButton
-        variant="ghost"
-        aria-label="share settings"
-        icon={<Icon as={hasCopied ? IoCheckmarkCircle : IoShareSocial} />}
-        onClick={onCopy}
-      />
-    </Tooltip>
+    <Popover isOpen={isDisabled ? false : undefined}>
+      {({ isOpen, onClose }) => (
+        <>
+          <PopoverTrigger>
+            <Box>
+              <Tooltip label="Share your settings!" hasArrow variant="accent">
+                <IconButton
+                  isDisabled={isDisabled}
+                  variant="ghost"
+                  aria-label="share settings"
+                  icon={<Icon as={IoShareSocial} />}
+                />
+              </Tooltip>
+            </Box>
+          </PopoverTrigger>
+          <PopoverContent
+            w="fit-content"
+            borderRadius="xl"
+            boxShadow="md"
+            layerStyle="view"
+          >
+            {isOpen && (
+              <Portal>
+                <Box
+                  borderRadius="2xl"
+                  position="absolute"
+                  left="0"
+                  top="0"
+                  h="100%"
+                  w="100%"
+                  bg="black"
+                  opacity="0.5"
+                />
+              </Portal>
+            )}
+            <VStack w="100%" align="stretch" p="4">
+              <Button
+                size="sm"
+                justifyContent="flex-start"
+                leftIcon={<Icon as={IoLogoTwitter} color="#1DA1F2" />}
+                variant="ghost"
+                onClick={() => {
+                  shareTwitter();
+                  onClose();
+                }}
+              >
+                Share via tweet
+              </Button>
+              <Button
+                size="sm"
+                justifyContent="flex-start"
+                leftIcon={<Icon as={IoIosLink} />}
+                variant="ghost"
+                onClick={() => {
+                  onCopy();
+                  onClose();
+                }}
+              >
+                Copy settings text
+              </Button>
+              <Button size="sm" variant="link" onClick={onClose}>
+                dismiss
+              </Button>
+            </VStack>
+          </PopoverContent>
+        </>
+      )}
+    </Popover>
   );
 }
 

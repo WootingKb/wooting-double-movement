@@ -99,28 +99,34 @@ function AnalogRangeSlider(props: AnalogRangeSliderProps) {
 }
 
 function SDKStateDisplay(props: { state: SDKState }) {
-  const [color, text] = useMemo(() => {
+  const [color, text, useBold] = useMemo(() => {
     switch (props.state.type) {
       case "Uninitialized":
-        return ["gray", "Uninitialized"];
+        return ["gray", "Uninitialized", false];
       case "Error":
         //   TODO: Improve error text
-        return ["red.400", "Error: " + props.state.value];
+        return ["red.400", "Error: " + props.state.value, false];
       case "DevicesConnected":
-        return ["green.500", props.state.value[0] + " Connected"];
+        return ["green.500", props.state.value[0] + " Connected", false];
       case "NoDevices":
-        return ["orange.500", "No Wooting keyboard connected"];
+        return ["orange.500", "No Wooting keyboard connected", true];
     }
   }, [props.state]);
 
   if (props.state.type === "Uninitialized") {
     return <></>;
   }
+  const boldText = useColorModeValue("black", "white");
 
   return (
     <HStack>
       <Box boxSize={2} bg={color} borderRadius="full" />
-      <Text>{text}</Text>
+      <Text
+        fontWeight={useBold ? "semibold" : undefined}
+        color={useBold ? boldText : undefined}
+      >
+        {text}
+      </Text>
     </HStack>
   );
 }

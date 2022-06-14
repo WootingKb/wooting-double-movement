@@ -487,6 +487,10 @@ class ServiceManager {
       end_gamepad_detection();
     });
 
+    ipcMain.on("open-url", function (event, url) {
+      shell.openExternal(url);
+    });
+
     setInterval(() => {
       this.check_sdk_state();
     }, 1000);
