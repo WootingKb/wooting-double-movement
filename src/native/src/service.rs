@@ -100,6 +100,7 @@ pub struct Service {
     config: ServiceConfiguration,
     analog_initialised: bool,
     sdk_state: AnalogSDKState,
+    is_detecting: bool,
 }
 
 // Service should be wrapped in Mutex if used across threads so minimise unsafety
@@ -121,6 +122,7 @@ impl Service {
             config: ServiceConfiguration::default(),
             analog_initialised: false,
             sdk_state: AnalogSDKState::Uninitialized,
+            is_detecting: false,
         }
     }
 
@@ -249,6 +251,42 @@ impl Service {
             .0
             .context("Failed to uninitialise analog sdk")?;
         self.analog_initialised = false;
+        Ok(())
+    }
+
+    fn output_controller_detection(&mut self) -> Result<()> {
+        if let Some(controller) = self.controller.as_mut() {
+            let tiny_axis_y: f32 = 0.6;
+
+            let _ = self
+                .controller_state
+                .left_joystick
+                .set_direction_state_analog(JoystickDirection::Left, 0.0)
+                | self
+                    .controller_state
+                    .left_joystick
+                    .set_direction_state_analog(JoystickDirection::Right, 0.0)
+                | self
+                    .controller_state
+                    .left_joystick
+                    .set_direction_state_analog(JoystickDirection::Up, tiny_axis_y)
+                | self
+                    .controller_state
+                    .left_joystick
+                    .set_direction_state_analog(JoystickDirection::Down, 0.0);
+
+            #[cfg(feature = "ds4")]
+            let report = self
+                .controller_state
+                .get_ds4_report_from_axis(0.0, tiny_axis_y);
+
+            #[cfg(not(feature = "ds4"))]
+            let report = self
+                .controller_state
+                .get_xusb_report_from_axis(0.0, tiny_axis_y);
+
+            controller.update(&report)?;
+        }
         Ok(())
     }
 
@@ -464,27 +502,31 @@ impl Service {
 
     pub fn poll(&mut self) -> Result<()> {
         if self.initd {
-            let should_update = {
-                // Analog being initialised implies that the setting for using analog is on
-                if self.analog_initialised {
-                    self.update_analog_inputs()
-                } else {
-                    #[cfg(feature = "rawinput")]
-                    {
-                        self.process_rawinput_event()
-                    }
+            if self.is_detecting {
+                self.output_controller_detection()?;
+            } else {
+                let should_update = {
+                    // Analog being initialised implies that the setting for using analog is on
+                    if self.analog_initialised {
+                        self.update_analog_inputs()
+                    } else {
+                        #[cfg(feature = "rawinput")]
+                        {
+                            self.process_rawinput_event()
+                        }
 
-                    #[cfg(not(feature = "rawinput"))]
-                    {
-                        self.controller_state
-                            .left_joystick
-                            .update_key_states(&self.config.key_mapping.left_joystick)
+                        #[cfg(not(feature = "rawinput"))]
+                        {
+                            self.controller_state
+                                .left_joystick
+                                .update_key_states(&self.config.key_mapping.left_joystick)
+                        }
                     }
+                };
+
+                if should_update {
+                    self.update_controller()?;
                 }
-            };
-
-            if should_update {
-                self.update_controller()?;
             }
         }
 
@@ -530,5 +572,9 @@ impl Service {
 
         self.update_controller()?;
         Ok(())
+    }
+
+    pub fn set_gamepad_detection_state(&mut self, enabled: bool) {
+        self.is_detecting = enabled;
     }
 }

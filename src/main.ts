@@ -10,7 +10,11 @@ import {
   shell,
   Tray,
 } from "electron";
-import { get_xinput_slot } from "./native/native";
+import {
+  end_gamepad_detection,
+  get_xinput_slot,
+  start_gamepad_detection,
+} from "./native/native";
 import ElectronStore from "electron-store";
 import { AppSettings, smallWindowSize } from "./common";
 import install, { REACT_DEVELOPER_TOOLS } from "electron-devtools-installer";
@@ -35,7 +39,6 @@ import { PrettyAcceleratorName } from "./accelerator";
 import _ from "lodash";
 
 Object.assign(console, functions);
-app.allowRendererProcessReuse = false;
 app.commandLine.appendSwitch("disable-pinch");
 
 const isMac = process.platform === "darwin";
@@ -186,7 +189,6 @@ function createMainWindow() {
     webPreferences: {
       nodeIntegration: true,
       contextIsolation: false,
-      enableRemoteModule: false,
     },
   });
 
@@ -475,6 +477,14 @@ class ServiceManager {
 
     ipcMain.handle("get_sdk_state", (_) => {
       return this.sdk_state;
+    });
+
+    ipcMain.on("start-gamepad-detection", (_) => {
+      start_gamepad_detection();
+    });
+
+    ipcMain.on("end-gamepad-detection", (_) => {
+      end_gamepad_detection();
     });
 
     setInterval(() => {

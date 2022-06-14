@@ -1,7 +1,7 @@
 #[allow(unused_imports)]
 use log::*;
 #[cfg(windows)]
-use vigem::{DSReport, XUSBReport};
+use vigem::{DS4Button, DSReport, XUSBReport};
 #[cfg(windows)]
 use winapi::um::winuser::GetAsyncKeyState;
 
@@ -315,6 +315,26 @@ impl ControllerState {
 
     #[cfg(windows)]
     #[allow(dead_code)]
+    pub fn get_xusb_report_from_axis(&self, x: f32, y: f32) -> XUSBReport {
+        let (lx, ly) = (
+            utils::float_to_xusb_js_axis(x),
+            utils::float_to_xusb_js_axis(y),
+        );
+        let (rx, ry) = (
+            utils::float_to_xusb_js_axis(0.0),
+            utils::float_to_xusb_js_axis(0.0),
+        );
+        XUSBReport {
+            s_thumb_lx: lx,
+            s_thumb_ly: ly,
+            s_thumb_rx: rx,
+            s_thumb_ry: ry,
+            ..XUSBReport::default()
+        }
+    }
+
+    #[cfg(windows)]
+    #[allow(dead_code)]
     pub fn get_xusb_report(&self, config: Option<&JoystickAngleConfiguration>) -> XUSBReport {
         let (lx, ly) = self.left_joystick.get_xusb_direction(config);
         let (rx, ry) = self.right_joystick.get_xusb_direction(None);
@@ -324,6 +344,26 @@ impl ControllerState {
             s_thumb_rx: rx,
             s_thumb_ry: ry,
             ..XUSBReport::default()
+        }
+    }
+
+    #[cfg(windows)]
+    #[allow(dead_code)]
+    pub fn get_ds4_report_from_axis(&self, x: f32, y: f32) -> DSReport {
+        let (lx, ly) = (
+            utils::float_to_ds4_js_axis(x),
+            utils::float_to_ds4_js_axis(-y),
+        );
+        let (rx, ry) = (
+            utils::float_to_ds4_js_axis(0.0),
+            utils::float_to_ds4_js_axis(0.0),
+        );
+        DSReport {
+            b_thumb_lx: lx,
+            b_thumb_ly: ly,
+            b_thumb_rx: rx,
+            b_thumb_ry: ry,
+            ..DSReport::default()
         }
     }
 

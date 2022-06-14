@@ -78,6 +78,8 @@ fn main(mut cx: ModuleContext) -> NeonResult<()> {
     cx.export_function("get_xinput_slot", get_xinput_slot)?;
     cx.export_function("get_sdk_state", get_sdk_state)?;
     cx.export_function("set_config", set_config)?;
+    cx.export_function("start_gamepad_detection", start_gamepad_detection)?;
+    cx.export_function("end_gamepad_detection", end_gamepad_detection)?;
 
     Ok(())
 }
@@ -174,5 +176,17 @@ fn set_config(mut cx: FunctionContext) -> JsResult<JsNull> {
     info!("Received config {:?}", config);
     #[cfg(windows)]
     SERVICE.lock().unwrap().set_config(config).unwrap();
+    return Ok(cx.null());
+}
+
+fn start_gamepad_detection(mut cx: FunctionContext) -> JsResult<JsNull> {
+    #[cfg(windows)]
+    SERVICE.lock().unwrap().set_gamepad_detection_state(true);
+    return Ok(cx.null());
+}
+
+fn end_gamepad_detection(mut cx: FunctionContext) -> JsResult<JsNull> {
+    #[cfg(windows)]
+    SERVICE.lock().unwrap().set_gamepad_detection_state(false);
     return Ok(cx.null());
 }

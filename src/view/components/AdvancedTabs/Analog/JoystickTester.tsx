@@ -9,6 +9,7 @@ import {
   Spinner,
   useColorModeValue,
 } from "@chakra-ui/react";
+import { ipcRenderer } from "electron";
 import { useRemoteValue } from "ipc";
 import { SDKState } from "native/types";
 import React, { useState, useEffect, useCallback } from "react";
@@ -160,6 +161,7 @@ export function JoystickTester({ sdkState }: { sdkState: SDKState }) {
 
     console.debug("BEGIN startGamepadDetection");
     setIsDetecting(true);
+    ipcRenderer.send("start-gamepad-detection");
     setJoystickIndex(null);
 
     for (let i = 0; i < 10; i++) {
@@ -168,7 +170,10 @@ export function JoystickTester({ sdkState }: { sdkState: SDKState }) {
           if (gamepad) {
             const x = gamepad.axes[0];
             const y = gamepad.axes[1];
-            if (gamepad.id.includes("Vendor: 054c Product: 05c4")) {
+            if (
+              gamepad.id.includes("Vendor: 054c Product: 05c4") &&
+              Math.round(Math.abs(y) * 10) === 6
+            ) {
               return true;
             }
           }
@@ -184,6 +189,7 @@ export function JoystickTester({ sdkState }: { sdkState: SDKState }) {
       await asyncSleep(50);
     }
 
+    ipcRenderer.send("end-gamepad-detection");
     setIsDetecting(false);
     console.debug("END startGamepadDetection");
   }, [isEnabled]);
