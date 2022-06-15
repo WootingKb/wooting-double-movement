@@ -19,8 +19,6 @@ export function MainWindow() {
     ipcRenderer.invoke("getVersion").then(setVersion).catch(console.error);
   }, []);
 
-  const bg = useColorModeValue("white", "#1C2226");
-
   const [updateNotesOpen, setUpdateNotesOpen] = useState(false);
   const [announcementsOpen, setAnnouncementsOpen] = useState(false);
 
@@ -63,8 +61,10 @@ export function MainWindow() {
       userSelect="none"
       h="100vh"
       direction="column"
-      borderRadius="18px"
-      backgroundColor={bg}
+      borderRadius="2xl"
+      layerStyle="view"
+      border="1px solid"
+      borderColor={useColorModeValue("gray.200", "transparent")}
       overflow="hidden"
     >
       <Header openAnnouncements={requestOpenAnnouncements} />

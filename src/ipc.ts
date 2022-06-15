@@ -1,13 +1,19 @@
 import { ipcRenderer, IpcRendererEvent } from "electron";
 import _ from "lodash";
 import { useEffect, useState } from "react";
-import { defaultSettings, JoystickAngleConfiguration } from "native/types";
+import {
+  defaultSettings,
+  JoystickAngleConfiguration,
+  SDKState,
+} from "native/types";
 import { AppSettings } from "./common";
 
 const storeChangedChannel = "store_changed";
+const sdkStateChangedChannel = "sdk_state_changed";
 
 export class RemoteStore {
   public static settingCache: AppSettings = defaultSettings;
+  public static sdkStateCache: SDKState = { type: "Uninitialized" };
 
   static async init() {
     await this.syncCache();
@@ -20,6 +26,25 @@ export class RemoteStore {
     };
 
     ipcRenderer.on(storeChangedChannel, listener);
+
+    this.sdkStateCache = await this.getSDKState();
+    this.onSDKStateChange((state: SDKState) => {
+      this.sdkStateCache = state;
+    });
+  }
+
+  static async getSDKState(): Promise<SDKState> {
+    return (await ipcRenderer.invoke("get_sdk_state")) as SDKState;
+  }
+
+  static onSDKStateChange(callback: (state: SDKState) => void): () => void {
+    const listener = (__: IpcRendererEvent, state: SDKState) => {
+      callback(state);
+    };
+    ipcRenderer.on(sdkStateChangedChannel, listener);
+    return () => {
+      ipcRenderer.removeListener(sdkStateChangedChannel, listener);
+    };
   }
 
   static async syncCache() {
@@ -118,6 +143,26 @@ export function useRemoteValue<Key extends keyof AppSettings>(
   }
 
   return [value, setValue];
+}
+
+export function useSDKState(): SDKState {
+  const [value, _setValue] = useState<SDKState>(RemoteStore.sdkStateCache);
+
+  useEffect(() => {
+    // We just do a call to getValue initially to make sure the state value is accurate
+    // This is to ensure that if the useRemoteValue occurs before the sync takes place that it will be updated with the correct value
+    RemoteStore.getSDKState().then((value) => {
+      _setValue((v) => (_.isEqual(value, v) ? v : value));
+    });
+
+    const unsubscribe = RemoteStore.onSDKStateChange((value) => {
+      _setValue((v) => (_.isEqual(value, v) ? v : value));
+    });
+
+    return unsubscribe;
+  }, []);
+
+  return value;
 }
 
 export function setWindowSize(width: number, height: number) {

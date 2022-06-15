@@ -6,6 +6,9 @@
 
     File "${BUILD_RESOURCES_DIR}\installers\ViGEmBusSetup_x64.msi"
     ExecWait 'msiexec /i ViGEmBusSetup_x64.msi /qb'
+
+     File "${BUILD_RESOURCES_DIR}\installers\wooting_analog_sdk.msi"
+    ExecWait 'msiexec /i wooting_analog_sdk.msi /qb'
   ${endIf}
 !macroend
 

@@ -10,25 +10,35 @@ import {
   shell,
   Tray,
 } from "electron";
-import { get_xinput_slot } from "./native/native";
+import {
+  end_gamepad_detection,
+  get_xinput_slot,
+  start_gamepad_detection,
+} from "./native/native";
 import ElectronStore from "electron-store";
 import { AppSettings, smallWindowSize } from "./common";
 import install, { REACT_DEVELOPER_TOOLS } from "electron-devtools-installer";
-import { setServiceConfig, startService, stopService } from "./native";
+import {
+  getSDKState,
+  setServiceConfig,
+  startService,
+  stopService,
+} from "./native";
 import {
   defaultKeyMapping,
   defaultLeftJoystickStrafingAngles,
   defaultSettings,
   defaultToggleAccelerator,
   JoystickAngleConfiguration,
+  SDKState,
   ServiceConfiguration,
 } from "./native/types";
 import { functions } from "electron-log";
 import { autoUpdater } from "electron-updater";
 import { PrettyAcceleratorName } from "./accelerator";
+import _ from "lodash";
 
 Object.assign(console, functions);
-app.allowRendererProcessReuse = false;
 app.commandLine.appendSwitch("disable-pinch");
 
 const isMac = process.platform === "darwin";
@@ -179,7 +189,6 @@ function createMainWindow() {
     webPreferences: {
       nodeIntegration: true,
       contextIsolation: false,
-      enableRemoteModule: false,
     },
   });
 
@@ -348,7 +357,11 @@ class ServiceManager {
         console.log("Migrating settings to 1.4.0");
         const angles = store.get("leftJoystickAngles") as any;
         // If it has the old setting then lets migrate it to the new one
-        if (angles && "rightUpAngle" in angles && angles["rightUpAngle"] !== undefined) {
+        if (
+          angles &&
+          "rightUpAngle" in angles &&
+          angles["rightUpAngle"] !== undefined
+        ) {
           const newAngles: JoystickAngleConfiguration = {
             ...defaultLeftJoystickStrafingAngles,
             // Leave it turned off for people coming from previous versions
@@ -360,8 +373,21 @@ class ServiceManager {
           store.set("leftJoystickStrafingAngles", newAngles);
         }
       },
+      ">=1.5.0": (store) => {
+        console.log("Migrating settings to 1.5.0");
+        const angles = store.get("leftJoystickAngles") as any;
+
+        const newAngles: JoystickAngleConfiguration = {
+          ...defaultLeftJoystickStrafingAngles,
+          ...angles,
+        };
+        console.log("Migrated angles: ", newAngles);
+        store.set("leftJoystickStrafingAngles", newAngles);
+      },
     },
   });
+
+  sdk_state: SDKState = { type: "Uninitialized" };
 
   init() {
     if (this.store.get("doubleMovementEnabled")) {
@@ -380,7 +406,11 @@ class ServiceManager {
       this.store_set(name, value);
       this.update_state();
 
-      if (name == "leftJoystickStrafingAngles" || name === "keyMapping") {
+      if (
+        name == "leftJoystickStrafingAngles" ||
+        name === "keyMapping" ||
+        name === "useAnalogInput"
+      ) {
         this.update_config();
       }
     });
@@ -444,6 +474,41 @@ class ServiceManager {
       console.debug("Hotkey edit cancelled");
       registerShortcuts();
     });
+
+    ipcMain.handle("get_sdk_state", (_) => {
+      return this.sdk_state;
+    });
+
+    ipcMain.on("start-gamepad-detection", (_) => {
+      start_gamepad_detection();
+    });
+
+    ipcMain.on("end-gamepad-detection", (_) => {
+      end_gamepad_detection();
+    });
+
+    ipcMain.on("open-url", function (event, url) {
+      shell.openExternal(url);
+    });
+
+    setInterval(() => {
+      this.check_sdk_state();
+    }, 1000);
+  }
+
+  check_sdk_state() {
+    let newState: SDKState;
+    // TODO: More optimal getter
+    if (this.running && this.serviceConfiguration().useAnalogInput) {
+      newState = getSDKState();
+    } else {
+      newState = { type: "Uninitialized" };
+    }
+
+    if (!_.isEqual(newState, this.sdk_state)) {
+      this.sdk_state = newState;
+      mainWindow?.webContents.send("sdk_state_changed", newState);
+    }
   }
 
   store_set<Key extends keyof AppSettings>(name: Key, value: AppSettings[Key]) {
@@ -471,6 +536,7 @@ class ServiceManager {
         ...defaultKeyMapping,
         ...this.store.get("keyMapping"),
       },
+      useAnalogInput: this.store.get("useAnalogInput") ?? false,
     };
   }
 
@@ -550,6 +616,8 @@ class ServiceManager {
         this.onError(e);
       }
       this.running = true;
+
+      this.check_sdk_state();
     }
   }
 
@@ -557,6 +625,8 @@ class ServiceManager {
     if (this.running) {
       stopService();
       this.running = false;
+
+      this.check_sdk_state();
     }
   }
 }

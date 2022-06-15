@@ -18,7 +18,7 @@ import { InfoTooltip } from "../general/InfoTooltip";
 import { AngleControl } from "../settings/angle/AngleControl";
 import { keybindDisplay } from "./Utils";
 
-const strafeAngleRange: [number, number] = [45, 71];
+export const strafeAngleRange: [number, number] = [45, 71];
 const singleKeyStrafeAngleRange: [number, number] = [45, 71];
 
 export function StrafeAngleControl() {

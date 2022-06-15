@@ -1,7 +1,7 @@
 #[allow(unused_imports)]
 use log::*;
 #[cfg(windows)]
-use vigem::{DSReport, XUSBReport};
+use vigem::{DS4Button, DSReport, XUSBReport};
 #[cfg(windows)]
 use winapi::um::winuser::GetAsyncKeyState;
 
@@ -15,11 +15,50 @@ pub enum JoystickDirection {
 }
 
 #[derive(Debug)]
+struct JoystickDirectionState(f32);
+
+impl JoystickDirectionState {
+    pub fn new() -> Self {
+        JoystickDirectionState(0.0)
+    }
+
+    pub fn update_analog(&mut self, value: f32) -> bool {
+        if value != self.0 {
+            self.0 = value;
+            true
+        } else {
+            false
+        }
+    }
+
+    pub fn update_digital(&mut self, value: bool) -> bool {
+        self.update_analog(if value { 1.0 } else { 0.0 })
+    }
+
+    pub fn get(&self) -> f32 {
+        self.0
+    }
+
+    pub fn get_with_range(&self, analog_range: &(f32, f32)) -> f32 {
+        let range_start = analog_range.0;
+        let range_end = analog_range.1;
+        let value = self.0;
+        if value <= range_start {
+            0.0
+        } else if value > range_end {
+            1.0
+        } else {
+            (value - range_start) / (range_end - range_start)
+        }
+    }
+}
+
+#[derive(Debug)]
 pub struct JoystickState {
-    up: bool,
-    down: bool,
-    left: bool,
-    right: bool,
+    up: JoystickDirectionState,
+    down: JoystickDirectionState,
+    left: JoystickDirectionState,
+    right: JoystickDirectionState,
 }
 
 trait UpdateValue {
@@ -39,32 +78,61 @@ impl UpdateValue for bool {
 
 mod utils {
     /// Accepts x,y as values between -1 -> 1
-    pub fn process_circular_direction(x: f32, y: f32, d_param: f32) -> (f32, f32) {
+    pub fn process_circular_direction(
+        x: f32,
+        y: f32,
+        d_param: f32,
+        horizontal_angle: Option<f32>,
+    ) -> (f32, f32) {
         if x == 0.0 && y == 0.0 {
             return (0.0, 0.0);
         }
 
-        let k_m = f32::max(x.abs(), y.abs());
+        // The factors that adjust the angles of the joystick output
+        // Convert the d_param from 0->1 to -1 -> 1
+        // We do the check with y to make sure we're not applying this when we're moving backwards
+        let s_d = if y > 0.0 { (d_param * 2.0) - 1.0 } else { 0.0 };
 
-        let use_d = if y < 0.0 { 0.5 } else { d_param };
+        // The input number for this is 0->1 which corresponds to the 2 -> 0 range of this parameter, so we need to convert
+        let s_y = horizontal_angle.map(|v| (1.0 - v) * 2.0).unwrap_or(0.0);
 
-        let d_x = x * use_d;
-        let d_y = y * (1.0 - use_d);
+        let k_x = x;
+        let k_y = y;
 
-        let d_m = f32::sqrt(d_x * d_x + d_y * d_y);
+        let k_a_x = f32::abs(k_x);
+        let k_a_y = f32::abs(k_y);
 
-        let mut dn_x = 0.0;
-        let mut dn_y = 0.0;
+        let k_p_x = if k_x == 0.0 { 1.0 } else { k_x / k_a_x };
+        let k_p_y = if k_y == 0.0 { 1.0 } else { k_y / k_a_y };
 
-        if d_m != 0.0 {
-            dn_x = d_x / d_m;
-            dn_y = d_y / d_m;
+        let r = {
+            if k_a_x > k_a_y {
+                (k_a_y * (1f32 - s_d - s_y * k_p_y) + s_y * k_p_y * k_a_x) / k_a_x
+            } else {
+                (k_a_x * (s_d + 1f32)) / k_a_y
+            }
+        };
+
+        let d_x: f32;
+        let d_y: f32;
+        let pi_4 = std::f32::consts::FRAC_PI_4;
+        if k_a_x > k_a_y {
+            // D1
+            d_x = k_p_x * f32::cos(r * pi_4);
+            d_y = k_p_y * f32::sin(r * pi_4);
+        } else {
+            // D2
+            d_x = k_p_x * f32::sin(r * pi_4);
+            d_y = k_p_y * f32::cos(r * pi_4);
         }
 
-        let p_x = k_m * dn_x;
-        let p_y = k_m * dn_y;
+        // let max_k_a = f32::max(k_a_x, k_a_y);
+        let max_k_a = 1.0;
 
-        (p_x, p_y)
+        let out_x = max_k_a * d_x;
+        let out_y = max_k_a * d_y;
+
+        (out_x, out_y)
     }
 
     #[allow(dead_code)]
@@ -95,10 +163,10 @@ mod utils {
 impl JoystickState {
     pub fn new() -> Self {
         Self {
-            up: false,
-            down: false,
-            left: false,
-            right: false,
+            up: JoystickDirectionState::new(),
+            down: JoystickDirectionState::new(),
+            left: JoystickDirectionState::new(),
+            right: JoystickDirectionState::new(),
         }
     }
 
@@ -112,12 +180,24 @@ impl JoystickState {
         false
     }
 
-    pub fn set_direction_state(&mut self, direction: JoystickDirection, state: bool) -> bool {
+    pub fn set_direction_state_digital(
+        &mut self,
+        direction: JoystickDirection,
+        state: bool,
+    ) -> bool {
         match direction {
-            JoystickDirection::Up => self.up.update(state),
-            JoystickDirection::Down => self.down.update(state),
-            JoystickDirection::Left => self.left.update(state),
-            JoystickDirection::Right => self.right.update(state),
+            JoystickDirection::Up => self.up.update_digital(state),
+            JoystickDirection::Down => self.down.update_digital(state),
+            JoystickDirection::Left => self.left.update_digital(state),
+            JoystickDirection::Right => self.right.update_digital(state),
+        }
+    }
+    pub fn set_direction_state_analog(&mut self, direction: JoystickDirection, state: f32) -> bool {
+        match direction {
+            JoystickDirection::Up => self.up.update_analog(state),
+            JoystickDirection::Down => self.down.update_analog(state),
+            JoystickDirection::Left => self.left.update_analog(state),
+            JoystickDirection::Right => self.right.update_analog(state),
         }
     }
 
@@ -135,7 +215,7 @@ impl JoystickState {
         if let Some(bind_two) = bind_two {
             key_state |= self.get_key_state(*bind_two);
         }
-        self.set_direction_state(direction, key_state)
+        self.set_direction_state_digital(direction, key_state)
     }
 
     #[allow(dead_code)]
@@ -159,60 +239,45 @@ impl JoystickState {
         )
     }
 
-    pub fn _get_xusb_direction_basic(&self) -> (i16, i16) {
-        let mut x: i16 = 0;
-        let mut y: i16 = 0;
-
-        if self.down && !self.up {
-            y = i16::MIN;
-        } else if self.up && !self.down {
-            y = i16::MAX;
-        }
-
-        if self.left && !self.right {
-            x = i16::MIN;
-        } else if self.right && !self.left {
-            x = i16::MAX;
-        }
-
-        (x, y)
-    }
-
     pub fn get_basic_direction(&self, config: Option<&JoystickAngleConfiguration>) -> (f32, f32) {
-        let mut x: f32 = 0.0;
-        let mut y: f32 = 0.0;
-
-        let mut angle: f32 = config.map(|v| v.up_diagonal_angle).unwrap_or(0.67);
-
-        let is_advanced_strafe_on: bool = config.map(|v| v.use_left_right_angle).unwrap_or(false);
-
-        if self.down && !self.up {
-            y = -1.0;
-        } else if self.up && !self.down {
-            y = 1.0;
+        if config.is_none() {
+            return (0.0, 0.0);
         }
 
-        if self.left && !self.right {
-            x = -1.0;
-        } else if self.right && !self.left {
-            x = 1.0;
+        let config = config.unwrap();
+
+        let x: f32;
+        let y: f32;
+
+        let angle: f32 = config.up_diagonal_angle;
+
+        let is_advanced_strafe_on: bool = config.use_left_right_angle;
+        let left_right_angle = if is_advanced_strafe_on {
+            config.left_right_angle
+        } else {
+            1.0
+        };
+
+        let analog_range = config.analog_range;
+
+        let up = self.up.get_with_range(&analog_range);
+        let down = self.down.get_with_range(&analog_range);
+        let left = self.left.get_with_range(&analog_range);
+        let right = self.right.get_with_range(&analog_range);
+
+        if down > up {
+            y = -down;
+        } else {
+            y = up;
         }
 
-        if is_advanced_strafe_on && !self.up && !self.down {
-            let left_right_angle = config.map(|v| v.left_right_angle).unwrap_or(0.78);
-            if self.left && !self.right {
-                y = 1.0;
-                x = -1.0;
-                angle = left_right_angle;
-            } else if self.right && !self.left {
-                y = 1.0;
-                x = 1.0;
-                angle = left_right_angle;
-            }
+        if left > right {
+            x = -left;
+        } else {
+            x = right;
         }
 
-        let (x, y) = utils::process_circular_direction(x, y, angle);
-        (x, y)
+        utils::process_circular_direction(x, y, angle, Some(left_right_angle))
     }
 
     #[allow(dead_code)]
@@ -250,6 +315,26 @@ impl ControllerState {
 
     #[cfg(windows)]
     #[allow(dead_code)]
+    pub fn get_xusb_report_from_axis(&self, x: f32, y: f32) -> XUSBReport {
+        let (lx, ly) = (
+            utils::float_to_xusb_js_axis(x),
+            utils::float_to_xusb_js_axis(y),
+        );
+        let (rx, ry) = (
+            utils::float_to_xusb_js_axis(0.0),
+            utils::float_to_xusb_js_axis(0.0),
+        );
+        XUSBReport {
+            s_thumb_lx: lx,
+            s_thumb_ly: ly,
+            s_thumb_rx: rx,
+            s_thumb_ry: ry,
+            ..XUSBReport::default()
+        }
+    }
+
+    #[cfg(windows)]
+    #[allow(dead_code)]
     pub fn get_xusb_report(&self, config: Option<&JoystickAngleConfiguration>) -> XUSBReport {
         let (lx, ly) = self.left_joystick.get_xusb_direction(config);
         let (rx, ry) = self.right_joystick.get_xusb_direction(None);
@@ -259,6 +344,26 @@ impl ControllerState {
             s_thumb_rx: rx,
             s_thumb_ry: ry,
             ..XUSBReport::default()
+        }
+    }
+
+    #[cfg(windows)]
+    #[allow(dead_code)]
+    pub fn get_ds4_report_from_axis(&self, x: f32, y: f32) -> DSReport {
+        let (lx, ly) = (
+            utils::float_to_ds4_js_axis(x),
+            utils::float_to_ds4_js_axis(-y),
+        );
+        let (rx, ry) = (
+            utils::float_to_ds4_js_axis(0.0),
+            utils::float_to_ds4_js_axis(0.0),
+        );
+        DSReport {
+            b_thumb_lx: lx,
+            b_thumb_ly: ly,
+            b_thumb_rx: rx,
+            b_thumb_ry: ry,
+            ..DSReport::default()
         }
     }
 
