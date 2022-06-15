@@ -12,7 +12,7 @@ export const defaultLeftJoystickStrafingAngles: JoystickAngleConfiguration = {
   upDiagonalAngle: 0.6473,
   useLeftRightAngle: true,
   leftRightAngle: 0.7888,
-  analogRange: [0.05, 0.9],
+  analogRange: [0.075, 0.9],
 };
 
 export interface JoystickKeyMapping {
